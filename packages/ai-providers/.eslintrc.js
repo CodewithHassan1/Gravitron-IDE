@@ -1,3 +1,8 @@
 module.exports = {
-  extends: ["@ag/eslint-config/base.js"],
+  root: true,
+  extends: ['@ag/eslint-config/base'],
+  rules: {
+    'no-constant-condition': ['error', { checkLoops: false }],
+    'prefer-const': 'off',
+  },
 };
