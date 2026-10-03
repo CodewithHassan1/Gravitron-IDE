@@ -1,0 +1,69 @@
+export const Channels = {
+  Terminal: {
+    CreateRequest: 'terminal/createRequest',
+    DestroyRequest: 'terminal/destroyRequest',
+    ResizeRequest: 'terminal/resizeRequest',
+    WriteRequest: 'terminal/writeRequest',
+    ListSessionsRequest: 'terminal/listSessionsRequest',
+    AttachSessionRequest: 'terminal/attachSessionRequest',
+    DetachSessionRequest: 'terminal/detachSessionRequest',
+    GetProfilesRequest: 'terminal/getProfilesRequest',
+    OnEvent: 'terminal/onEvent',
+  },
+  Workspace: {
+    Open: 'workspace.open',
+    Close: 'workspace.close',
+    ReadDirectory: 'workspace.readDirectory',
+    ReadFile: 'workspace.readFile',
+    WriteFile: 'workspace.writeFile',
+    CreateFile: 'workspace.createFile',
+    CreateFolder: 'workspace.createFolder',
+    DeleteFile: 'workspace.deleteFile',
+    DeleteFolder: 'workspace.deleteFolder',
+    RenameFile: 'workspace.renameFile',
+    RenameFolder: 'workspace.renameFolder',
+    MoveFile: 'workspace.moveFile',
+    Copy: 'workspace.copy',
+    SelectFolderRequest: 'workspace/selectFolderRequest',
+    OpenFileRequest: 'workspace/openFileRequest',
+    GetDefaultWorkspaceRequest: 'workspace/getDefaultWorkspaceRequest',
+    SearchRequest: 'workspace/searchRequest',
+    OnEvent: 'workspace/onEvent',
+  },
+  Tasks: {
+    OnEvent: 'tasks/onEvent',
+  },
+  Git: {
+    StatusRequest: 'git/statusRequest',
+  },
+  AI: {
+    ExecuteRequest: 'ai/executeRequest',
+  },
+  Agent: {
+    StartRequest: 'agent/startRequest',
+    CancelRequest: 'agent/cancelRequest',
+    ApproveToolRequest: 'agent/approveToolRequest',
+    SnapshotRequest: 'agent/snapshotRequest',
+    OnEvent: 'agent/onEvent',
+  },
+  Lifecycle: {
+    ReadyEvent: 'lifecycle/readyEvent',
+    QuitRequest: 'lifecycle/quitRequest',
+  },
+  Window: {
+    CreateRequest: 'window/createRequest',
+    MinimizeRequest: 'window/minimizeRequest',
+    MaximizeRequest: 'window/maximizeRequest',
+    CloseRequest: 'window/closeRequest',
+    OpenExternalRequest: 'window/openExternalRequest',
+    SetApplicationMenu: 'window/setApplicationMenu',
+    UpdateMenuState: 'window/updateMenuState',
+    OnMenuCommand: 'window/onMenuCommand',
+  },
+  IPC: {
+    CancelRequest: 'ipc/cancelRequest',
+  },
+  App: {
+    QuitRequest: 'app/quitRequest',
+  }
+} as const;

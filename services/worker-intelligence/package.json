@@ -1,0 +1,27 @@
+{
+  "name": "@ag/worker-intelligence",
+  "version": "1.0.0",
+  "description": "Repository Intelligence Worker",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ag/ai-providers": "workspace:^",
+    "@ag/logger": "workspace:*",
+    "@ag/protocol": "workspace:*",
+    "@ag/workspace-intelligence": "workspace:*",
+    "sqlite3": "^5.1.7",
+    "typescript": "5.4.5"
+  },
+  "devDependencies": {
+    "@ag/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "@types/sqlite3": "^3.1.11",
+    "vitest": "^1.6.0"
+  }
+}

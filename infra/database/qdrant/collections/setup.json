@@ -1,0 +1,25 @@
+{
+  "collections": [
+    {
+      "name": "repo_intelligence_small",
+      "vectors": {
+        "size": 1536,
+        "distance": "Cosine"
+      }
+    },
+    {
+      "name": "repo_intelligence_large",
+      "vectors": {
+        "size": 3072,
+        "distance": "Cosine"
+      }
+    },
+    {
+      "name": "repo_intelligence_ollama",
+      "vectors": {
+        "size": 768,
+        "distance": "Dot"
+      }
+    }
+  ]
+}

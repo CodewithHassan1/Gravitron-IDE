@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/gateway/v1;gatewayv1";
+
+import "common/v1/common.proto";
+
+service GatewayService {
+  rpc Ping(common.v1.Empty) returns (PingResponse) {}
+}
+
+message PingResponse {
+  string status = 1;
+  common.v1.ResponseMetadata metadata = 2;
+}

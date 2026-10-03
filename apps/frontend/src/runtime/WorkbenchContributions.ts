@@ -1,0 +1,151 @@
+import { ExtensionContribution } from '@ag/core';
+import { MenuId, MenuItemId } from '@ag/protocol';
+
+console.log("=== Loading WorkbenchContributions module ===");
+
+export const WorkbenchContribution: ExtensionContribution = {
+  id: 'ag.workbench',
+  menus: [
+    // Top-Level Menus
+    { menuItemId: MenuId.MenubarFile, menuId: MenuId.Menubar, title: 'File', order: 1, submenu: MenuId.MenubarFile },
+    { menuItemId: MenuId.MenubarEdit, menuId: MenuId.Menubar, title: 'Edit', order: 2, submenu: MenuId.MenubarEdit },
+    { menuItemId: MenuId.MenubarSelection, menuId: MenuId.Menubar, title: 'Selection', order: 3, submenu: MenuId.MenubarSelection },
+    { menuItemId: MenuId.MenubarView, menuId: MenuId.Menubar, title: 'View', order: 4, submenu: MenuId.MenubarView },
+    { menuItemId: MenuId.MenubarGo, menuId: MenuId.Menubar, title: 'Go', order: 5, submenu: MenuId.MenubarGo },
+    { menuItemId: MenuId.MenubarRun, menuId: MenuId.Menubar, title: 'Run', order: 6, submenu: MenuId.MenubarRun },
+    { menuItemId: MenuId.MenubarTerminal, menuId: MenuId.Menubar, title: 'Terminal', order: 7, submenu: MenuId.MenubarTerminal },
+    { menuItemId: MenuId.MenubarHelp, menuId: MenuId.Menubar, title: 'Help', order: 8, submenu: MenuId.MenubarHelp },
+
+    // FILE MENU
+    { menuItemId: 'workbench.action.files.newTextFile', menuId: MenuId.MenubarFile, title: 'New Text File', command: 'workbench.action.files.newTextFile', group: '1_new', order: 1 },
+    { menuItemId: 'workbench.action.files.newFile', menuId: MenuId.MenubarFile, title: 'New File...', command: 'workbench.action.files.newFile', group: '1_new', order: 2 },
+    { menuItemId: 'workbench.action.newWindow', menuId: MenuId.MenubarFile, title: 'New Window', command: 'workbench.action.newWindow', group: '1_new', order: 3 },
+    { menuItemId: MenuItemId.OpenFile, menuId: MenuId.MenubarFile, title: 'Open File...', command: 'workbench.action.files.openFile', group: '2_open', order: 1 },
+    { menuItemId: MenuItemId.OpenFolder, menuId: MenuId.MenubarFile, title: 'Open Folder...', command: 'workbench.action.files.openFolder', group: '2_open', order: 2 },
+    { menuItemId: 'workbench.action.openWorkspace', menuId: MenuId.MenubarFile, title: 'Open Workspace from File...', command: 'workbench.action.openWorkspace', group: '2_open', order: 3 },
+    { menuItemId: 'workbench.action.openRecent', menuId: MenuId.MenubarFile, title: 'Open Recent', command: 'workbench.action.openRecent', group: '2_open', order: 4 },
+    { menuItemId: MenuItemId.Save, menuId: MenuId.MenubarFile, title: 'Save', command: 'workbench.action.files.save', group: '3_save', order: 1 },
+    { menuItemId: MenuItemId.SaveAs, menuId: MenuId.MenubarFile, title: 'Save As...', command: 'workbench.action.files.saveAs', group: '3_save', order: 2   },
+    { menuItemId: MenuItemId.SaveAll, menuId: MenuId.MenubarFile, title: 'Save All', command: 'workbench.action.files.saveAll', group: '3_save', order: 3 },
+    { menuItemId: 'workbench.action.closeEditor', menuId: MenuId.MenubarFile, title: 'Close Editor', command: 'workbench.action.closeEditor', group: '4_close', order: 1 },
+    { menuItemId: 'workbench.action.closeFolder', menuId: MenuId.MenubarFile, title: 'Close Folder', command: 'workbench.action.closeFolder', group: '4_close', order: 2 },
+    { menuItemId: 'workbench.action.closeWindow', menuId: MenuId.MenubarFile, title: 'Close Window', command: 'workbench.action.closeWindow', group: '4_close', order: 3 },
+    { menuItemId: MenuItemId.Exit, menuId: MenuId.MenubarFile, title: 'Exit', command: 'workbench.action.quit', group: '5_exit', order: 1 },
+
+    // EDIT MENU
+    { menuItemId: 'workbench.action.edit.undo', menuId: MenuId.MenubarEdit, title: 'Undo', command: 'workbench.action.edit.undo', group: '1_undo', order: 1, when: 'canUndo' },
+    { menuItemId: 'workbench.action.edit.redo', menuId: MenuId.MenubarEdit, title: 'Redo', command: 'workbench.action.edit.redo', group: '1_undo', order: 2, when: 'canRedo' },
+    { menuItemId: 'workbench.action.edit.cut', menuId: MenuId.MenubarEdit, title: 'Cut', command: 'workbench.action.edit.cut', group: '2_clipboard', order: 1 },
+    { menuItemId: 'workbench.action.edit.copy', menuId: MenuId.MenubarEdit, title: 'Copy', command: 'workbench.action.edit.copy', group: '2_clipboard', order: 2 },
+    { menuItemId: 'workbench.action.edit.paste', menuId: MenuId.MenubarEdit, title: 'Paste', command: 'workbench.action.edit.paste', group: '2_clipboard', order: 3 },
+    { menuItemId: 'workbench.action.edit.find', menuId: MenuId.MenubarEdit, title: 'Find', command: 'workbench.action.edit.find', group: '3_find', order: 1 },
+    { menuItemId: 'workbench.action.edit.replace', menuId: MenuId.MenubarEdit, title: 'Replace', command: 'workbench.action.edit.replace', group: '3_find', order: 2 },
+    { menuItemId: 'workbench.action.findInFiles', menuId: MenuId.MenubarEdit, title: 'Find in Files', command: 'workbench.action.findInFiles', group: '3_find', order: 3 },
+    { menuItemId: 'workbench.action.edit.toggleLineComment', menuId: MenuId.MenubarEdit, title: 'Toggle Line Comment', command: 'workbench.action.edit.toggleLineComment', group: '4_format', order: 1 },
+    { menuItemId: 'workbench.action.edit.formatDocument', menuId: MenuId.MenubarEdit, title: 'Format Document', command: 'workbench.action.edit.formatDocument', group: '4_format', order: 2 },
+
+    // SELECTION MENU
+    { menuItemId: 'workbench.action.selection.selectAll', menuId: MenuId.MenubarSelection, title: 'Select All', command: 'workbench.action.selection.selectAll', group: '1_basic', order: 1 },
+    { menuItemId: 'workbench.action.selection.expandSelection', menuId: MenuId.MenubarSelection, title: 'Expand Selection', command: 'workbench.action.selection.expandSelection', group: '1_basic', order: 2 },
+    { menuItemId: 'workbench.action.selection.shrinkSelection', menuId: MenuId.MenubarSelection, title: 'Shrink Selection', command: 'workbench.action.selection.shrinkSelection', group: '1_basic', order: 3 },
+    { menuItemId: 'workbench.action.selection.copyLineUp', menuId: MenuId.MenubarSelection, title: 'Copy Line Up', command: 'workbench.action.selection.copyLineUp', group: '2_lines', order: 1 },
+    { menuItemId: 'workbench.action.selection.copyLineDown', menuId: MenuId.MenubarSelection, title: 'Copy Line Down', command: 'workbench.action.selection.copyLineDown', group: '2_lines', order: 2 },
+    { menuItemId: 'workbench.action.selection.moveLineUp', menuId: MenuId.MenubarSelection, title: 'Move Line Up', command: 'workbench.action.selection.moveLineUp', group: '2_lines', order: 3 },
+    { menuItemId: 'workbench.action.selection.moveLineDown', menuId: MenuId.MenubarSelection, title: 'Move Line Down', command: 'workbench.action.selection.moveLineDown', group: '2_lines', order: 4 },
+    { menuItemId: 'workbench.action.selection.duplicateSelection', menuId: MenuId.MenubarSelection, title: 'Duplicate Selection', command: 'workbench.action.selection.duplicateSelection', group: '2_lines', order: 5 },
+
+    // VIEW MENU
+    { menuItemId: 'workbench.action.toggleSidebarVisibility', menuId: MenuId.MenubarView, title: 'Toggle Sidebar', command: 'workbench.action.toggleSidebarVisibility', group: '1_layout', order: 1 },
+    { menuItemId: 'workbench.action.togglePanel', menuId: MenuId.MenubarView, title: 'Toggle Panel', command: 'workbench.action.togglePanel', group: '1_layout', order: 2 },
+
+    // GO MENU
+    { menuItemId: 'workbench.action.quickOpen', menuId: MenuId.MenubarGo, title: 'Go to File...', command: 'workbench.action.quickOpen', group: '1_navigation', order: 1 },
+    { menuItemId: 'workbench.action.gotoSymbol', menuId: MenuId.MenubarGo, title: 'Go to Symbol...', command: 'workbench.action.gotoSymbol', group: '1_navigation', order: 2 },
+    { menuItemId: 'workbench.action.gotoLine', menuId: MenuId.MenubarGo, title: 'Go to Line...', command: 'workbench.action.gotoLine', group: '1_navigation', order: 3 },
+    { menuItemId: 'workbench.action.go.definition', menuId: MenuId.MenubarGo, title: 'Go to Definition', command: 'workbench.action.go.definition', group: '2_code', order: 1 },
+    { menuItemId: 'workbench.action.go.references', menuId: MenuId.MenubarGo, title: 'Go to References', command: 'workbench.action.go.references', group: '2_code', order: 2 },
+    { menuItemId: 'workbench.action.go.back', menuId: MenuId.MenubarGo, title: 'Go Back', command: 'workbench.action.go.back', group: '3_history', order: 1  },
+    { menuItemId: 'workbench.action.go.forward', menuId: MenuId.MenubarGo, title: 'Go Forward', command: 'workbench.action.go.forward', group: '3_history', order: 2  },
+
+    // RUN MENU
+    { menuItemId: 'workbench.action.run.task', menuId: MenuId.MenubarRun, title: 'Run Task', command: 'workbench.action.run.task', group: '1_tasks', order: 1   },
+    { menuItemId: 'workbench.action.run.build', menuId: MenuId.MenubarRun, title: 'Run Build Task', command: 'workbench.action.run.build', group: '1_tasks', order: 2   },
+    { menuItemId: 'workbench.action.debug.start', menuId: MenuId.MenubarRun, title: 'Start Debugging', command: 'workbench.action.debug.start', group: '2_debug', order: 1   },
+    { menuItemId: 'workbench.action.debug.run', menuId: MenuId.MenubarRun, title: 'Run Without Debugging', command: 'workbench.action.debug.run', group: '2_debug', order: 2   },
+    { menuItemId: 'workbench.action.debug.stop', menuId: MenuId.MenubarRun, title: 'Stop', command: 'workbench.action.debug.stop', group: '2_debug', order: 3   },
+    { menuItemId: 'workbench.action.debug.restart', menuId: MenuId.MenubarRun, title: 'Restart', command: 'workbench.action.debug.restart', group: '2_debug', order: 4   },
+
+    // TERMINAL MENU
+    { menuItemId: 'workbench.action.terminal.new', menuId: MenuId.MenubarTerminal, title: 'New Terminal', command: 'workbench.action.terminal.new', group: '1_lifecycle', order: 1 },
+    { menuItemId: 'workbench.action.terminal.split', menuId: MenuId.MenubarTerminal, title: 'Split Terminal', command: 'workbench.action.terminal.split', group: '1_lifecycle', order: 2 },
+    { menuItemId: 'workbench.action.terminal.kill', menuId: MenuId.MenubarTerminal, title: 'Kill Terminal', command: 'workbench.action.terminal.kill', group: '1_lifecycle', order: 3 },
+    { menuItemId: 'workbench.action.terminal.clear', menuId: MenuId.MenubarTerminal, title: 'Clear Terminal', command: 'workbench.action.terminal.clear', group: '2_actions', order: 1 },
+    { menuItemId: 'workbench.action.terminal.focus', menuId: MenuId.MenubarTerminal, title: 'Focus Terminal', command: 'workbench.action.terminal.focus', group: '2_actions', order: 2 },
+
+    // HELP MENU
+    { menuItemId: 'workbench.action.help.documentation', menuId: MenuId.MenubarHelp, title: 'Documentation', command: 'workbench.action.help.documentation', group: '1_docs', order: 1   },
+    { menuItemId: 'workbench.action.help.keyboardShortcuts', menuId: MenuId.MenubarHelp, title: 'Keyboard Shortcuts', command: 'workbench.action.help.keyboardShortcuts', group: '1_docs', order: 2   },
+    { menuItemId: 'workbench.action.showCommands', menuId: MenuId.MenubarHelp, title: 'Command Palette', command: 'workbench.action.showCommands', group: '1_docs', order: 3 },
+    { menuItemId: 'workbench.action.help.about', menuId: MenuId.MenubarHelp, title: 'About', command: 'workbench.action.help.about', group: '2_about', order: 1   }
+  ],
+  commands: [], // Commands moved to IDEBootstrap.ts as requested
+  keybindings: [
+    { commandId: 'workbench.action.files.newTextFile', shortcut: 'Ctrl+N' },
+    { commandId: 'workbench.action.newWindow', shortcut: 'Ctrl+Shift+N' },
+    { commandId: 'workbench.action.files.openFile', shortcut: 'Ctrl+O' },
+    { commandId: 'workbench.action.files.openFolder', shortcut: 'Ctrl+K Ctrl+O' },
+    { commandId: 'workbench.action.files.save', shortcut: 'Ctrl+S' },
+    { commandId: 'workbench.action.files.saveAs', shortcut: 'Ctrl+Shift+S' },
+    { commandId: 'workbench.action.files.saveAll', shortcut: 'Ctrl+K S' },
+    { commandId: 'workbench.action.closeEditor', shortcut: 'Ctrl+F4' },
+    { commandId: 'workbench.action.closeFolder', shortcut: 'Ctrl+K F' },
+    { commandId: 'workbench.action.closeWindow', shortcut: 'Ctrl+Shift+W' },
+    { commandId: 'workbench.action.quit', shortcut: 'Ctrl+Q' },
+
+    { commandId: 'workbench.action.edit.undo', shortcut: 'Ctrl+Z' },
+    { commandId: 'workbench.action.edit.redo', shortcut: 'Ctrl+Y' },
+    { commandId: 'workbench.action.edit.cut', shortcut: 'Ctrl+X' },
+    { commandId: 'workbench.action.edit.copy', shortcut: 'Ctrl+C' },
+    { commandId: 'workbench.action.edit.paste', shortcut: 'Ctrl+V' },
+    { commandId: 'workbench.action.edit.find', shortcut: 'Ctrl+F' },
+    { commandId: 'workbench.action.edit.replace', shortcut: 'Ctrl+H' },
+    { commandId: 'workbench.action.edit.toggleLineComment', shortcut: 'Ctrl+/' },
+    { commandId: 'workbench.action.edit.formatDocument', shortcut: 'Shift+Alt+F' },
+
+    { commandId: 'workbench.action.selection.selectAll', shortcut: 'Ctrl+A' },
+    { commandId: 'workbench.action.selection.expandSelection', shortcut: 'Shift+Alt+Right' },
+    { commandId: 'workbench.action.selection.shrinkSelection', shortcut: 'Shift+Alt+Left' },
+    { commandId: 'workbench.action.selection.copyLineUp', shortcut: 'Shift+Alt+Up' },
+    { commandId: 'workbench.action.selection.copyLineDown', shortcut: 'Shift+Alt+Down' },
+    { commandId: 'workbench.action.selection.moveLineUp', shortcut: 'Alt+Up' },
+    { commandId: 'workbench.action.selection.moveLineDown', shortcut: 'Alt+Down' },
+
+    { commandId: 'workbench.action.go.definition', shortcut: 'F12' },
+    { commandId: 'workbench.action.go.references', shortcut: 'Shift+F12' },
+    { commandId: 'workbench.action.go.back', shortcut: 'Alt+Left' },
+    { commandId: 'workbench.action.go.forward', shortcut: 'Alt+Right' },
+
+    { commandId: 'workbench.action.debug.start', shortcut: 'F5' },
+    { commandId: 'workbench.action.debug.run', shortcut: 'Ctrl+F5' },
+    { commandId: 'workbench.action.debug.stop', shortcut: 'Shift+F5' },
+    { commandId: 'workbench.action.debug.restart', shortcut: 'Ctrl+Shift+F5' },
+
+    { commandId: 'workbench.action.showCommands', shortcut: 'Ctrl+Shift+P' },
+    { commandId: 'workbench.action.quickOpen', shortcut: 'Ctrl+P' },
+    { commandId: 'workbench.action.findInFiles', shortcut: 'Ctrl+Shift+F' },
+    { commandId: 'workbench.action.gotoSymbol', shortcut: 'Ctrl+Shift+O' },
+    { commandId: 'workbench.action.gotoLine', shortcut: 'Ctrl+G' },
+    { commandId: 'workbench.action.openSettings', shortcut: 'Ctrl+,' },
+    { commandId: 'workbench.action.terminal.toggleTerminal', shortcut: 'Ctrl+`' },
+    { commandId: 'workbench.action.terminal.new', shortcut: 'Ctrl+Shift+`' },
+    { commandId: 'workbench.action.terminal.split', shortcut: 'Ctrl+Shift+5' },
+    { commandId: 'workbench.action.terminal.clear', shortcut: 'Ctrl+L' },
+    
+    { commandId: 'workbench.action.closeActiveEditor', shortcut: 'Ctrl+W' },
+    { commandId: 'workbench.action.reopenClosedEditor', shortcut: 'Ctrl+Shift+T' },
+    { commandId: 'workbench.action.nextEditor', shortcut: 'Ctrl+Tab' },
+    { commandId: 'workbench.action.previousEditor', shortcut: 'Ctrl+Shift+Tab' },
+    { commandId: 'workbench.action.nextEditorInGroup', shortcut: 'Ctrl+PageDown' },
+    { commandId: 'workbench.action.previousEditorInGroup', shortcut: 'Ctrl+PageUp' }
+  ]
+};

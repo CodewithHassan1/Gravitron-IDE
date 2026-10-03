@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "name": "@ag/worker-ai",
+  "scripts": {
+    "start": "node --env-file=.env dist/index.js",
+    "build": "tsc",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsc -w"
+  },
+  "devDependencies": {
+    "@ag/eslint-config": "workspace:*",
+    "@ag/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@ag/ai-providers": "workspace:*",
+    "@ag/events": "workspace:*",
+    "@ag/logger": "workspace:*",
+    "@ag/protocol": "workspace:*",
+    "ajv": "^8.20.0",
+    "kafkajs": "^2.2.4"
+  },
+  "main": "dist/index.js"
+}

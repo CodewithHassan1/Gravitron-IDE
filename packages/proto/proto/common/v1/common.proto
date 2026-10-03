@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/common/v1;commonv1";
+
+message RequestMetadata {
+  string request_id = 1;
+  string trace_id = 2;
+  string span_id = 3;
+}
+
+message ResponseMetadata {
+  string request_id = 1;
+  int32 execution_time_ms = 2;
+}
+
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> details = 3;
+}
+
+message Pagination {
+  int32 limit = 1;
+  int32 offset = 2;
+  int32 total = 3;
+}
+
+message Empty {}
+
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+message UserContext {
+  string user_id = 1;
+  string organization_id = 2;
+  string session_id = 3;
+  repeated string roles = 4;
+}
+
+message WorkspaceContext {
+  string workspace_id = 1;
+  string repository_url = 2;
+}

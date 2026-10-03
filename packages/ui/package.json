@@ -1,0 +1,19 @@
+{
+  "name": "@ag/ui",
+  "version": "1.0.0",
+  "description": "Shared UI primitives for Gravitron IDE",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "tailwind-merge": "^2.6.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  }
+}

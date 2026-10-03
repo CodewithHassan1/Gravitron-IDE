@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package organization.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/organization/v1;organizationv1";
+
+import "common/v1/common.proto";
+
+service OrganizationService {
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {}
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization) {}
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {}
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {}
+  
+  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse) {}
+  rpc InviteMember(InviteMemberRequest) returns (common.v1.Empty) {}
+  rpc AcceptInvitation(AcceptInvitationRequest) returns (common.v1.Empty) {}
+  rpc RemoveMember(RemoveMemberRequest) returns (common.v1.Empty) {}
+}
+
+message Organization {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  common.v1.Timestamp created_at = 4;
+}
+
+message CreateOrganizationRequest {
+  string name = 1;
+  string slug = 2;
+}
+
+message GetOrganizationRequest {
+  string id = 1;
+}
+
+message ListOrganizationsRequest {
+}
+
+message ListOrganizationsResponse {
+  repeated Organization organizations = 1;
+}
+
+message UpdateOrganizationRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string slug = 3;
+}
+
+message Member {
+  string user_id = 1;
+  string role = 2;
+  string email = 3;
+  string display_name = 4;
+}
+
+message ListMembersRequest {
+  string organization_id = 1;
+}
+
+message ListMembersResponse {
+  repeated Member members = 1;
+}
+
+message InviteMemberRequest {
+  string organization_id = 1;
+  string email = 2;
+  string role = 3;
+}
+
+message AcceptInvitationRequest {
+  string token = 1;
+}
+
+message RemoveMemberRequest {
+  string organization_id = 1;
+  string user_id = 2;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@ag/cache",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ioredis": "^5.3.2",
+    "@ag/config": "workspace:*",
+    "@ag/validation": "workspace:*"
+  },
+  "devDependencies": {
+    "@ag/tsconfig": "workspace:*",
+    "@ag/eslint-config": "workspace:*",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

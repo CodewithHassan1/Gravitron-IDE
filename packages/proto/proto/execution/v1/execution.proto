@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package execution.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/execution/v1;executionv1";
+
+import "google/protobuf/timestamp.proto";
+
+message ExecRequest {
+  string workspace_id = 1;
+  string command = 2;
+  repeated string args = 3;
+  string working_directory = 4;
+}
+
+message ExecResponse {
+  int32 exit_code = 1;
+  bytes stdout = 2;
+  bytes stderr = 3;
+}
+
+message CloneRepositoryRequest {
+  string workspace_id = 1;
+  string git_uri = 2;
+  string branch = 3;
+}
+
+message CloneRepositoryResponse {
+  bool success = 1;
+}
+
+message ReadFileRequest {
+  string workspace_id = 1;
+  string path = 2;
+}
+
+message ReadFileResponse {
+  bytes content = 1;
+}
+
+message WriteFileRequest {
+  string workspace_id = 1;
+  string path = 2;
+  bytes content = 3;
+}
+
+message WriteFileResponse {
+  bool success = 1;
+}
+
+message ListDirectoryRequest {
+  string workspace_id = 1;
+  string path = 2;
+}
+
+message FileInfo {
+  string name = 1;
+  bool is_dir = 2;
+  int64 size = 3;
+}
+
+message ListDirectoryResponse {
+  repeated FileInfo files = 1;
+}
+
+message DeleteFileRequest {
+  string workspace_id = 1;
+  string path = 2;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+}
+
+message StartWorkspaceRequest {
+  string workspace_id = 1;
+}
+
+message StartWorkspaceResponse {
+  bool success = 1;
+}
+
+message StopWorkspaceRequest {
+  string workspace_id = 1;
+}
+
+message StopWorkspaceResponse {
+  bool success = 1;
+}
+
+message DestroyWorkspaceRequest {
+  string workspace_id = 1;
+}
+
+message DestroyWorkspaceResponse {
+  bool success = 1;
+}
+
+service ExecutionService {
+  rpc StartWorkspace(StartWorkspaceRequest) returns (StartWorkspaceResponse);
+  rpc StopWorkspace(StopWorkspaceRequest) returns (StopWorkspaceResponse);
+  rpc DestroyWorkspace(DestroyWorkspaceRequest) returns (DestroyWorkspaceResponse);
+  
+  rpc CloneRepository(CloneRepositoryRequest) returns (CloneRepositoryResponse);
+  rpc ExecCommand(ExecRequest) returns (ExecResponse);
+  
+  // File operations
+  rpc ReadFile(ReadFileRequest) returns (ReadFileResponse);
+  rpc WriteFile(WriteFileRequest) returns (WriteFileResponse);
+  rpc ListDirectory(ListDirectoryRequest) returns (ListDirectoryResponse);
+  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse);
+}

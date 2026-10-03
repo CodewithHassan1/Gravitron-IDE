@@ -1,0 +1,25 @@
+version: v2
+plugins:
+  # TypeScript / Node.js standard protobuf objects
+  - remote: buf.build/bufbuild/es:v1.10.0
+    out: gen/ts
+    opt:
+      - target=ts
+  
+  # Connect-ES for TypeScript gRPC/Connect client & server bindings
+  - remote: buf.build/connectrpc/es:v1.4.0
+    out: gen/ts
+    opt:
+      - target=ts
+
+  # Go standard generation
+  - remote: buf.build/protocolbuffers/go:v1.34.1
+    out: gen/go
+    opt:
+      - paths=source_relative
+  
+  # Connect-Go for Go gRPC/Connect client & server bindings
+  - remote: buf.build/connectrpc/go:v1.16.2
+    out: gen/go
+    opt:
+      - paths=source_relative

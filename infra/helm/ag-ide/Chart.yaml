@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ag-ide
+description: A Helm chart for Next-Generation AI-Powered Web IDE
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

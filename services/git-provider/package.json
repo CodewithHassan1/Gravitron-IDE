@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "name": "@ag/git-provider",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@ag/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "@ag/eslint-config": "workspace:*"
+  },
+  "dependencies": {
+    "@ag/logger": "workspace:*",
+    "@ag/utils": "workspace:*"
+  },
+  "main": "src/index.ts"
+}

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+scratch/node_modules
+
+# Build & Application Outputs
+dist
+build
+out
+.next
+coverage
+.turbo
+
+# Desktop & Electron Builds (CRITICAL)
+release/
+*.exe
+*.blockmap
+builder-debug.yml
+builder-effective-config.yaml
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Temporary pnpm lockfile fragments
+pnpm-lock.yaml.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db

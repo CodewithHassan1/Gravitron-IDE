@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package workspace.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/workspace/v1;workspacev1";
+
+import "google/protobuf/timestamp.proto";
+
+enum GitProvider {
+  GIT_PROVIDER_UNSPECIFIED = 0;
+  GIT_PROVIDER_GITHUB = 1;
+  GIT_PROVIDER_GITLAB = 2;
+  GIT_PROVIDER_BITBUCKET = 3;
+  GIT_PROVIDER_AZURE_DEVOPS = 4;
+  GIT_PROVIDER_GENERIC = 5;
+}
+
+enum WorkspaceStatus {
+  WORKSPACE_STATUS_UNSPECIFIED = 0;
+  WORKSPACE_STATUS_CREATING = 1;
+  WORKSPACE_STATUS_PROVISIONING = 2;
+  WORKSPACE_STATUS_CLONING = 3;
+  WORKSPACE_STATUS_INDEXING = 4;
+  WORKSPACE_STATUS_READY = 5;
+  WORKSPACE_STATUS_FAILED = 6;
+}
+
+enum WorkspaceVisibility {
+  WORKSPACE_VISIBILITY_UNSPECIFIED = 0;
+  WORKSPACE_VISIBILITY_PRIVATE = 1;
+  WORKSPACE_VISIBILITY_PUBLIC = 2;
+}
+
+message Workspace {
+  string id = 1;
+  string organization_id = 2;
+  string created_by = 3;
+  string name = 4;
+  
+  // Git Configuration
+  string git_uri = 5;
+  string default_branch = 6;
+  GitProvider provider = 7;
+  bool is_private = 8;
+  
+  // State
+  WorkspaceStatus status = 9;
+  WorkspaceVisibility visibility = 10;
+  
+  // Timestamps
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp last_activity_at = 13;
+}
+
+message CreateWorkspaceRequest {
+  string organization_id = 1;
+  string name = 2;
+  string git_uri = 3;
+  string default_branch = 4;
+  GitProvider provider = 5;
+  bool is_private = 6;
+  WorkspaceVisibility visibility = 7;
+}
+
+message CreateWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message GetWorkspaceRequest {
+  string id = 1;
+}
+
+message GetWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message ListWorkspacesRequest {
+  string organization_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListWorkspacesResponse {
+  repeated Workspace workspaces = 1;
+  string next_page_token = 2;
+}
+
+message DeleteWorkspaceRequest {
+  string id = 1;
+}
+
+message DeleteWorkspaceResponse {}
+
+service WorkspaceService {
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse);
+  rpc GetWorkspace(GetWorkspaceRequest) returns (GetWorkspaceResponse);
+  rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse);
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse);
+}

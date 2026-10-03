@@ -1,0 +1,17 @@
+{
+  "name": "@ag/core",
+  "version": "1.0.0",
+  "description": "Core IDE registries, contexts, and fundamental utilities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@ag/protocol": "workspace:*"
+  }
+}

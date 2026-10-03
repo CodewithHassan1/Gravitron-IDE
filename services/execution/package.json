@@ -1,0 +1,14 @@
+{
+  "name": "@ag/execution-service",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo \"Mock Go Build\"",
+    "test": "go test ./...",
+    "lint": "go vet ./..."
+  },
+  "devDependencies": {
+    "@ag/tsconfig": "workspace:*",
+    "@ag/eslint-config": "workspace:*",
+    "@types/node": "^20.0.0"
+  }
+}

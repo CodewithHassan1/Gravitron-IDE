@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "github.com/gravitron/proto/gen/go/auth/v1;authv1";
+
+import "common/v1/common.proto";
+
+service AuthService {
+  // Initiates or handles the OIDC callback
+  // DEPRECATED for Phase 8.1 - Use PasswordLogin instead
+  rpc Login(LoginRequest) returns (AuthResponse) {
+    option deprecated = true;
+  }
+  
+  // Register a new user
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+
+  // Login with email and password
+  rpc PasswordLogin(PasswordLoginRequest) returns (AuthResponse) {}
+
+  // Rotates the Refresh Token and issues new Access Token
+  rpc Refresh(RefreshRequest) returns (AuthResponse) {}
+  
+  // Invalidates the current session explicitly
+  rpc Logout(LogoutRequest) returns (common.v1.Empty) {}
+  
+  // Administratively revokes a specific session or all sessions for a user
+  rpc RevokeSession(RevokeSessionRequest) returns (common.v1.Empty) {}
+  
+  // Introspection for edge-cases or downstream services needing full context
+  rpc IntrospectToken(IntrospectTokenRequest) returns (IntrospectTokenResponse) {}
+
+  // Request a password reset email
+  rpc ForgotPassword(ForgotPasswordRequest) returns (common.v1.Empty) {}
+
+  // Execute password reset with token
+  rpc ResetPassword(ResetPasswordRequest) returns (common.v1.Empty) {}
+
+  // Verify email address with token
+  rpc VerifyEmail(VerifyEmailRequest) returns (common.v1.Empty) {}
+
+  // Resend verification email
+  rpc ResendVerification(ResendVerificationRequest) returns (common.v1.Empty) {}
+}
+
+message LoginRequest {
+  string provider = 1;
+  string code = 2;
+  string redirect_uri = 3;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  optional string display_name = 3;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  string status = 2;
+}
+
+message PasswordLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RefreshRequest {
+  // refresh_token is typically handled via HttpOnly cookie now, 
+  // but kept in protocol for flexibility or mobile clients.
+  optional string refresh_token = 1;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  // refresh_token is typically returned via HttpOnly Set-Cookie header,
+  // but kept here for non-browser clients.
+  optional string refresh_token = 2;
+  int32 expires_in = 3; // TTL for access token
+  string status = 4; // User status (e.g. ACTIVE, PENDING_VERIFICATION)
+}
+
+message LogoutRequest {
+  optional string session_id = 1;
+}
+
+message RevokeSessionRequest {
+  string user_id = 1;
+  optional string session_id = 2; // if empty, revoke all sessions for user
+}
+
+message IntrospectTokenRequest {
+  string access_token = 1;
+}
+
+message IntrospectTokenResponse {
+  bool active = 1;
+  common.v1.UserContext user_context = 2;
+}
+
+message ForgotPasswordRequest {
+  string email = 1;
+}
+
+message ResetPasswordRequest {
+  string token = 1;
+  string new_password = 2;
+}
+
+message VerifyEmailRequest {
+  string token = 1;
+}
+
+message ResendVerificationRequest {
+  // Typically relies on the restricted JWT, so no explicit fields needed,
+  // but could take email if we want unauthenticated resends (not recommended due to spam).
+}

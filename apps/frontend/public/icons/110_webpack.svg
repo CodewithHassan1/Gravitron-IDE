@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="9.010001182556152 9 423.6600036621094 356.17999267578125">
+  <defs>
+    <style>
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: none;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-1, .cls-3 {
+        stroke: #4f95d0;
+        stroke-width: 7px;
+      }
+
+      .cls-2 {
+        stroke: #616262;
+        stroke-width: 22px;
+      }
+
+      .cls-4 {
+        fill: #616262;
+      }
+    </style>
+  </defs>
+  <path class="cls-2" d="M243.68,333.86H42.08c-31.83-7.2-30.69-34.86-30.69-34.86l-.38-255.41C17.82,15.93,43.21,11,43.21,11h129.22l39.6,40.93h166.55c31.07,5.68,34.48,34.86,34.48,34.86v102.9"/>
+  <rect class="cls-4" x="237.03" y="308.32" width="21.92" height="51.09" rx="10.86" ry="10.86" transform="translate(-85.88 581.85) rotate(-90)"/>
+  <rect class="cls-4" x="402.11" y="163.38" width="21.92" height="51.09" rx="10.86" ry="10.86"/>
+  <g>
+    <polygon class="cls-1" points="360.16 209.28 289.52 245.76 289.52 323.64 360.16 363.18 430.67 322.72 430.67 246.37 360.16 209.28"/>
+    <path class="cls-1" d="M360.16,284.77l-70.64-39.01,70.64,39.01Z"/>
+    <polyline class="cls-1" points="430.67 246.37 360.16 284.77 360.16 363.18"/>
+    <polyline class="cls-1" points="289.52 323.64 315.99 309.64 360.1 334.28 403.9 309.64 430.67 322.72"/>
+    <polyline class="cls-1" points="403.96 259.83 360.16 233.98 315 259.83 315.99 309.64"/>
+    <line class="cls-3" x1="403.96" y1="260.91" x2="403.96" y2="311.25"/>
+    <line class="cls-3" x1="360.16" y1="233.98" x2="360.16" y2="209.28"/>
+  </g>
+</svg>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="62.910003662109375 67.07000732421875 441.29998779296875 395.92999267578125">
+  <!-- Generator: Adobe Illustrator 30.1.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 136)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #606161;
+      }
+
+      .st1, .st2 {
+        fill: #fff;
+      }
+
+      .st2 {
+        stroke: #000;
+      }
+
+      .st2, .st3 {
+        stroke-miterlimit: 10;
+      }
+
+      .st3 {
+        fill: none;
+        stroke: #606161;
+        stroke-width: 22px;
+      }
+    </style>
+  </defs>
+  <path class="st3" d="M297.58,391.93H95.98c-31.83-7.2-30.69-34.86-30.69-34.86l-.38-255.41c6.82-27.66,32.21-32.59,32.21-32.59h129.22l39.6,40.93h166.55c31.07,5.68,34.48,34.86,34.48,34.86v102.9"/>
+  <rect class="st0" x="455.99" y="200.64" width="21.92" height="56.65" rx="10.86" ry="10.86"/>
+  <rect class="st0" x="257.94" y="381.11" width="51.09" height="21.92" rx="10.86" ry="10.86"/>
+  <path d="M502.21,461"/>
+  <path d="M445.95,278.62"/>
+  <g>
+    <path d="M444.31,307.55s-17.03-23.04-16.28-29.59c0,0-1.54-16.03,10.58-20.53,0,0,13.9-7.02,23.16,8.66,0,0,4.1,6.4,1.02,14.3,0,0-10.92,22.24-18.48,27.16Z"/>
+    <circle class="st1" cx="446.01" cy="273.25" r="5.9"/>
+  </g>
+  <g>
+    <path d="M327.37,401.58s-17.03-23.04-16.28-29.59c0,0-1.54-16.03,10.58-20.53,0,0,13.9-7.02,23.16,8.66,0,0,4.1,6.4,1.02,14.3,0,0-10.92,22.24-18.48,27.16Z"/>
+    <circle class="st1" cx="329.07" cy="367.28" r="5.9"/>
+  </g>
+  <rect class="st2" x="343.39" y="396.72" width="5.9" height="13.41" rx="2" ry="2" transform="translate(840.45 207.06) rotate(108.97)"/>
+  <rect class="st2" x="359.71" y="400.03" width="5.9" height="13.41" rx="2" ry="2" transform="translate(753.72 27.22) rotate(87.58)"/>
+  <rect class="st2" x="376.82" y="398.42" width="5.9" height="13.41" rx="2" ry="2" transform="translate(705.2 -44.81) rotate(79.03)"/>
+  <rect class="st2" x="391.47" y="388.83" width="5.9" height="13.41" rx="2" ry="2" transform="translate(150.03 -106.75) rotate(18.97)"/>
+  <rect class="st2" x="392.74" y="371.17" width="5.9" height="13.41" rx="2" ry="2" transform="translate(-135.93 248.47) rotate(-30)"/>
+  <rect class="st2" x="382.69" y="358.46" width="5.9" height="13.41" rx="2" ry="2" transform="translate(-130.85 488.86) rotate(-56.9)"/>
+  <rect class="st2" x="369.28" y="347.24" width="5.9" height="13.41" rx="2" ry="2" transform="translate(-127.11 233.54) rotate(-30)"/>
+  <rect class="st2" x="364.84" y="329.56" width="5.9" height="13.41" rx="2" ry="2" transform="translate(-28.27 33.8) rotate(-5.07)"/>
+  <rect class="st2" x="373.19" y="315.93" width="5.9" height="13.41" rx="2" ry="2" transform="translate(520.73 -151.35) rotate(66.34)"/>
+  <rect class="st2" x="389.47" y="311.17" width="5.9" height="13.41" rx="2" ry="2" transform="translate(674.39 -101.09) rotate(84.93)"/>
+  <rect class="st2" x="405.99" y="318.63" width="5.9" height="13.41" rx="2" ry="2" transform="translate(931.14 305.71) rotate(139.34)"/>
+  <rect class="st2" x="422.39" y="322.79" width="5.9" height="13.41" rx="2" ry="2" transform="translate(532.71 -197.72) rotate(63.75)"/>
+  <rect class="st2" x="435.47" y="312.53" width="5.9" height="13.41" rx="2" ry="2" transform="translate(272.14 -196.98) rotate(36.09)"/>
+</svg>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="9.010001182556152 9 417.0199890136719 337.8275146484375">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Orange_Yellow-4);
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9, .cls-10, .cls-11, .cls-12, .cls-13 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-1, .cls-2, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9, .cls-10, .cls-11, .cls-12, .cls-13 {
+        fill-rule: evenodd;
+        stroke: #231f20;
+      }
+
+      .cls-2 {
+        fill: #b1e0e6;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #616262;
+        stroke-width: 22px;
+      }
+
+      .cls-4 {
+        fill: #40bbec;
+      }
+
+      .cls-5 {
+        fill: url(#Orange_Yellow-3);
+      }
+
+      .cls-6 {
+        fill: #005a9c;
+      }
+
+      .cls-7 {
+        fill: #273b81;
+      }
+
+      .cls-8 {
+        fill: url(#Orange_Yellow-6);
+      }
+
+      .cls-9 {
+        fill: url(#Orange_Yellow-5);
+      }
+
+      .cls-10 {
+        fill: #231f20;
+      }
+
+      .cls-11 {
+        fill: url(#Orange_Yellow-2);
+      }
+
+      .cls-12 {
+        fill: url(#Orange_Yellow);
+      }
+
+      .cls-14 {
+        fill: #616262;
+      }
+
+      .cls-13 {
+        fill: #0063a4;
+      }
+    </style>
+    <linearGradient id="Orange_Yellow" data-name="Orange, Yellow" x1="332.65" y1="241.6" x2="358.21" y2="241.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff33b"/>
+      <stop offset=".04" stop-color="#fee62d"/>
+      <stop offset=".12" stop-color="#fdd51b"/>
+      <stop offset=".2" stop-color="#fdca0f"/>
+      <stop offset=".28" stop-color="#fdc70c"/>
+      <stop offset=".67" stop-color="#f3903f"/>
+      <stop offset=".89" stop-color="#ed683c"/>
+      <stop offset="1" stop-color="#e93e3a"/>
+    </linearGradient>
+    <linearGradient id="Orange_Yellow-2" data-name="Orange, Yellow" x1="307.9" y1="251.08" x2="336.21" y2="251.08" xlink:href="#Orange_Yellow"/>
+    <linearGradient id="Orange_Yellow-3" data-name="Orange, Yellow" x1="366.18" y1="257.11" x2="379.95" y2="257.11" xlink:href="#Orange_Yellow"/>
+    <linearGradient id="Orange_Yellow-4" data-name="Orange, Yellow" x1="307.6" y1="281.84" x2="321.46" y2="281.84" xlink:href="#Orange_Yellow"/>
+    <linearGradient id="Orange_Yellow-5" data-name="Orange, Yellow" x1="351.45" y1="288.05" x2="379.48" y2="288.05" xlink:href="#Orange_Yellow"/>
+    <linearGradient id="Orange_Yellow-6" data-name="Orange, Yellow" x1="327.87" y1="297.06" x2="355.1" y2="297.06" xlink:href="#Orange_Yellow"/>
+  </defs>
+  <path class="cls-3" d="M243.68,333.86H42.08c-31.83-7.2-30.69-34.86-30.69-34.86l-.38-255.41C17.82,15.93,43.21,11,43.21,11h129.22l39.6,40.93h166.55c31.07,5.68,34.48,34.86,34.48,34.86v102.9"/>
+  <rect class="cls-14" x="237.03" y="308.32" width="21.92" height="51.09" rx="10.86" ry="10.86" transform="translate(-85.88 581.85) rotate(-90)"/>
+  <rect class="cls-14" x="402.11" y="163.38" width="21.92" height="51.09" rx="10.86" ry="10.86"/>
+  <g>
+    <path class="cls-10" d="M325.83,196.22c-19,4.47-41.19,22.39-49.43,39.9-14.24,30.29-8.71,62.67,14.7,86.08,30.17,30.17,75.35,30.17,105.52,0,18.93-18.93,26.42-44.52,20.52-70.13-6.01-26.06-29.85-49.9-55.91-55.91-8.43-1.94-27.03-1.91-35.39.06Z"/>
+    <path class="cls-7" d="M362.17,204.35c31.73,8.05,53.69,41.99,48.54,75.06-8.48,54.5-75.75,76.69-114.64,37.81-48.86-48.86-1.37-129.97,66.09-112.87"/>
+    <path class="cls-6" d="M334.64,213.83c-37.22,6.02-58.09,47.47-40.94,81.32,17.03,33.6,63.3,40.88,90.02,14.16,26.65-26.65,19.44-73-13.99-89.94-6.82-3.46-10.62-4.5-23.49-6.43-1.75-.26-6.98.13-11.6.88"/>
+    <path class="cls-4" d="M365.25,225.44c29.43,14.4,36.65,52.76,14.53,77.25-23.23,25.71-66.73,18.39-80.9-13.63-18.27-41.29,25.75-83.49,66.37-63.62"/>
+    <path class="cls-2" d="M332.36,227.01c-28.87,7.77-41.62,41.85-25.02,66.91,17.04,25.73,55.99,25.73,73.03,0,16.82-25.39,3.78-59.34-25.73-67-9.89-2.57-12.46-2.56-22.28.09"/>
+    <path class="cls-12" d="M354.12,234.31c3.56,1.35,4.09,2.49,4.09,8.77,0,3.97-.48,7.22-1.06,7.22s-6.79-3.36-13.8-7.47c-10.41-6.1-12.19-7.69-9.71-8.66,4.42-1.73,15.75-1.66,20.47.14"/>
+    <path class="cls-11" d="M329.7,243.25l6.52,4.11-13.33,7.81c-7.33,4.3-13.8,7.83-14.38,7.85-2.43.09,2.83-11.7,7.83-17.55,2.98-3.49,5.74-6.34,6.13-6.34s3.64,1.85,7.22,4.11"/>
+    <path class="cls-5" d="M378.75,258.27c2.31,7.7,1.83,8.68-6.3,12.82l-6.27,3.2.07-17.18.07-17.18,5.25,5.94c2.89,3.27,6.12,8.85,7.19,12.39"/>
+    <path class="cls-13" d="M351.14,256.03l7.06,4.14v18.53l-7.18,4.21-7.18,4.21-7.18-4.21-7.18-4.21v-9.26c0-9.19.05-9.29,6.78-13.34,8.28-4.99,6.49-4.98,14.87-.07"/>
+    <path class="cls-1" d="M321.45,281.8l-.07,17.15-5.25-5.94c-5.33-6.03-9.92-17.55-8.14-20.43.76-1.23,11.28-7.53,13.13-7.86.22-.04.37,7.65.33,17.08"/>
+    <path class="cls-9" d="M378.48,281.55c-.97,3.15-4.34,8.64-7.49,12.19l-5.74,6.46-6.9-4.36-6.9-4.36,13.35-7.75c7.34-4.26,13.82-7.79,14.39-7.84.58-.05.26,2.49-.71,5.64"/>
+    <path class="cls-8" d="M346.05,297.08c8.99,5.3,10.43,6.68,7.98,7.64-4.56,1.79-15.48,1.61-21.1-.35-4.72-1.65-5.02-2.23-5.02-9.63,0-9.06-1.5-9.25,18.15,2.33"/>
+  </g>
+</svg>

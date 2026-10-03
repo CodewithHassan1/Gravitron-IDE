@@ -1,0 +1,15 @@
+{
+  "name": "@ag/workspace-intelligence",
+  "version": "1.0.0",
+  "description": "Workspace Intelligence abstractions and core logic",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

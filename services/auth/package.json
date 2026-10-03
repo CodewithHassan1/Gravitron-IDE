@@ -1,0 +1,38 @@
+{
+  "name": "@ag/auth-service",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "start": "node --env-file=.env dist/index.js",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ag/cache": "workspace:*",
+    "@ag/config": "workspace:*",
+    "@ag/database": "workspace:*",
+    "@ag/errors": "workspace:*",
+    "@ag/logger": "workspace:*",
+    "@ag/middleware": "workspace:*",
+    "@ag/proto": "workspace:*",
+    "@ag/validation": "workspace:*",
+    "@connectrpc/connect": "^1.4.0",
+    "@connectrpc/connect-fastify": "^1.4.0",
+    "bcrypt": "^6.0.0",
+    "fastify": "^4.26.2",
+    "ioredis": "^5.3.2",
+    "jose": "^5.10.0"
+  },
+  "devDependencies": {
+    "@ag/eslint-config": "workspace:*",
+    "@ag/tsconfig": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/ioredis": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/nodemailer": "^8.0.2",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@ag/gateway",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "start": "node --env-file=.env dist/index.js",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ag/auth": "workspace:*",
+    "@ag/config": "workspace:*",
+    "@ag/errors": "workspace:*",
+    "@ag/logger": "workspace:*",
+    "@ag/middleware": "workspace:*",
+    "@ag/proto": "workspace:*",
+    "@connectrpc/connect": "^1.4.0",
+    "@connectrpc/connect-fastify": "^1.4.0",
+    "@fastify/cors": "^8.5.0",
+    "@fastify/http-proxy": "^9.0.0",
+    "fastify": "^4.26.2",
+    "jose": "^5.10.0"
+  },
+  "devDependencies": {
+    "@ag/eslint-config": "workspace:*",
+    "@ag/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

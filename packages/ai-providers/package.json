@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "name": "@ag/ai-providers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "eslint \"src/**/*.ts*\"",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ag/eslint-config": "workspace:*",
+    "@ag/tsconfig": "workspace:*",
+    "@types/node": "^20.19.43",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "@ag/logger": "workspace:*",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@google/genai": "^2.11.0",
+    "openai": "^4.0.0"
+  }
+}

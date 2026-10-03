@@ -1,0 +1,31 @@
+{
+  "name": "@ag/organization-service",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "start": "node --env-file=.env dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "fastify": "^4.26.2",
+    "@connectrpc/connect": "^1.4.0",
+    "@connectrpc/connect-fastify": "^1.4.0",
+    "@ag/config": "workspace:*",
+    "@ag/logger": "workspace:*",
+    "@ag/database": "workspace:*",
+    "@ag/proto": "workspace:*",
+    "@ag/auth": "workspace:*",
+    "jose": "^5.10.0"
+  },
+  "devDependencies": {
+    "@ag/tsconfig": "workspace:*",
+    "@ag/eslint-config": "workspace:*",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "vitest": "^1.0.0"
+  }
+}
