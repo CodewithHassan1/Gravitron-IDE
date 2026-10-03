@@ -1,4 +1,4 @@
-import { AgentProtocol } from '@ag/protocol';
+import { AgentProtocol, IntelligenceProtocol } from '@ag/protocol';
 import { ToolImplementation, ToolResult } from '../AgentTool';
 
 export class SearchWorkspaceTool implements ToolImplementation {
@@ -12,39 +12,51 @@ export class SearchWorkspaceTool implements ToolImplementation {
           type: 'string',
           description: 'The query or symbol to search for.',
           minLength: 1,
-          maxLength: 100
-        }
+          maxLength: 100,
+        },
       },
       required: ['query'],
-      additionalProperties: false
+      additionalProperties: false,
     },
-    riskLevel: 'read' as const
+    riskLevel: 'read' as const,
   };
 
-  public async execute(args: { query: string }, bridge: AgentProtocol.IAgentCapabilityBridge, context: AgentProtocol.AgentCapabilityContext): Promise<ToolResult> {
+  public async execute(
+    args: { query: string },
+    bridge: AgentProtocol.IAgentCapabilityBridge,
+    context: AgentProtocol.AgentCapabilityContext
+  ): Promise<ToolResult> {
     try {
       const response = await bridge.searchWorkspace(context, args.query);
-      const content = JSON.stringify({
-        success: true,
-        snapshotSequence: response.snapshotSequence,
-        results: response.results,
-        truncated: false
-      }, null, 2);
+      const content = JSON.stringify(
+        {
+          success: true,
+          snapshotSequence: response.snapshotSequence,
+          results: response.results,
+          truncated: false,
+        },
+        null,
+        2
+      );
 
       return {
         content,
-        truncated: false
+        truncated: false,
       };
     } catch (e: any) {
       return {
-        content: JSON.stringify({
-          success: false,
-          error: {
-            code: 'INTELLIGENCE_QUERY_FAILED',
-            message: e.message || 'Repository intelligence unavailable.'
-          }
-        }, null, 2),
-        truncated: false
+        content: JSON.stringify(
+          {
+            success: false,
+            error: {
+              code: 'INTELLIGENCE_QUERY_FAILED',
+              message: e.message || 'Repository intelligence unavailable.',
+            },
+          },
+          null,
+          2
+        ),
+        truncated: false,
       };
     }
   }
