@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "name": "@ag/worker-ai",
   "scripts": {
-    "start": "node --env-file=.env dist/index.js",
+    "start": "node --env-file=../../.env dist/index.js",
     "build": "tsc",
     "lint": "eslint \"src/**/*.ts*\"",
     "typecheck": "tsc --noEmit",
@@ -21,8 +21,11 @@
     "@ag/events": "workspace:*",
     "@ag/logger": "workspace:*",
     "@ag/protocol": "workspace:*",
+    "@ag/auth": "workspace:*",
     "ajv": "^8.20.0",
-    "kafkajs": "^2.2.4"
+    "kafkajs": "^2.2.4",
+    "fastify": "^4.26.2",
+    "jose": "^5.2.3"
   },
   "main": "dist/index.js"
 }

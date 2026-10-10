@@ -11,6 +11,11 @@ vi.mock('electron', () => ({
   },
 }));
 
+const TRUSTED_SENDER_EVENT = {
+  senderFrame: { url: 'file:///agent/index.html' },
+  sender: { getURL: () => 'file:///agent/index.html' },
+};
+
 describe('IpcDispatcher', () => {
   let dispatcher: IpcDispatcher;
   let host: ApplicationHost;
@@ -30,7 +35,7 @@ describe('IpcDispatcher', () => {
     dispatcher.registerHandler('test/channel', async () => 'test');
     const handler = vi.mocked(ipcMain.handle).mock.calls[0][1] as Function;
 
-    const result = await handler({} as any, { invalid: 'payload' });
+    const result = await handler(TRUSTED_SENDER_EVENT as any, { invalid: 'payload' });
     expect(result.errorName).toBe('IpcError');
     expect(result.code).toBe('VALIDATION_ERROR');
   });
@@ -45,10 +50,26 @@ describe('IpcDispatcher', () => {
       payload: 'hello'
     };
 
-    const result = await handler({} as any, validRequest);
+    const result = await handler(TRUSTED_SENDER_EVENT as any, validRequest);
     expect(result.payload).toBe('hello processed');
     expect(result.requestId).toBe('123');
     expect(result.version).toBe(ProtocolVersion.V1);
+  });
+
+  it('rejects untrusted sender frames before any payload handling (PHASE 8.3)', async () => {
+    const handlerSpy = vi.fn().mockResolvedValue('should-not-run');
+    dispatcher.registerHandler('test/trust', handlerSpy);
+    const handler = vi.mocked(ipcMain.handle).mock.calls[0][1] as Function;
+
+    const result = await handler({ senderFrame: { url: 'http://evil.example.com/phish' } } as any, {
+      version: ProtocolVersion.V1,
+      requestId: '123',
+      payload: null
+    });
+
+    expect(result.errorName).toBe('IpcError');
+    expect(result.code).toBe('UNTRUSTED_SENDER');
+    expect(handlerSpy).not.toHaveBeenCalled();
   });
 
   it('executes middleware in order', async () => {
@@ -72,7 +93,7 @@ describe('IpcDispatcher', () => {
     });
     const handler = vi.mocked(ipcMain.handle).mock.calls[0][1] as Function;
     
-    await handler({} as any, {
+    await handler(TRUSTED_SENDER_EVENT as any, {
       version: ProtocolVersion.V1,
       requestId: '123',
       payload: null

@@ -6,7 +6,7 @@ import { createPromiseClient } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { AuthService } from '@ag/proto/gen/ts/auth/v1/auth_connect'
 
-const transport = createConnectTransport({ baseUrl: 'http://localhost:8080' })
+const transport = createConnectTransport({ baseUrl: process.env.NEXT_PUBLIC_GATEWAY_URL || 'http://localhost:8080' })
 const client = createPromiseClient(AuthService, transport)
 
 export default function ResetPasswordPage() {

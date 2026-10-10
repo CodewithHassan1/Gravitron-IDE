@@ -16,8 +16,38 @@ export class IpcDispatcher {
   private activeRequests = new Map<string, AbortController>();
 
   constructor(private host: ApplicationHost) {
+    this.use(this.trustedSenderMiddleware.bind(this));
     this.use(this.validationMiddleware.bind(this));
     this.use(this.loggingMiddleware.bind(this));
+  }
+
+  /**
+   * PHASE 8.3 ENFORCEMENT: only trusted renderer frames may issue IPC against
+   * the privileged main process. In development the IDE frontend is served
+   * from http://localhost:<port>; in production it is loaded from the bundled
+   * app:// or file:// origin. Any other sender is denied before payload
+   * handling. This mirrors NavigationPolicy's trust model.
+   */
+  private async trustedSenderMiddleware(envelope: RequestEnvelope<any>, event: IpcMainInvokeEvent, ctx: IpcContext, next: () => Promise<any>) {
+    const senderUrl = event?.senderFrame?.url || (event?.sender?.getURL?.() as string | undefined);
+    if (!senderUrl || !this.isTrustedSenderUrl(senderUrl)) {
+      console.error(`[IPC] Rejected IPC from untrusted sender: ${senderUrl ?? 'no sender frame'}`);
+      return this.createErrorResponse('UNTRUSTED_SENDER', 'Untrusted IPC sender', envelope.requestId);
+    }
+    return next();
+  }
+
+  private isTrustedSenderUrl(senderUrl: string): boolean {
+    try {
+      const url = new URL(senderUrl);
+      const isDevTrusted =
+        (url.protocol === 'http:' || url.protocol === 'https:') &&
+        (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+      const isProdTrusted = url.protocol === 'app:' || url.protocol === 'file:';
+      return isDevTrusted || isProdTrusted;
+    } catch {
+      return false;
+    }
   }
 
   public use(middleware: IpcMiddleware) {
@@ -66,6 +96,9 @@ export class IpcDispatcher {
 
       try {
         const result = await next();
+        if (result && typeof result === 'object' && 'errorName' in result) {
+          return result;
+        }
         return {
           version: ProtocolVersion.V1,
           requestId: envelope.requestId,

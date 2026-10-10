@@ -14,10 +14,12 @@ import { randomUUID } from 'crypto';
 import { ToolInputValidationFailed, ToolNotFound } from './tools/errors';
 import { PromptBuilder, PromptContext } from './PromptBuilder';
 import { TokenBudget } from './TokenBudget';
+import { DelegationContext, isDelegationContext } from './DelegationContext';
 
 export class AgentSession {
   public readonly id: string;
   public readonly workspaceId: string;
+  public readonly delegation: DelegationContext;
   private stateMachine: AgentStateMachine;
   private memory: AgentMemory;
   private provider: AIProvider;
@@ -46,13 +48,18 @@ export class AgentSession {
   constructor(
     id: string,
     workspaceId: string,
+    delegation: DelegationContext,
     provider: AIProvider,
     eventEmitter: (event: AgentProtocol.AgentEventEnvelope) => void,
     toolRegistry: ToolRegistry,
     capabilityBridge: AgentProtocol.IAgentCapabilityBridge
   ) {
+    if (!isDelegationContext(delegation)) {
+      throw new Error('AgentSession requires a valid DelegationContext. A session cannot run without an authorized execution binding.');
+    }
     this.id = id;
     this.workspaceId = workspaceId;
+    this.delegation = delegation;
     this.provider = provider;
     this.eventEmitter = eventEmitter;
     this.toolRegistry = toolRegistry;
@@ -165,6 +172,17 @@ export class AgentSession {
   public async start(initialPrompt: string): Promise<void> {
     if (this.state !== AgentProtocol.AgentState.Idle) {
       throw new Error('Agent session is already running or completed');
+    }
+
+    // PHASE 8.3 ENFORCEMENT: an agent session may only start under a verified
+    // execution binding. Identity is inherited from the delegation, never from
+    // caller input.
+    if (!isDelegationContext(this.delegation)) {
+      this.transition(
+        AgentProtocol.AgentState.Failed,
+        'Cannot start execution: missing authorized execution binding'
+      );
+      return;
     }
 
     // Attempt to load existing episodic memory from DB
@@ -404,11 +422,19 @@ export class AgentSession {
             this.transition(AgentProtocol.AgentState.ExecutingTool);
 
             try {
-              const result = await tool.execute(validatedArgs, this.capabilityBridge, {
+              const toolContext: AgentProtocol.AgentCapabilityContext & {
+                executionId: string;
+                userId: string;
+                orgId: string;
+              } = {
                 agentId: this.id,
                 workspaceId: this.workspaceId,
                 signal,
-              });
+                executionId: this.delegation.executionId,
+                userId: this.delegation.userId,
+                orgId: this.delegation.orgId,
+              };
+              const result = await tool.execute(validatedArgs, this.capabilityBridge, toolContext);
 
               const resultString = result.truncated
                 ? `[Tool output truncated: original ${result.originalSize} characters; showing ${result.content.length}.]\n${result.content}`

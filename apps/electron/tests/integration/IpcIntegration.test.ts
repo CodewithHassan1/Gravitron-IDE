@@ -40,7 +40,7 @@ class FakeIpcBridge {
     
     // Simulate IPC serialization
     const serialized = structuredClone(envelope);
-    const response = await handler({}, serialized);
+    const response = await handler(TRUSTED_SENDER_EVENT as any, serialized);
     if (response?.errorName === 'IpcError') {
       throw new Error(response.message);
     }
@@ -70,6 +70,13 @@ class FakeIpcBridge {
 }
 
 const bridge = new FakeIpcBridge();
+
+// PHASE 8.3: the fake bridge impersonates the trusted app renderer frame the
+// real preload bridge originates from.
+const TRUSTED_SENDER_EVENT = {
+  senderFrame: { url: 'file:///agent/index.html' },
+  sender: { getURL: () => 'file:///agent/index.html' },
+};
 
 // Mock ipcMain.handle to wire into our bridge
 vi.mock('electron', () => ({

@@ -277,11 +277,11 @@ contextBridge.exposeInMainWorld('agApi', {
     }
   },
   agent: {
-    start: async (workspaceId: string, conversationId: string, prompt: string, providerType: any, providerConfig: any) => {
+    start: async (workspaceId: string, conversationId: string, prompt: string, providerType: any, providerConfig: any, accessToken?: string) => {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, conversationId, prompt, providerType, providerConfig }
+        payload: { workspaceId, conversationId, prompt, providerType, providerConfig, accessToken }
       };
       const response = await ipcRenderer.invoke(Channels.Agent.StartRequest, envelope);
       return unwrapIpcResponse<any>(response).agentId;

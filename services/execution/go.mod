@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	connectrpc.com/connect v1.16.2
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/gravitron/proto v0.0.0
 	golang.org/x/net v0.27.0
 )

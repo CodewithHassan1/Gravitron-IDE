@@ -1,5 +1,5 @@
 import { Interceptor, ConnectError, Code } from '@connectrpc/connect';
-import { requireS2S, requireAgentDelegation, JWTPayload } from './s2s';
+import { requireS2S, verifyAgentDelegation, JWTPayload } from './s2s';
 import { KeyLike } from 'jose';
 
 /**
@@ -26,10 +26,10 @@ export const createAuthInterceptor = (options: AuthInterceptorOptions): Intercep
   let payload: JWTPayload;
 
   if (options.requireDelegation) {
-    // We expect execution_id from context if we want to bind it.
-    // In interceptor layer, we validate the token structure. The service implementation 
-    // will further validate execution binding against the requested resource if necessary.
-    payload = await requireAgentDelegation(token, options.verificationKey, options.audience);
+    // Structure-level validation. The service implementation MUST enforce
+    // execution binding against the requested resource using the returned
+    // execution_id (bind via requireAgentDelegation).
+    payload = await verifyAgentDelegation(token, options.verificationKey, options.audience);
   } else {
     payload = await requireS2S(token, options.verificationKey, options.audience);
   }

@@ -1,7 +1,9 @@
 import { AgentSession } from './AgentSession';
 import { ProviderFactory, ProviderType, ProviderConfig } from '@ag/ai-providers';
 import { AgentProtocol } from '@ag/protocol';
+import { AGENT_EXECUTE_SCOPE } from '@ag/auth';
 import { ToolRegistry } from './tools/ToolRegistry';
+import { DelegationContext, isDelegationContext } from './DelegationContext';
 
 import { ReadFileTool } from './tools/builtin/ReadFileTool';
 import { WriteFileTool } from './tools/builtin/WriteFileTool';
@@ -44,17 +46,28 @@ export class AgentRuntime {
     providerType: ProviderType,
     providerConfig: ProviderConfig,
     eventEmitter: (event: AgentProtocol.AgentEventEnvelope) => void,
+    delegation: DelegationContext,
     agentId?: string
   ): string {
     const id = agentId || crypto.randomUUID();
-    
+
+    // PHASE 8.3 ENFORCEMENT: a runtime can only start an agent under a
+    // verified execution binding. The delegation is metadata-only (no raw
+    // token) and must carry the agent-execute scope.
+    if (!isDelegationContext(delegation)) {
+      throw new Error('startAgent requires a DelegationContext. No execution may run unbound.');
+    }
+    if (delegation.scope !== AGENT_EXECUTE_SCOPE) {
+      throw new Error(`startAgent requires scope ${AGENT_EXECUTE_SCOPE}, received ${delegation.scope}`);
+    }
+
     if (this.sessions.has(id)) {
       throw new Error(`Agent ${id} is already running`);
     }
 
     const provider = ProviderFactory.createProvider(providerType, providerConfig);
     
-    const session = new AgentSession(id, workspaceId, provider, eventEmitter, this.toolRegistry, this.capabilityBridge);
+    const session = new AgentSession(id, workspaceId, delegation, provider, eventEmitter, this.toolRegistry, this.capabilityBridge);
     this.sessions.set(id, session);
 
     // Fire and forget (it handles its own async loop)

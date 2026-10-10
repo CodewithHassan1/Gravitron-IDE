@@ -8,6 +8,7 @@
     "dev": "tsx watch --env-file=.env src/index.ts",
     "start": "node --env-file=.env dist/index.js",
     "lint": "eslint \"src/**/*.ts*\"",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
