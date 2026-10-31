@@ -11,6 +11,13 @@ window.addEventListener('error', (event) => {
   }
 });
 
+let cachedAppConfig: { gatewayUrl: string | null; isPackaged: boolean; source: string } | null = null;
+try {
+  cachedAppConfig = ipcRenderer.sendSync(Channels.App.GetConfigSync);
+} catch {
+  // Safe fallback if synchronous IPC is unavailable
+}
+
 contextBridge.exposeInMainWorld('agApi', {
   terminal: {
     create: async (config: TerminalProtocol.TerminalCreateRequestOptions) => {
@@ -331,6 +338,69 @@ contextBridge.exposeInMainWorld('agApi', {
         payload: undefined
       };
       return ipcRenderer.invoke(Channels.App.QuitRequest, envelope);
+    }
+  },
+  getGatewayUrl: () => {
+    if (cachedAppConfig?.gatewayUrl !== undefined) {
+      return cachedAppConfig.gatewayUrl || '';
+    }
+    return process.env.GATEWAY_URL || process.env.NEXT_PUBLIC_GATEWAY_URL || '';
+  },
+  isPackaged: () => {
+    if (cachedAppConfig?.isPackaged !== undefined) {
+      return cachedAppConfig.isPackaged;
+    }
+    if (typeof window !== 'undefined' && window.location.protocol === 'app:') {
+      return true;
+    }
+    return process.env.IS_PACKAGED === 'true';
+  },
+  config: {
+    get: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined
+      };
+      const res = await ipcRenderer.invoke(Channels.App.GetConfigRequest, envelope);
+      if (res?.payload) {
+        cachedAppConfig = res.payload;
+      }
+      return res?.payload;
+    },
+    setGatewayUrl: async (url: string) => {
+      const envelope: RequestEnvelope<{ url: string }> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { url }
+      };
+      const res = await ipcRenderer.invoke(Channels.App.SetGatewayUrlRequest, envelope);
+      if (res?.errorName) {
+        throw new Error(res.message || 'Failed to update Gateway URL');
+      }
+      if (res?.payload?.success && res.payload.gatewayUrl) {
+        cachedAppConfig = {
+          gatewayUrl: res.payload.gatewayUrl,
+          isPackaged: cachedAppConfig?.isPackaged ?? (typeof window !== 'undefined' && window.location.protocol === 'app:'),
+          source: 'runtime'
+        };
+      }
+      return res?.payload;
+    },
+    clearGatewayUrl: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined
+      };
+      const res = await ipcRenderer.invoke(Channels.App.ClearGatewayUrlRequest, envelope);
+      const isPkg = cachedAppConfig?.isPackaged ?? (typeof window !== 'undefined' && window.location.protocol === 'app:');
+      cachedAppConfig = {
+        gatewayUrl: isPkg ? null : 'http://localhost:8080',
+        isPackaged: isPkg,
+        source: isPkg ? 'none' : 'default_dev'
+      };
+      return res?.payload;
     }
   },
   window: {

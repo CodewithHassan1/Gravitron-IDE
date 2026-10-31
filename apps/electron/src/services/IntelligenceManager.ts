@@ -2,6 +2,7 @@ import { IService } from './IService';
 import { ServiceIds } from './ServiceIds';
 import { ChildProcess, fork } from 'child_process';
 import * as path from 'path';
+import * as fs from 'fs';
 import { IntelligenceProtocol } from '@ag/protocol';
 import { randomUUID } from 'crypto';
 import { AGLogger } from '@ag/logger';
@@ -59,6 +60,11 @@ export class IntelligenceManager implements IService {
       __dirname,
       '../../../../services/worker-intelligence/dist/index.js'
     );
+
+    if (!fs.existsSync(workerPath)) {
+      logger.warn(logCtx, `worker-intelligence not found at ${workerPath}. Intelligence features will be disabled.`);
+      return;
+    }
 
     logger.info(logCtx, `Spawning worker-intelligence at ${workerPath}`);
     this.workerProcess = fork(workerPath, [], {

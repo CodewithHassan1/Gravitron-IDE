@@ -5,6 +5,7 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
+    "migrate": "node ../../infra/database/postgres/run-migrations.js",
     "lint": "eslint \"src/**/*.ts*\"",
     "typecheck": "tsc --noEmit"
   },

@@ -1,0 +1,164 @@
+services:
+  # --- Backing Datastores (Isolated on Internal Network) ---
+  postgres:
+    image: ankane/pgvector:v0.5.1
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-ag_ide}
+    # No public interface exposure. Accessible only within ag_internal (or 127.0.0.1 for local migrations)
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-ag_ide}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ag_internal
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  redis:
+    image: redis:8.0-M02-alpine
+    command: ["sh", "-c", "redis-server --appendonly yes --requirepass $${REDIS_PASSWORD}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ag_internal
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # --- Core Backend Services ---
+  auth:
+    build:
+      context: ../../../
+      dockerfile: services/auth/Dockerfile
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      POSTGRES_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ag_ide}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH_PRIVATE_KEY: ${AUTH_PRIVATE_KEY}
+      AUTH_KID: ${AUTH_KID:-key-v1}
+      SMTP_URL: ${SMTP_URL:-}
+      FROM_EMAIL: ${FROM_EMAIL:-noreply@example.com}
+      FRONTEND_URL: ${FRONTEND_URL:-}
+      AUTH_ISSUER: ${AUTH_ISSUER:-https://auth.ag-ide.local}
+      AUTH_AUDIENCE: ${AUTH_AUDIENCE:-ag-ide-platform}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ag_internal
+      - ag_egress
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  gateway:
+    build:
+      context: ../../../
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      PORT: 8080
+      NODE_ENV: production
+      POSTGRES_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ag_ide}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      GATEWAY_PRIVATE_KEY: ${GATEWAY_PRIVATE_KEY}
+      AUTH_SERVICE_URL: http://auth:3001
+      AUTH_JWKS_URL: http://auth:3001/.well-known/jwks.json
+      AUTH_ISSUER: ${AUTH_ISSUER:-https://auth.ag-ide.local}
+      AUTH_AUDIENCE: ${AUTH_AUDIENCE:-ag-ide-platform}
+      AGENT_HOST_SECRET: ${AGENT_HOST_SECRET}
+    depends_on:
+      auth:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ag_internal
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # --- Ingress TLS Reverse Proxy ---
+  reverse-proxy:
+    image: caddy:2.8-alpine
+    environment:
+      GATEWAY_DOMAIN: ${GATEWAY_DOMAIN:-localhost}
+    volumes:
+      - ../reverse-proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    depends_on:
+      - gateway
+    networks:
+      - ag_internal
+      - ag_ingress
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+# --- Networks & Isolation ---
+networks:
+  # Internal network: datastores and application microservices (no external routing)
+  ag_internal:
+    internal: true
+  # Ingress network: only reverse proxy receives traffic from public host ports
+  ag_ingress:
+    driver: bridge
+  # Egress network: enables auth service to initiate outbound connections to external SMTP services
+  ag_egress:
+    driver: bridge
+
+# --- Persistent Volumes ---
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

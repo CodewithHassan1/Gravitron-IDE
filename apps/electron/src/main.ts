@@ -26,6 +26,7 @@ import { DockerBackend } from './services/terminal/pty/DockerBackend';
 import { WebSocketTerminalServer } from './services/WebSocketTerminalServer';
 import { IntelligenceManager } from './services/IntelligenceManager';
 import { AgentIpcService } from './services/AgentIpcService';
+import { ConfigService } from './services/ConfigService';
 
 // Register custom protocol for loading Next.js static export files securely
 protocol.registerSchemesAsPrivileged([
@@ -61,6 +62,7 @@ host.getServiceContainer().register(windowService);
 host.getServiceContainer().register(new ExternalLinkService(new ElectronShellLauncher()));
 host.getServiceContainer().register(executionService);
 host.getServiceContainer().register(new MenuService());
+host.getServiceContainer().register(new ConfigService());
 
 const workspaceService = new WorkspaceService(fileWatcherService, eventBroker);
 workspaceService.onWorkspaceClosed((workspaceId) => {
@@ -131,6 +133,14 @@ app.whenReady().then(() => {
       targetRelativePath = 'dashboard/settings.html';
     } else if (targetRelativePath === 'login') {
       targetRelativePath = 'login.html';
+    } else if (targetRelativePath === 'register') {
+      targetRelativePath = 'register.html';
+    } else if (targetRelativePath === 'verify-email') {
+      targetRelativePath = 'verify-email.html';
+    } else if (targetRelativePath === 'forgot-password') {
+      targetRelativePath = 'forgot-password.html';
+    } else if (targetRelativePath === 'reset-password') {
+      targetRelativePath = 'reset-password.html';
     }
 
     const candidatePath = path.resolve(frontendRoot, targetRelativePath);

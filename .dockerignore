@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Node dependencies and build caches
+node_modules
+**/node_modules
+.turbo
+**/.turbo
+.next
+**/.next
+dist
+**/dist
+out
+**/out
+build
+**/build
+
+# Packaged artifacts & release executables
+release
+scratch
+
+# Secrets and environment configurations
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+admin_config.json
+user_config.json
+
+# Logs and test artifacts
+*.log
+coverage
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

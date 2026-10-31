@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ag/auth": "workspace:*",
+    "@ag/cache": "workspace:*",
     "@ag/config": "workspace:*",
     "@ag/errors": "workspace:*",
     "@ag/logger": "workspace:*",

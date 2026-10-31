@@ -3,6 +3,20 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./gen/*.js": {
+      "types": "./dist/gen/*.d.ts",
+      "default": "./dist/gen/*.js"
+    },
+    "./gen/*": {
+      "types": "./dist/gen/*.d.ts",
+      "default": "./dist/gen/*.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist gen",

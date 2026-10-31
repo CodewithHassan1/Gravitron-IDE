@@ -129,6 +129,6 @@ const start = async () => {
   logger.info({ trace_id: "none", span_id: "none", request_id: "none" }, `Worker-AI listening on port ${port}`);
 };
 
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" && require.main === module) {
   start();
 }

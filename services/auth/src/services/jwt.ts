@@ -60,3 +60,14 @@ export function generateRefreshToken(): string {
 export function generateJTI(): string {
   return crypto.randomUUID();
 }
+
+export async function verifyAccessToken(token: string): Promise<JWTPayload> {
+  if (!initialized) throw new Error("Keys not initialized");
+  const { jwtVerify, importJWK } = await import('jose');
+  const publicKey = await importJWK(currentPublicKeyJwk);
+  const { payload } = await jwtVerify(token, publicKey, {
+    issuer: process.env.AUTH_ISSUER || 'https://auth.ag-ide.local',
+    audience: process.env.AUTH_AUDIENCE || 'ag-ide-platform'
+  });
+  return payload as JWTPayload;
+}

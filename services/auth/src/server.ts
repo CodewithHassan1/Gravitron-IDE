@@ -1,7 +1,6 @@
 import { ConnectRouter, ConnectError, Code } from '@connectrpc/connect';
 import { SessionManager } from '@ag/cache';
-import { db } from '@ag/database';
-import { publishOutboxEvent } from '@ag/database/src/outbox';
+import { db, publishOutboxEvent } from '@ag/database';
 import { issueAccessToken, generateRefreshToken, generateJTI } from './services/jwt';
 import { PasswordService } from './services/password';
 import { DevelopmentMailer, ProductionMailer } from './services/mailer';
@@ -15,6 +14,9 @@ const config = validateConfig(process.env);
 const redis = new Redis(config.REDIS_URL);
 const mailer = config.SMTP_URL ? new ProductionMailer(config.SMTP_URL, config.FROM_EMAIL) : new DevelopmentMailer();
 
+const authIssuer = process.env.AUTH_ISSUER || "https://auth.ag-ide.local";
+const authAudience = process.env.AUTH_AUDIENCE || "ag-ide-platform";
+
 export default (router: ConnectRouter) => {
   // OIDC Login is deprecated in Phase 8.1
   router.rpc(AuthService, AuthService.methods.login, async (req: any, _context: any) => {
@@ -22,48 +24,54 @@ export default (router: ConnectRouter) => {
   });
 
   router.rpc(AuthService, AuthService.methods.register, async (req: any, _context: any) => {
-    const { email, password, displayName } = req;
-    if (!email || !password) throw new ConnectError("Email and password required", Code.InvalidArgument);
-    if (password.length < 8) throw new ConnectError("Password too weak", Code.InvalidArgument);
+    const rawEmail = req.email;
+    const password = req.password;
+    const displayName = req.displayName?.trim();
+    if (!rawEmail || !password) throw new ConnectError("Email and password required", Code.InvalidArgument);
+    if (password.length < 8) throw new ConnectError("Password must be at least 8 characters long", Code.InvalidArgument);
+
+    const email = rawEmail.trim().toLowerCase();
 
     // Check if user exists
     const existing = await db.selectFrom('users').where('email', '=', email).selectAll().executeTakeFirst();
     if (existing) {
-      // Prevent enumeration: act like it succeeded, but don't do anything if they are already active
-      return { userId: "", status: "EXISTS" }; 
+      throw new ConnectError("An account with this email address already exists. Please sign in or use a different email address.", Code.AlreadyExists);
     }
 
     const hash = await PasswordService.hash(password);
     const userId = crypto.randomUUID();
 
-    await db.insertInto('users').values({
-      id: userId,
-      email,
-      password_hash: hash,
-      display_name: displayName,
-      role: 'MEMBER',
-      status: 'PENDING_VERIFICATION',
-      created_at: new Date(),
-      updated_at: new Date()
-    }).execute();
-
     const orgId = crypto.randomUUID();
-    const slug = `${displayName || email.split('@')[0]}-personal`.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    
-    await db.insertInto('organizations').values({
-      id: orgId,
-      name: `${displayName || 'User'}'s Personal Organization`,
-      slug: slug,
-      created_at: new Date(),
-      updated_at: new Date()
-    }).execute();
+    const slug = `${displayName || email.split('@')[0]}-personal-${userId.substring(0, 8)}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const now = new Date();
 
-    await db.insertInto('organization_members').values({
-      organization_id: orgId,
-      user_id: userId,
-      role: 'OWNER',
-      created_at: new Date()
-    }).execute();
+    await db.transaction().execute(async (tx) => {
+      await tx.insertInto('users').values({
+        id: userId,
+        email,
+        password_hash: hash,
+        display_name: displayName,
+        role: 'MEMBER',
+        status: 'PENDING_VERIFICATION',
+        created_at: now,
+        updated_at: now
+      }).execute();
+
+      await tx.insertInto('organizations').values({
+        id: orgId,
+        name: `${displayName || 'User'}'s Personal Organization`,
+        slug: slug,
+        created_at: now,
+        updated_at: now
+      }).execute();
+
+      await tx.insertInto('organization_members').values({
+        organization_id: orgId,
+        user_id: userId,
+        role: 'OWNER',
+        created_at: now
+      }).execute();
+    });
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
@@ -71,32 +79,43 @@ export default (router: ConnectRouter) => {
     // Store in Redis (24h TTL)
     await redis.set(`verify:${tokenHash}`, userId, 'EX', 24 * 60 * 60);
 
-    await mailer.sendVerificationEmail(email, rawToken);
+    let emailSent = false;
+    try {
+      await mailer.sendVerificationEmail(email, rawToken);
+      emailSent = true;
+    } catch (e: any) {
+      console.error("Failed to send verification email during registration", e);
+    }
 
+    if (!emailSent) {
+      return { userId, status: "PENDING_VERIFICATION_EMAIL_FAILED" };
+    }
     return { userId, status: "PENDING_VERIFICATION" };
   });
 
   router.rpc(AuthService, AuthService.methods.passwordLogin, async (req: any, _context: any) => {
-    const { email, password } = req;
-    if (!email || !password) throw new ConnectError("Email and password required", Code.InvalidArgument);
+    const rawEmail = req.email;
+    const { password } = req;
+    if (!rawEmail || !password) throw new ConnectError("Email and password required", Code.InvalidArgument);
 
+    const email = rawEmail.trim().toLowerCase();
     const user = await db.selectFrom('users').where('email', '=', email).selectAll().executeTakeFirst();
     if (!user) {
       await PasswordService.dummyCompare();
-      throw new ConnectError("Invalid email or password", Code.Unauthenticated);
+      throw new ConnectError("The email or password is incorrect.", Code.Unauthenticated);
     }
 
     if (!user.password_hash) {
-      throw new ConnectError("Invalid email or password", Code.Unauthenticated);
+      throw new ConnectError("The email or password is incorrect.", Code.Unauthenticated);
     }
 
     const valid = await PasswordService.compare(password, user.password_hash);
     if (!valid) {
-      throw new ConnectError("Invalid email or password", Code.Unauthenticated);
+      throw new ConnectError("The email or password is incorrect.", Code.Unauthenticated);
     }
 
     if (user.status === 'DISABLED') {
-      throw new ConnectError("Account disabled", Code.PermissionDenied);
+      throw new ConnectError("Your account has been disabled. Please contact support for assistance.", Code.PermissionDenied);
     }
 
     const sid = crypto.randomUUID();
@@ -110,29 +129,37 @@ export default (router: ConnectRouter) => {
       scope = "verify_email";
     }
 
+    const membership = await db
+      .selectFrom('organization_members')
+      .where('user_id', '=', user.id)
+      .select(['organization_id'])
+      .executeTakeFirst();
+    const orgId = membership?.organization_id || '00000000-0000-0000-0000-000000000000';
+
     const accessToken = await issueAccessToken({
-      iss: "https://auth.ag-ide.local",
-      aud: "ag-ide-platform",
+      iss: authIssuer,
+      aud: authAudience,
       iat: now,
       exp: exp,
       jti: jti,
       sid: sid,
       sub: user.id,
-      org_id: "", // TODO: Get org id when user context includes orgs natively
+      org_id: orgId,
       roles: roles,
       scope: scope
     } as any);
 
-    const refreshToken = generateRefreshToken();
+    const opaqueToken = generateRefreshToken();
+    const compoundRefreshToken = `${sid}:${opaqueToken}`;
 
     // The JTI is conceptually the hash of the refresh token, 
     // or we can store the refresh token directly since Redis is server-side.
     // For true atomic rotation, we hash the refresh token to serve as JTI.
-    const refreshHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const refreshHash = crypto.createHash('sha256').update(compoundRefreshToken).digest('hex');
 
     await SessionManager.createSession(sid, {
       user_id: user.id,
-      org_id: "",
+      org_id: orgId,
       current_jti: refreshHash, 
       expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
     });
@@ -143,7 +170,7 @@ export default (router: ConnectRouter) => {
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken: compoundRefreshToken,
       expiresIn: 900,
       status: user.status
     };
@@ -155,13 +182,9 @@ export default (router: ConnectRouter) => {
     const token = req.refreshToken;
     if (!token) throw new ConnectError("Refresh token required", Code.Unauthenticated);
 
-    const refreshHash = crypto.createHash('sha256').update(token).digest('hex');
-    
-    // We need the SID. In a real system, the SID might be encoded in the refresh token, 
-    // or passed via a separate cookie, or we can look up the session by JTI index.
-    // For this mock, we assume the SID is passed or embedded. Let's assume the refresh token format is `sid:opaque_random`.
+    // We need the SID. The refresh token format is `sid:opaque_random`.
     const parts = token.split(':');
-    if (parts.length !== 2) throw new ConnectError("Invalid token format", Code.Unauthenticated);
+    if (parts.length !== 2 || !parts[0] || !parts[1]) throw new ConnectError("Invalid token format", Code.Unauthenticated);
     const sid = parts[0];
     const opaque = parts[1];
 
@@ -189,14 +212,14 @@ export default (router: ConnectRouter) => {
 
     const now = Math.floor(Date.now() / 1000);
     const accessToken = await issueAccessToken({
-      iss: "https://auth.ag-ide.local",
-      aud: "ag-ide-platform",
+      iss: authIssuer,
+      aud: authAudience,
       iat: now,
       exp: now + 900,
       jti: generateJTI(),
       sid: sid,
       sub: user.id,
-      org_id: session.org_id,
+      org_id: session.org_id || '00000000-0000-0000-0000-000000000000',
       roles: [user.role],
       scope: user.status === 'PENDING_VERIFICATION' ? "verify_email" : ""
     } as any);
@@ -230,7 +253,9 @@ export default (router: ConnectRouter) => {
   });
 
   router.rpc(AuthService, AuthService.methods.forgotPassword, async (req: any) => {
-    const { email } = req;
+    const rawEmail = req.email;
+    if (!rawEmail) return {};
+    const email = rawEmail.trim().toLowerCase();
     const user = await db.selectFrom('users').where('email', '=', email).select(['id']).executeTakeFirst();
     if (user) {
       const rawToken = crypto.randomBytes(32).toString('hex');
@@ -243,7 +268,7 @@ export default (router: ConnectRouter) => {
 
   router.rpc(AuthService, AuthService.methods.resetPassword, async (req: any) => {
     const { token, newPassword } = req;
-    if (newPassword.length < 8) throw new ConnectError("Password too weak", Code.InvalidArgument);
+    if (newPassword.length < 8) throw new ConnectError("Password must be at least 8 characters long", Code.InvalidArgument);
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const userId = await redis.get(`reset:${tokenHash}`);
@@ -266,23 +291,66 @@ export default (router: ConnectRouter) => {
 
   router.rpc(AuthService, AuthService.methods.verifyEmail, async (req: any) => {
     const { token } = req;
+    if (!token) {
+      throw new ConnectError("Token required", Code.InvalidArgument);
+    }
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const userId = await redis.get(`verify:${tokenHash}`);
+    const userId = await redis.getdel(`verify:${tokenHash}`);
 
     if (!userId) {
       throw new ConnectError("Invalid or expired token", Code.InvalidArgument);
     }
 
-    await redis.del(`verify:${tokenHash}`);
-    await db.updateTable('users').set({ status: 'ACTIVE' }).where('id', '=', userId).execute();
+    await db.updateTable('users').set({ status: 'ACTIVE', updated_at: new Date() }).where('id', '=', userId).execute();
 
     return {};
   });
 
-  router.rpc(AuthService, AuthService.methods.resendVerification, async (req: any) => {
-    // In a secure system, this requires an authenticated context (even if PENDING_VERIFICATION)
-    // To prevent abuse. For now we assume Gateway protects it.
-    // However, we don't have the user object here directly unless passed by gateway via headers.
+  router.rpc(AuthService, AuthService.methods.resendVerification, async (req: any, context: any) => {
+    const authHeader = context.requestHeader.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new ConnectError("Unauthenticated", Code.Unauthenticated);
+    }
+    const token = authHeader.split(" ")[1];
+    
+    let payload;
+    try {
+      const { verifyAccessToken } = await import('./services/jwt');
+      payload = await verifyAccessToken(token);
+    } catch (e) {
+      throw new ConnectError("Invalid or expired token", Code.Unauthenticated);
+    }
+
+    const userId = payload.sub;
+    if (!userId) {
+      throw new ConnectError("Invalid token format", Code.Unauthenticated);
+    }
+
+    if ((payload as any).scope !== 'verify_email') {
+      throw new ConnectError("Insufficient scope for this action", Code.PermissionDenied);
+    }
+
+    const user = await db.selectFrom('users').where('id', '=', userId).selectAll().executeTakeFirst();
+    if (!user) {
+      throw new ConnectError("User not found", Code.NotFound);
+    }
+
+    if (user.status !== 'PENDING_VERIFICATION') {
+      throw new ConnectError("Email is already verified", Code.FailedPrecondition);
+    }
+
+    const rateLimitKey = `rate_limit:resend_verify:${userId}`;
+    const canResend = await redis.set(rateLimitKey, '1', 'EX', 60, 'NX'); // 1 minute cooldown
+    if (!canResend) {
+      throw new ConnectError("Please wait a minute before requesting another verification email.", Code.ResourceExhausted);
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    
+    await redis.set(`verify:${tokenHash}`, userId, 'EX', 24 * 60 * 60);
+    await mailer.sendVerificationEmail(user.email, rawToken);
+
     return {};
   });
 

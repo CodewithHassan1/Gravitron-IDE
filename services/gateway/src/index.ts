@@ -6,13 +6,36 @@ import { AGLogger } from "@ag/logger";
 import { jwtVerify, createRemoteJWKSet, importPKCS8 } from "jose";
 import httpProxy from "@fastify/http-proxy";
 import { S2SIssuer } from "@ag/auth";
+import { RateLimiter, createRateLimitingPreHandler } from "./rateLimiter";
 
 const config = validateConfig(process.env);
 const logger = new AGLogger("gateway", "1.0.0");
 
+// Configured trusted proxy list.
+// In production, Gateway runs on the private Docker network behind Caddy (which strictly overwrites X-Forwarded-For).
+// Untrusted direct connections cannot spoof client IP.
+const getTrustedProxies = (): string[] => {
+  if (process.env.TRUSTED_PROXIES) {
+    return process.env.TRUSTED_PROXIES.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  // Default to loopback for local dev/testing, and private Docker network subnets (RFC 1918)
+  return ["127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
+};
+
 const fastify = Fastify({
   logger: false, // We use our custom logger middleware
+  trustProxy: getTrustedProxies(),
 });
+
+let rateLimiter = new RateLimiter({ logger });
+export function setRateLimiter(limiter: RateLimiter): void {
+  rateLimiter = limiter;
+}
+
+const authRateLimitPreHandler = async (request: FastifyRequest, reply: FastifyReply): Promise<boolean> => {
+  const handler = createRateLimitingPreHandler(rateLimiter, logger);
+  return handler(request, reply);
+};
 
 let gatewayIssuer: S2SIssuer;
 let externalJWKS: ReturnType<typeof createRemoteJWKSet>;
@@ -57,23 +80,47 @@ fastify.addHook("onResponse", async (request: FastifyRequest, reply: FastifyRepl
   logger.info({ ...logCtx, duration_ms: duration }, "Request completed");
 });
 
-// Health Endpoints
+// Health & Discovery Endpoints
 fastify.get("/health", async () => ({ status: "ok" }));
 fastify.get("/live", async () => ({ status: "alive" }));
 fastify.get("/ready", async () => ({ status: "ready" }));
 fastify.get("/metrics", async () => "metrics");
 
+// JWKS endpoint proxy for standard OIDC discovery
+fastify.get("/.well-known/jwks.json", async (request: FastifyRequest, reply: FastifyReply) => {
+  const authUrl = process.env.AUTH_SERVICE_URL || "http://localhost:3001";
+  try {
+    const res = await fetch(`${authUrl}/.well-known/jwks.json`);
+    if (!res.ok) {
+      return reply.status(res.status).send({ error: "Failed to retrieve JWKS" });
+    }
+    const data = await res.json();
+    reply.header("Cache-Control", "public, max-age=3600");
+    return reply.send(data);
+  } catch (err: any) {
+    logger.error((request as any).logCtx || {}, `Failed to proxy JWKS: ${err.message}`);
+    return reply.status(502).send({ error: "Auth JWKS endpoint unavailable" });
+  }
+});
+
 const PUBLIC_AUTH_ROUTES = [
+  "/.well-known/jwks.json",
   "/api/v1/auth/register",
   "/api/v1/auth/passwordLogin",
   "/api/v1/auth/refresh",
   "/api/v1/auth/forgotPassword",
   "/api/v1/auth/resetPassword",
   "/api/v1/auth/verifyEmail",
+  "/api/v1/auth/resendVerification",
   "/api/v1/auth/.well-known/jwks.json",
   "/auth.v1.AuthService/Register",
   "/auth.v1.AuthService/Login",
   "/auth.v1.AuthService/PasswordLogin",
+  "/auth.v1.AuthService/Refresh",
+  "/auth.v1.AuthService/ForgotPassword",
+  "/auth.v1.AuthService/ResetPassword",
+  "/auth.v1.AuthService/VerifyEmail",
+  "/auth.v1.AuthService/ResendVerification",
 ];
 
 // Pre-handler hook to authenticate specific routes and inject S2S token
@@ -118,7 +165,11 @@ fastify.register(httpProxy, {
   prefix: "/auth.v1.AuthService",
   rewritePrefix: "/auth.v1.AuthService",
   preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
-    const isPublic = PUBLIC_AUTH_ROUTES.some((r) => request.url.startsWith(r));
+    const blocked = await authRateLimitPreHandler(request, reply);
+    if (blocked) return;
+
+    const path = request.url.split("?")[0];
+    const isPublic = PUBLIC_AUTH_ROUTES.some((r) => path === r || path === `${r}/`);
     if (!isPublic) {
       await authenticateAndInjectS2S(request, reply);
     }
@@ -131,7 +182,11 @@ fastify.register(httpProxy, {
   prefix: "/api/v1/auth",
   rewritePrefix: "/api/v1/auth",
   preHandler: async (request: FastifyRequest, reply: FastifyReply) => {
-    const isPublic = PUBLIC_AUTH_ROUTES.some((r) => request.url.startsWith(r));
+    const blocked = await authRateLimitPreHandler(request, reply);
+    if (blocked) return;
+
+    const path = request.url.split("?")[0];
+    const isPublic = PUBLIC_AUTH_ROUTES.some((r) => path === r || path === `${r}/`);
     if (!isPublic) {
       await authenticateAndInjectS2S(request, reply);
     }
@@ -361,7 +416,11 @@ async function initializeTrustMaterial(): Promise<{ issuer: S2SIssuer; jwks: Ret
   const privateKey = await importPKCS8(gatewayPrivateKeyStr, "ES256");
   const issuer = new S2SIssuer(privateKey);
 
-  const authJwksUrl = process.env.AUTH_JWKS_URL || "http://localhost:3001/.well-known/jwks.json";
+  const authJwksUrl =
+    process.env.AUTH_JWKS_URL ||
+    (process.env.AUTH_SERVICE_URL
+      ? `${process.env.AUTH_SERVICE_URL.replace(/\/+$/, '')}/.well-known/jwks.json`
+      : "http://localhost:3001/.well-known/jwks.json");
   const jwks = createRemoteJWKSet(new URL(authJwksUrl), {
     cacheMaxAge: 3600000,
   });
@@ -394,7 +453,10 @@ const start = async () => {
  * Testable entry point: constructs the Gateway app with trust material
  * WITHOUT binding a port, enabling direct injection tests.
  */
-export async function buildGateway(): Promise<typeof fastify> {
+export async function buildGateway(options?: { rateLimiter?: RateLimiter }): Promise<typeof fastify> {
+  if (options?.rateLimiter) {
+    rateLimiter = options.rateLimiter;
+  }
   const trust = await initializeTrustMaterial();
   gatewayIssuer = trust.issuer;
   externalJWKS = trust.jwks;

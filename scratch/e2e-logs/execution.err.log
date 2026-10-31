@@ -1,0 +1,6 @@
+2026/10/10 10:43:09 Delegation verifier initialized (issuer=ag-internal-gateway audience=worker-ai)
+2026/10/10 10:43:09 Execution Engine starting on :8083
+2026/10/10 10:44:14 Authorized execution executionId=b26b3cc2-95c2-4d6e-8f12-29a0e52928ca userId=user-e2e-bob orgId=org_e2e_alpha exitCode=0
+2026/10/10 10:44:14 Authorized execution executionId=e3c7f8e6-dbd2-4882-9a50-a91d002bc01c userId=user-e2e-bob orgId=org_e2e_alpha exitCode=0
+2026/10/10 10:44:14 Authorized execution executionId=e3c7f8e6-dbd2-4882-9a50-a91d002bc01c userId=user-e2e-bob orgId=org_e2e_alpha exitCode=0
+2026/10/10 10:44:14 Execution rejected: invalid agent delegation: organization mismatch (delegation org "org_e2e_alpha")

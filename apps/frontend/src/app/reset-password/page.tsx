@@ -1,13 +1,9 @@
 "use client"
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createPromiseClient } from '@connectrpc/connect'
-import { createConnectTransport } from '@connectrpc/connect-web'
-import { AuthService } from '@ag/proto/gen/ts/auth/v1/auth_connect'
-
-const transport = createConnectTransport({ baseUrl: process.env.NEXT_PUBLIC_GATEWAY_URL || 'http://localhost:8080' })
-const client = createPromiseClient(AuthService, transport)
+import { getErrorMessage } from '../../utils/errors'
+import { getAuthClient } from '../../utils/gateway'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -17,20 +13,27 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
     setError('')
     if (!token) {
       setError('Missing reset token.')
       return
     }
+    
+    setIsSubmitting(true)
 
     try {
+      const client = getAuthClient()
       await client.resetPassword({ token, newPassword: password })
       setSuccess(true)
-    } catch (err: any) {
-      setError(err.message || 'Reset failed')
+    } catch (err: unknown) {
+      setError(getErrorMessage(err))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -56,8 +59,8 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="password" placeholder="New Password (min 8 chars)" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required minLength={8} />
-          <button type="submit" className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground">
-            Update Password
+          <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">
+            {isSubmitting ? 'Updating...' : 'Update Password'}
           </button>
         </form>
       </div>

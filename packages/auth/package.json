@@ -16,7 +16,8 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "jose": "^5.10.0",
-    "@connectrpc/connect": "^1.4.0"
+    "@bufbuild/protobuf": "^1.10.0",
+    "@connectrpc/connect": "^1.4.0",
+    "jose": "^5.10.0"
   }
 }

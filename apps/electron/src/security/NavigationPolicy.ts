@@ -3,6 +3,7 @@ export class NavigationPolicy {
   private static readonly TRUSTED_ORIGINS = new Set<string>();
 
   public static initialize(isDev: boolean, port: number = 3000) {
+    this.TRUSTED_ORIGINS.clear();
     if (isDev) {
       this.TRUSTED_ORIGINS.add(`http://localhost:${port}`);
       this.TRUSTED_ORIGINS.add(`ws://localhost:${port}`);
@@ -14,8 +15,8 @@ export class NavigationPolicy {
     try {
       const url = new URL(urlStr);
       // We only allow navigation to our frontend
-      if (url.protocol === 'file:') {
-        return true; // We might want to restrict this further to only the app directory
+      if (url.protocol === 'file:' || url.protocol === 'app:') {
+        return true; // Trusted local application schemas
       }
       return this.TRUSTED_ORIGINS.has(url.origin);
     } catch {

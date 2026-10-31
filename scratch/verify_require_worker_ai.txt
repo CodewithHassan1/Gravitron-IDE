@@ -1,0 +1,6 @@
+Successfully loaded @ag/worker-ai! [
+  'AgentRuntime',
+  'verifyDelegationWithPublicKey',
+  'isDelegationContext',
+  'buildWorkerApp'
+]

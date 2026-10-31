@@ -336,6 +336,9 @@ importers:
 
   packages/auth:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^1.10.0
+        version: 1.10.1
       '@connectrpc/connect':
         specifier: ^1.4.0
         version: 1.7.0(@bufbuild/protobuf@1.10.1)
@@ -831,6 +834,9 @@ importers:
       jose:
         specifier: ^5.10.0
         version: 5.10.0
+      nodemailer:
+        specifier: ^10.1.0
+        version: 10.1.0
     devDependencies:
       '@ag/eslint-config':
         specifier: workspace:*
@@ -853,6 +859,9 @@ importers:
       typescript:
         specifier: 5.4.5
         version: 5.4.5
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@20.19.43)(lightningcss@1.32.0)
 
   services/execution:
     devDependencies:
@@ -6088,6 +6097,10 @@ packages:
   node-source-walk@7.0.2:
     resolution: {integrity: sha512-71kFFjYaSshDTA8/a2HiTYPLdASWjLJxUyJxGE+ffxU+KhxSBtM9kiLUX+R2yooFdSFKMFpi4n3PFtDy6qXv8A==}
     engines: {node: '>=18'}
+
+  nodemailer@10.1.0:
+    resolution: {integrity: sha512-fXW8AulB25aOTuwfRYV6lqHyfz2VM4rr4SGXH03mE7x5znEUpzL5mu6anARUpZN7744Ziwkmr4AxSLPJsBQspg==}
+    engines: {node: '>=20.0.0'}
 
   nopt@5.0.0:
     resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
@@ -13251,6 +13264,8 @@ snapshots:
   node-source-walk@7.0.2:
     dependencies:
       '@babel/parser': 7.29.7
+
+  nodemailer@10.1.0: {}
 
   nopt@5.0.0:
     dependencies:

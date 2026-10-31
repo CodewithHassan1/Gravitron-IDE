@@ -1,0 +1,538 @@
+
+[WebSocketTerminalServer] Listening on ws://localhost:8081
+ApplicationHost starting...
+{"level":"WARN","time":"2026-10-17T06:33:10.368Z","service":"IntelligenceManager","version":"1.0.0","trace_id":"init","span_id":"init","request_id":"init","msg":"worker-intelligence not found at d:\\Personal Agent\\release\\win-unpacked\\services\\worker-intelligence\\dist\\index.js. Intelligence features will be disabled."}
+[16940:1017/113310.931:INFO:CONSOLE(113)] "[FORENSIC:PRELOAD:INIT] preload.ts is executing!", source:  (113)
+[16940:1017/113311.349:INFO:CONSOLE(1)] "[BOOT TRACE] AppBootstrapProvider module loaded", source: app://-/_next/static/chunks/app/layout-8d90ad9201bda0c3.js (1)
+[16940:1017/113311.349:INFO:CONSOLE(1)] "[BOOT TRACE] providers loaded", source: app://-/_next/static/chunks/app/layout-8d90ad9201bda0c3.js (1)
+[WebSocketTerminalServer] Port 8081 in use, trying 8082...
+[WebSocketTerminalServer] Listening on ws://localhost:8082
+ApplicationHost started successfully.
+{"level":"WARN","time":"2026-10-17T06:33:11.386Z","service":"IntelligenceManager","version":"1.0.0","trace_id":"init","span_id":"init","request_id":"init","msg":"Failed to handshake with worker-intelligence: Error: worker-intelligence is not connected. Intelligence features will be disabled."}
+[BROWSER CONSOLE] [app://-/_next/static/chunks/336.e42b3ec73bbf62ea.js:1] === Loading WorkbenchContributions module ===
+[16940:1017/113311.450:INFO:CONSOLE(1)] "=== Loading WorkbenchContributions module ===", source: app://-/_next/static/chunks/336.e42b3ec73bbf62ea.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering extension: ag.workbench
+[16940:1017/113311.451:INFO:CONSOLE(1)] "[ContributionRegistry] Registering extension: ag.workbench", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: File
+[16940:1017/113311.452:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: File", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarFile -> Menubar
+[16940:1017/113311.452:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarFile -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Edit
+[16940:1017/113311.452:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Edit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarEdit -> Menubar
+[16940:1017/113311.453:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarEdit -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Selection
+[16940:1017/113311.453:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Selection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarSelection -> Menubar
+[16940:1017/113311.453:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarSelection -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: View
+[16940:1017/113311.453:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: View", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarView -> Menubar
+[16940:1017/113311.453:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarView -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarGo -> Menubar
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarGo -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Run
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Run", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarRun -> Menubar
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarRun -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Terminal
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarTerminal -> Menubar
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarTerminal -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Help
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Help", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MenubarHelp -> Menubar
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MenubarHelp -> Menubar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: New Text File
+[16940:1017/113311.454:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: New Text File", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.files.newTextFile -> MenubarFile
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.files.newTextFile -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: New File...
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: New File...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.files.newFile -> MenubarFile
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.files.newFile -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: New Window
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: New Window", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.newWindow -> MenubarFile
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.newWindow -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Open File...
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Open File...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_OPEN_FILE -> MenubarFile
+[16940:1017/113311.455:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_OPEN_FILE -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Open Folder...
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Open Folder...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_OPEN_FOLDER -> MenubarFile
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_OPEN_FOLDER -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Open Workspace from File...
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Open Workspace from File...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.openWorkspace -> MenubarFile
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.openWorkspace -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Open Recent
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Open Recent", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.openRecent -> MenubarFile
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.openRecent -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Save
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Save", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE -> MenubarFile
+[16940:1017/113311.456:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Save As...
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Save As...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE_AS -> MenubarFile
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE_AS -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Save All
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Save All", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE_ALL -> MenubarFile
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_SAVE_ALL -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Close Editor
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Close Editor", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.closeEditor -> MenubarFile
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.closeEditor -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Close Folder
+[16940:1017/113311.457:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Close Folder", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.closeFolder -> MenubarFile
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.closeFolder -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Close Window
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Close Window", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.closeWindow -> MenubarFile
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.closeWindow -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Exit
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Exit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: MENU_FILE_EXIT -> MenubarFile
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: MENU_FILE_EXIT -> MenubarFile", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Undo
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Undo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.undo -> MenubarEdit
+[16940:1017/113311.458:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.undo -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Redo
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Redo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.redo -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.redo -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Cut
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Cut", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.cut -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.cut -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Copy
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Copy", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.copy -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.copy -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Paste
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Paste", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.paste -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.paste -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Find
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Find", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.find -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.find -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Replace
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Replace", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.replace -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.replace -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Find in Files
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Find in Files", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.findInFiles -> MenubarEdit
+[16940:1017/113311.459:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.findInFiles -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Toggle Line Comment
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Toggle Line Comment", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.toggleLineComment -> MenubarEdit
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.toggleLineComment -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Format Document
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Format Document", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.edit.formatDocument -> MenubarEdit
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.edit.formatDocument -> MenubarEdit", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Select All
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Select All", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.selectAll -> MenubarSelection
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.selectAll -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Expand Selection
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Expand Selection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.expandSelection -> MenubarSelection
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.expandSelection -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Shrink Selection
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Shrink Selection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.shrinkSelection -> MenubarSelection
+[16940:1017/113311.460:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.shrinkSelection -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Copy Line Up
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Copy Line Up", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.copyLineUp -> MenubarSelection
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.copyLineUp -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Copy Line Down
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Copy Line Down", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.copyLineDown -> MenubarSelection
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.copyLineDown -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Move Line Up
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Move Line Up", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.moveLineUp -> MenubarSelection
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.moveLineUp -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Move Line Down
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Move Line Down", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.moveLineDown -> MenubarSelection
+[16940:1017/113311.461:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.moveLineDown -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Duplicate Selection
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Duplicate Selection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.selection.duplicateSelection -> MenubarSelection
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.selection.duplicateSelection -> MenubarSelection", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Toggle Sidebar
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Toggle Sidebar", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.toggleSidebarVisibility -> MenubarView
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.toggleSidebarVisibility -> MenubarView", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Toggle Panel
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Toggle Panel", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.togglePanel -> MenubarView
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.togglePanel -> MenubarView", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go to File...
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go to File...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.quickOpen -> MenubarGo
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.quickOpen -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go to Symbol...
+[16940:1017/113311.462:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go to Symbol...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.gotoSymbol -> MenubarGo
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.gotoSymbol -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go to Line...
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go to Line...", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.gotoLine -> MenubarGo
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.gotoLine -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go to Definition
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go to Definition", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.go.definition -> MenubarGo
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.go.definition -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go to References
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go to References", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.go.references -> MenubarGo
+[16940:1017/113311.463:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.go.references -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go Back
+[16940:1017/113311.464:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go Back", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.go.back -> MenubarGo
+[16940:1017/113311.464:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.go.back -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Go Forward
+[16940:1017/113311.464:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Go Forward", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.go.forward -> MenubarGo
+[16940:1017/113311.464:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.go.forward -> MenubarGo", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Run Task
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Run Task", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.run.task -> MenubarRun
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.run.task -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Run Build Task
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Run Build Task", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.run.build -> MenubarRun
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.run.build -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Start Debugging
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Start Debugging", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.debug.start -> MenubarRun
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.debug.start -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Run Without Debugging
+[16940:1017/113311.465:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Run Without Debugging", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.debug.run -> MenubarRun
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.debug.run -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Stop
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Stop", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.debug.stop -> MenubarRun
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.debug.stop -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Restart
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Restart", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.debug.restart -> MenubarRun
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.debug.restart -> MenubarRun", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: New Terminal
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: New Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.terminal.new -> MenubarTerminal
+[16940:1017/113311.466:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.terminal.new -> MenubarTerminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Split Terminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Split Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.terminal.split -> MenubarTerminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.terminal.split -> MenubarTerminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Kill Terminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Kill Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.terminal.kill -> MenubarTerminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.terminal.kill -> MenubarTerminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Clear Terminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Clear Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.terminal.clear -> MenubarTerminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.terminal.clear -> MenubarTerminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Focus Terminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Focus Terminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.terminal.focus -> MenubarTerminal
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.terminal.focus -> MenubarTerminal", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Documentation
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Documentation", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.help.documentation -> MenubarHelp
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.help.documentation -> MenubarHelp", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Keyboard Shortcuts
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Keyboard Shortcuts", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.help.keyboardShortcuts -> MenubarHelp
+[16940:1017/113311.467:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.help.keyboardShortcuts -> MenubarHelp", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: Command Palette
+[16940:1017/113311.468:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: Command Palette", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.showCommands -> MenubarHelp
+[16940:1017/113311.468:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.showCommands -> MenubarHelp", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [ContributionRegistry] Registering menu: About
+[16940:1017/113311.468:INFO:CONSOLE(1)] "[ContributionRegistry] Registering menu: About", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Registered menu contribution: workbench.action.help.about -> MenubarHelp
+[16940:1017/113311.468:INFO:CONSOLE(1)] "[NativeMenuAudit] Registered menu contribution: workbench.action.help.about -> MenubarHelp", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] ApplicationMenuSyncService.init() invoked
+[16940:1017/113311.468:INFO:CONSOLE(1)] "[NativeMenuAudit] ApplicationMenuSyncService.init() invoked", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/862-32c6dbdb319b6449.js:1] [NativeMenuAudit] Built menu tree, sending to Electron. Top-level item count: 8 Total registered contributions: 9
+[16940:1017/113311.483:INFO:CONSOLE(1)] "[NativeMenuAudit] Built menu tree, sending to Electron. Top-level item count: 8 Total registered contributions: 9", source: app://-/_next/static/chunks/862-32c6dbdb319b6449.js (1)
+[ReqID: 67e225f4-ac48-4800-bb08-7939910616f6] req start
+[NativeMenuAudit] Received SetApplicationMenu IPC with top level items: 8
+[ReqID: 67e225f4-ac48-4800-bb08-7939910616f6] res in 5ms
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.512:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.512:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.531:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.532:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.534:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.534:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.536:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.536:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.539:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.539:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.541:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.541:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.543:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.543:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.545:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.545:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.547:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.547:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.548:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.549:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.550:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.551:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.552:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.552:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.554:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.554:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.555:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.555:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.557:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.557:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.559:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.559:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.561:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.561:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.562:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.562:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.564:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.564:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.565:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.565:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.566:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.567:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.572:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.572:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.578:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.578:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.592:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.592:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.597:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.597:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.601:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.602:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.608:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.609:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.614:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.614:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.618:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.618:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.619:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.619:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.620:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.620:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.621:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.621:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.622:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.623:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.625:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.626:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.630:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.631:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.635:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.636:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.641:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.641:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.649:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.649:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.654:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.655:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.671:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.671:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.673:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.673:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.676:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.676:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.676:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.676:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.678:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.678:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.679:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.680:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.681:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.681:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.682:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.682:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.683:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.683:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.686:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.687:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.692:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.692:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.699:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.699:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.705:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.705:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.711:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.712:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.716:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.717:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.721:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.722:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.726:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.727:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.732:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.733:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.734:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.734:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.740:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.741:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.746:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.746:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.750:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.751:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.756:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.757:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.775:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.776:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.779:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.780:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] === WORKBENCH MENU RENDER ===
+[16940:1017/113311.914:INFO:CONSOLE(1)] "=== WORKBENCH MENU RENDER ===", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)
+[BROWSER CONSOLE] [app://-/_next/static/chunks/522.b351631717e284cf.js:1] MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+[16940:1017/113311.914:INFO:CONSOLE(1)] "MenuItems for Menubar: [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]", source: app://-/_next/static/chunks/522.b351631717e284cf.js (1)

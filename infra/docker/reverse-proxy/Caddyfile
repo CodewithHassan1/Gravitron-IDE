@@ -1,0 +1,42 @@
+{
+    admin off
+}
+
+# In production, set GATEWAY_DOMAIN (e.g. gateway.yourdomain.com)
+# When set to a public domain, Caddy automatically provisions and renews TLS certificates via Let's Encrypt / ZeroSSL.
+# When set to localhost or an IP, Caddy serves over internal TLS or plain HTTP.
+{$GATEWAY_DOMAIN:localhost} {
+    log {
+        output stdout
+        format json
+    }
+
+    encode zstd gzip
+
+    # Reverse proxy liveness endpoint
+    handle /proxy-health {
+        respond "OK" 200
+    }
+
+    # Block internal metrics from public access (including subpaths and trailing slash)
+    handle /metrics* {
+        respond "Forbidden" 403
+    }
+
+    # Pass all traffic to the Gateway service (ConnectRPC + REST + WebSockets)
+    handle {
+        request_body {
+            max_size 20MB
+        }
+        reverse_proxy gateway:8080 {
+            flush_interval -1
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+
+            # Remove server identifier header for security hardening
+            header_down -Server
+        }
+    }
+}
