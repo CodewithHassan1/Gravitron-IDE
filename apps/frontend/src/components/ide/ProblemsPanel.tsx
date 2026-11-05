@@ -14,18 +14,25 @@ export function ProblemsPanel() {
     );
   }
 
-  const grouped = diagnostics.reduce((acc, d) => {
-    if (!acc[d.uri]) acc[d.uri] = [];
-    acc[d.uri].push(d);
-    return acc;
-  }, {} as Record<string, typeof diagnostics>);
+  const grouped = diagnostics.reduce(
+    (acc, d) => {
+      if (!acc[d.uri]) acc[d.uri] = [];
+      acc[d.uri].push(d);
+      return acc;
+    },
+    {} as Record<string, typeof diagnostics>
+  );
 
   const getIcon = (severity: string) => {
     switch (severity) {
-      case 'error': return <AlertCircle className="w-3.5 h-3.5 text-red-500 mr-2 shrink-0" />;
-      case 'warning': return <AlertTriangle className="w-3.5 h-3.5 text-yellow-500 mr-2 shrink-0" />;
-      case 'info': return <Info className="w-3.5 h-3.5 text-blue-500 mr-2 shrink-0" />;
-      default: return <MessageSquare className="w-3.5 h-3.5 text-muted-foreground mr-2 shrink-0" />;
+      case 'error':
+        return <AlertCircle className="w-3.5 h-3.5 text-red-500 mr-2 shrink-0" />;
+      case 'warning':
+        return <AlertTriangle className="w-3.5 h-3.5 text-yellow-500 mr-2 shrink-0" />;
+      case 'info':
+        return <Info className="w-3.5 h-3.5 text-blue-500 mr-2 shrink-0" />;
+      default:
+        return <MessageSquare className="w-3.5 h-3.5 text-muted-foreground mr-2 shrink-0" />;
     }
   };
 
@@ -41,8 +48,8 @@ export function ProblemsPanel() {
             </span>
           </div>
           <div className="flex flex-col">
-            {items.map(d => (
-              <div 
+            {items.map((d) => (
+              <div
                 key={d.id}
                 className="flex items-start px-4 py-1.5 hover:bg-muted/50 cursor-pointer"
                 onClick={() => NavigationEngine.revealLine(uri, d.line, d.column)}
@@ -53,7 +60,9 @@ export function ProblemsPanel() {
                   <div className="flex text-muted-foreground opacity-60 mt-0.5 space-x-2">
                     {d.source && <span>[{d.source}]</span>}
                     {d.code && <span>{d.code}</span>}
-                    <span>Ln {d.line}, Col {d.column}</span>
+                    <span>
+                      Ln {d.line}, Col {d.column}
+                    </span>
                   </div>
                 </div>
               </div>

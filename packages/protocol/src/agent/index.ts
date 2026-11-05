@@ -25,7 +25,7 @@ export namespace AgentProtocol {
     ExecutingTool = 'ExecutingTool',
     Completed = 'Completed',
     Cancelled = 'Cancelled',
-    Failed = 'Failed'
+    Failed = 'Failed',
   }
 
   export interface ApproveToolRequest {
@@ -113,10 +113,7 @@ export namespace AgentProtocol {
   }
 
   export type AgentEventPayload =
-    | StateChangedEvent
-    | StreamEventPayload
-    | ToolApprovalRequestedEvent
-    | PlanUpdatedEvent;
+    StateChangedEvent | StreamEventPayload | ToolApprovalRequestedEvent | PlanUpdatedEvent;
 
   export interface AgentEventEnvelope {
     eventId: string;
@@ -173,10 +170,7 @@ export namespace AgentProtocol {
   }
 
   export interface IAgentCapabilityBridge {
-    readFile(
-      context: AgentCapabilityContext,
-      path: string
-    ): Promise<string>;
+    readFile(context: AgentCapabilityContext, path: string): Promise<string>;
 
     writeFile(
       context: AgentCapabilityContext,
@@ -234,15 +228,9 @@ export namespace AgentProtocol {
       limit?: number
     ): Promise<any[]>;
 
-    addLongTermMemory(
-      context: AgentCapabilityContext,
-      memory: any
-    ): Promise<void>;
+    addLongTermMemory(context: AgentCapabilityContext, memory: any): Promise<void>;
 
-    getLongTermMemory(
-      context: AgentCapabilityContext,
-      limit?: number
-    ): Promise<any[]>;
+    getLongTermMemory(context: AgentCapabilityContext, limit?: number): Promise<any[]>;
 
     searchLongTermMemory(
       context: AgentCapabilityContext,

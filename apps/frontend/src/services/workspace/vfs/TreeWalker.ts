@@ -95,7 +95,10 @@ export class TreeWalker {
   /**
    * Filtered traversal returning matching nodes.
    */
-  public filter(startNodeId: string, predicate: (node: Readonly<WorkspaceNode>) => boolean): Readonly<WorkspaceNode>[] {
+  public filter(
+    startNodeId: string,
+    predicate: (node: Readonly<WorkspaceNode>) => boolean
+  ): Readonly<WorkspaceNode>[] {
     const results: WorkspaceNode[] = [];
     this.dfsPreOrder(startNodeId, (node) => {
       if (predicate(node)) {

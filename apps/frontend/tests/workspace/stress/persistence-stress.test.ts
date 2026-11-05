@@ -20,9 +20,9 @@ vi.mock('idb', () => ({
     delete: vi.fn(async (storeName, key) => mockDbStore.delete(`${storeName}:${key}`)),
     transaction: vi.fn().mockReturnValue({
       objectStore: vi.fn().mockReturnValue({
-        delete: vi.fn(async (key) => mockDbStore.delete(key))
-      })
-    })
+        delete: vi.fn(async (key) => mockDbStore.delete(key)),
+      }),
+    }),
   }),
 }));
 
@@ -35,14 +35,22 @@ describe('Persistence Stress Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-persistence', name: 'PersistenceWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-persistence',
+        name: 'PersistenceWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
 
   afterEach(async () => {
     await manager.closeWorkspace();
-    
+
     // Validation Requirements:
     // Verify: listeners = 0, timers = 0, queues flushed
     expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
@@ -57,10 +65,10 @@ describe('Persistence Stress Test', () => {
 
     for (let i = 0; i < RUNS; i++) {
       await manager.createFile(`/file_${i}.ts`);
-      
+
       const vfs = (manager as any).vfs;
       const snapshot = { version: 1, nodes: vfs.snapshot() };
-      
+
       // Save snapshot
       await persistence.saveSnapshot('ws-persistence', snapshot);
     }
@@ -70,7 +78,7 @@ describe('Persistence Stress Test', () => {
     expect(restoredSnapshot).toBeDefined();
     // 1000 files + 1 root = 1001 nodes
     expect(restoredSnapshot!.nodes.length).toBe(1001);
-    
+
     const lastFileNode = restoredSnapshot!.nodes.find((n: any) => n.name === `file_${RUNS - 1}.ts`);
     expect(lastFileNode).toBeDefined();
   });
@@ -79,7 +87,7 @@ describe('Persistence Stress Test', () => {
     // Generate 10,000 node workspace
     const FOLDER_COUNT = 100;
     const FILES_PER_FOLDER = 99; // 100*99 = 9900 files. 100 folders. 1 root. Total 10001 nodes
-    
+
     for (let i = 0; i < FOLDER_COUNT; i++) {
       await manager.createFolder(`/folder_${i}`);
       for (let j = 0; j < FILES_PER_FOLDER; j++) {
@@ -89,7 +97,9 @@ describe('Persistence Stress Test', () => {
 
     const vfsBefore = (manager as any).vfs;
     const indexBefore = vfsBefore.index;
-    const uuidSetBefore = new Set(Array.from(indexBefore.nodes.values() as Iterable<any>).map((n: any) => n.id));
+    const uuidSetBefore = new Set(
+      Array.from(indexBefore.nodes.values() as Iterable<any>).map((n: any) => n.id)
+    );
 
     const persistence = (manager as any).persistence as WorkspacePersistence;
     const snapshot = { version: 1, nodes: vfsBefore.snapshot() };
@@ -97,20 +107,30 @@ describe('Persistence Stress Test', () => {
 
     // Destroy and reload manager
     await manager.closeWorkspace();
-    
+
     const newManager = new WorkspaceManagerImpl();
     await newManager.openWorkspace(
-      { id: 'ws-large-snap', name: 'PersistenceWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-large-snap',
+        name: 'PersistenceWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
     const vfsAfter = (newManager as any).vfs;
     const indexAfter = vfsAfter.index;
-    
+
     expect(indexAfter.nodes.size).toBe(indexBefore.nodes.size);
 
-    const uuidSetAfter = new Set(Array.from(indexAfter.nodes.values() as Iterable<any>).map((n: any) => n.id));
-    
+    const uuidSetAfter = new Set(
+      Array.from(indexAfter.nodes.values() as Iterable<any>).map((n: any) => n.id)
+    );
+
     expect(uuidSetBefore).toEqual(uuidSetAfter);
 
     await newManager.closeWorkspace();
@@ -121,7 +141,7 @@ describe('Persistence Stress Test', () => {
   it('Persistence Failure Injection', async () => {
     const persistence = (manager as any).persistence as WorkspacePersistence;
     const syncEngine = (manager as any).syncEngine;
-    
+
     // Create some data
     await manager.createFile('/important.ts');
 
@@ -145,7 +165,7 @@ describe('Persistence Stress Test', () => {
 
     const stateAfter = syncEngine.getSyncState();
     expect(stateAfter.status).toBe('Idle');
-    
+
     // Verify that data was eventually saved
     const savedSnapshot = await persistence.getSnapshot('ws-persistence');
     expect(savedSnapshot).toBeDefined();

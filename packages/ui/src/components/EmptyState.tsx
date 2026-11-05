@@ -1,18 +1,28 @@
-import * as React from "react"
-import { cn } from "../lib/utils"
-import { LucideIcon } from "lucide-react"
+import * as React from 'react';
+import { cn } from '../lib/utils';
+import { LucideIcon } from 'lucide-react';
 
 export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
-  icon?: LucideIcon
-  title: string
-  description?: string
-  action?: React.ReactNode
+  icon?: LucideIcon;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className, ...props }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+  ...props
+}: EmptyStateProps) {
   return (
-    <div 
-      className={cn("flex flex-col items-center justify-center h-full p-6 text-center space-y-4", className)}
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center h-full p-6 text-center space-y-4',
+        className
+      )}
       {...props}
     >
       {Icon && (
@@ -26,11 +36,7 @@ export function EmptyState({ icon: Icon, title, description, action, className, 
           <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">{description}</p>
         )}
       </div>
-      {action && (
-        <div className="pt-2">
-          {action}
-        </div>
-      )}
+      {action && <div className="pt-2">{action}</div>}
     </div>
-  )
+  );
 }

@@ -7,11 +7,13 @@ describe('TaskScheduler', () => {
   it('schedules tasks up to max concurrent limit', () => {
     const runtime = new TaskRuntime();
     const scheduler = new TaskScheduler(runtime, { maxConcurrentTasks: 2 });
-    
+
     // Mock 3 runners
     const createMockRunner = (id: string) => {
       let resolvePromise: (value: number) => void;
-      const promise = new Promise<number>((resolve) => { resolvePromise = resolve; });
+      const promise = new Promise<number>((resolve) => {
+        resolvePromise = resolve;
+      });
       return {
         runner: {
           executionId: id,
@@ -19,7 +21,7 @@ describe('TaskScheduler', () => {
           cancel: vi.fn(),
           dispose: vi.fn(),
         } as unknown as TaskRunner,
-        complete: () => resolvePromise(0)
+        complete: () => resolvePromise(0),
       };
     };
 
@@ -33,7 +35,7 @@ describe('TaskScheduler', () => {
 
     expect(scheduler.getActiveCount()).toBe(2);
     expect(scheduler.getQueueLength()).toBe(1);
-    
+
     expect(t1.runner.run).toHaveBeenCalled();
     expect(t2.runner.run).toHaveBeenCalled();
     expect(t3.runner.run).not.toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 interface WorkspaceState {
   activeWorkspaceId: string | null;
@@ -8,4 +8,4 @@ interface WorkspaceState {
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   activeWorkspaceId: null,
   setActiveWorkspace: (id) => set({ activeWorkspaceId: id }),
-}))
+}));

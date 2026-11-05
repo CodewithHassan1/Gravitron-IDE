@@ -21,7 +21,7 @@ export class AgentRuntime {
 
   constructor(options: { capabilityBridge: AgentProtocol.IAgentCapabilityBridge }) {
     this.capabilityBridge = options.capabilityBridge;
-    
+
     // Register builtin tools
     this.toolRegistry.register(new ReadFileTool());
     this.toolRegistry.register(new WriteFileTool());
@@ -58,7 +58,9 @@ export class AgentRuntime {
       throw new Error('startAgent requires a DelegationContext. No execution may run unbound.');
     }
     if (delegation.scope !== AGENT_EXECUTE_SCOPE) {
-      throw new Error(`startAgent requires scope ${AGENT_EXECUTE_SCOPE}, received ${delegation.scope}`);
+      throw new Error(
+        `startAgent requires scope ${AGENT_EXECUTE_SCOPE}, received ${delegation.scope}`
+      );
     }
 
     if (this.sessions.has(id)) {
@@ -66,12 +68,20 @@ export class AgentRuntime {
     }
 
     const provider = ProviderFactory.createProvider(providerType, providerConfig);
-    
-    const session = new AgentSession(id, workspaceId, delegation, provider, eventEmitter, this.toolRegistry, this.capabilityBridge);
+
+    const session = new AgentSession(
+      id,
+      workspaceId,
+      delegation,
+      provider,
+      eventEmitter,
+      this.toolRegistry,
+      this.capabilityBridge
+    );
     this.sessions.set(id, session);
 
     // Fire and forget (it handles its own async loop)
-    session.start(prompt).catch(err => {
+    session.start(prompt).catch((err) => {
       console.error(`AgentSession ${id} crashed unexpectedly:`, err);
     });
 
@@ -85,7 +95,12 @@ export class AgentRuntime {
     }
   }
 
-  public approveTool(agentId: string, approvalId: string, toolCallId: string, approved: boolean): void {
+  public approveTool(
+    agentId: string,
+    approvalId: string,
+    toolCallId: string,
+    approved: boolean
+  ): void {
     const session = this.sessions.get(agentId);
     if (session) {
       session.handleApproval(approvalId, toolCallId, approved);

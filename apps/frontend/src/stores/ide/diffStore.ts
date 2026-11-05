@@ -8,6 +8,7 @@ interface DiffState {
 
 export const useDiffStore = create<DiffState>((set) => ({
   openDiffs: [],
-  addDiff: (path) => set((state) => ({ openDiffs: Array.from(new Set([...state.openDiffs, path])) })),
-  removeDiff: (path) => set((state) => ({ openDiffs: state.openDiffs.filter(p => p !== path) }))
+  addDiff: (path) =>
+    set((state) => ({ openDiffs: Array.from(new Set([...state.openDiffs, path])) })),
+  removeDiff: (path) => set((state) => ({ openDiffs: state.openDiffs.filter((p) => p !== path) })),
 }));

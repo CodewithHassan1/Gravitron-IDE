@@ -21,7 +21,7 @@ export class Scorer {
   static scoreSubstringMatch(query: string, target: string): number {
     const queryLower = query.toLowerCase();
     const targetLower = target.toLowerCase();
-    
+
     if (targetLower.includes(queryLower)) {
       // Shorter targets score higher for the same substring match
       const lengthPenalty = Math.max(0, target.length - query.length) * 0.5;
@@ -33,7 +33,7 @@ export class Scorer {
   static scoreFuzzy(query: string, target: string): number {
     const queryLower = query.toLowerCase();
     const targetLower = target.toLowerCase();
-    
+
     let queryIdx = 0;
     let targetIdx = 0;
     let matches = 0;
@@ -48,10 +48,10 @@ export class Scorer {
 
     if (matches === queryLower.length) {
       // All characters found in order, but with gaps
-      const spread = targetIdx - queryLower.length; 
+      const spread = targetIdx - queryLower.length;
       return Math.max(5, 50 - spread);
     }
-    
+
     return 0;
   }
 }

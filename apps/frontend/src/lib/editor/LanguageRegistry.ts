@@ -2,12 +2,12 @@ export interface LanguageProvider {
   id: string;
   extensions: string[];
   aliases?: string[];
-  
+
   // Future integrations
   configuration?: any;
   syntaxTokens?: any;
   themeTokens?: any;
-  
+
   completionProvider?: any;
   hoverProvider?: any;
   definitionProvider?: any;
@@ -16,12 +16,12 @@ export interface LanguageProvider {
   formattingProvider?: any;
   codeActionsProvider?: any;
   diagnosticsProvider?: any;
-  
+
   semanticTokensProvider?: any;
   codeLensProvider?: any;
   inlayHintsProvider?: any;
   signatureHelpProvider?: any;
-  
+
   lspClient?: any;
   aiPromptRules?: string[];
   parser?: any;
@@ -37,7 +37,7 @@ export class LanguageRegistryImpl {
 
   registerLanguage(provider: LanguageProvider) {
     this.languages.set(provider.id, provider);
-    provider.extensions.forEach(ext => {
+    provider.extensions.forEach((ext) => {
       this.extensionMap.set(ext.toLowerCase(), provider.id);
     });
   }
@@ -62,7 +62,11 @@ export const LanguageRegistry = new LanguageRegistryImpl();
 // Register default languages
 const defaults: LanguageProvider[] = [
   { id: 'typescript', extensions: ['.ts', '.tsx'], aliases: ['TypeScript', 'ts', 'tsx'] },
-  { id: 'javascript', extensions: ['.js', '.jsx', '.mjs', '.cjs'], aliases: ['JavaScript', 'js', 'jsx'] },
+  {
+    id: 'javascript',
+    extensions: ['.js', '.jsx', '.mjs', '.cjs'],
+    aliases: ['JavaScript', 'js', 'jsx'],
+  },
   { id: 'json', extensions: ['.json', '.jsonc'], aliases: ['JSON'] },
   { id: 'markdown', extensions: ['.md', '.mdx'], aliases: ['Markdown'] },
   { id: 'python', extensions: ['.py', '.pyw'], aliases: ['Python', 'py'] },
@@ -76,11 +80,15 @@ const defaults: LanguageProvider[] = [
   { id: 'tailwindcss', extensions: [], aliases: ['Tailwind'] },
   { id: 'java', extensions: ['.java'], aliases: ['Java'] },
   { id: 'csharp', extensions: ['.cs'], aliases: ['C#', 'csharp'] },
-  { id: 'cpp', extensions: ['.cpp', '.cc', '.cxx', '.hpp', '.hh', '.hxx'], aliases: ['C++', 'cpp'] },
+  {
+    id: 'cpp',
+    extensions: ['.cpp', '.cc', '.cxx', '.hpp', '.hh', '.hxx'],
+    aliases: ['C++', 'cpp'],
+  },
   { id: 'c', extensions: ['.c', '.h'], aliases: ['C'] },
   { id: 'xml', extensions: ['.xml'], aliases: ['XML'] },
   { id: 'sql', extensions: ['.sql'], aliases: ['SQL'] },
   { id: 'shell', extensions: ['.sh', '.bash', '.zsh'], aliases: ['Bash', 'Shell'] },
 ];
 
-defaults.forEach(def => LanguageRegistry.registerLanguage(def));
+defaults.forEach((def) => LanguageRegistry.registerLanguage(def));

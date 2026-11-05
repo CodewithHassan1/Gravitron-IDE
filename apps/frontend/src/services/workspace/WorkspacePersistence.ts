@@ -49,7 +49,10 @@ export class WorkspacePersistence {
   /**
    * Save workspace metadata and native handle (if any)
    */
-  public async saveWorkspace(metadata: WorkspaceMetadata, handle: WorkspaceHandle | null): Promise<void> {
+  public async saveWorkspace(
+    metadata: WorkspaceMetadata,
+    handle: WorkspaceHandle | null
+  ): Promise<void> {
     const db = await this.dbPromise;
     const record: WorkspaceRecord = {
       ...metadata,
@@ -61,9 +64,11 @@ export class WorkspacePersistence {
   /**
    * Retrieve workspace metadata and native handle by ID
    */
-  public async getWorkspace(workspaceId: string): Promise<{ metadata: WorkspaceMetadata; handle: WorkspaceHandle | null } | null> {
+  public async getWorkspace(
+    workspaceId: string
+  ): Promise<{ metadata: WorkspaceMetadata; handle: WorkspaceHandle | null } | null> {
     const db = await this.dbPromise;
-    const record = await db.get('workspaces', workspaceId) as WorkspaceRecord;
+    const record = (await db.get('workspaces', workspaceId)) as WorkspaceRecord;
     if (!record) return null;
 
     const metadata: WorkspaceMetadata = {
@@ -76,7 +81,9 @@ export class WorkspacePersistence {
       capabilities: record.capabilities,
     };
 
-    const handle: WorkspaceHandle | null = record.nativeHandle ? { nativeHandle: record.nativeHandle } : null;
+    const handle: WorkspaceHandle | null = record.nativeHandle
+      ? { nativeHandle: record.nativeHandle }
+      : null;
 
     return { metadata, handle };
   }
@@ -86,16 +93,18 @@ export class WorkspacePersistence {
    */
   public async listWorkspaces(): Promise<WorkspaceMetadata[]> {
     const db = await this.dbPromise;
-    const records = await db.getAll('workspaces') as WorkspaceRecord[];
-    return records.map(record => ({
-      id: record.id,
-      name: record.name,
-      uri: record.uri,
-      provider: record.provider,
-      lastOpened: record.lastOpened,
-      type: record.type,
-      capabilities: record.capabilities,
-    })).sort((a, b) => b.lastOpened - a.lastOpened);
+    const records = (await db.getAll('workspaces')) as WorkspaceRecord[];
+    return records
+      .map((record) => ({
+        id: record.id,
+        name: record.name,
+        uri: record.uri,
+        provider: record.provider,
+        lastOpened: record.lastOpened,
+        type: record.type,
+        capabilities: record.capabilities,
+      }))
+      .sort((a, b) => b.lastOpened - a.lastOpened);
   }
 
   /**
@@ -116,7 +125,7 @@ export class WorkspacePersistence {
    */
   public async getSnapshot(workspaceId: string): Promise<WorkspaceSnapshot | null> {
     const db = await this.dbPromise;
-    const record = await db.get('snapshots', workspaceId) as SnapshotRecord;
+    const record = (await db.get('snapshots', workspaceId)) as SnapshotRecord;
     if (!record) return null;
     return {
       version: record.version,

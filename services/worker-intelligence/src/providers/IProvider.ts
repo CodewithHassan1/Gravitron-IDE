@@ -29,7 +29,19 @@ export interface ReferenceResult {
 }
 
 export interface ISearchProvider {
-  findDefinition(workspaceId: string, symbolName: string, options?: ProviderOptions): Promise<QueryResult<DefinitionResult>>;
-  findReferences(workspaceId: string, symbolName: string, options?: ProviderOptions): Promise<QueryResult<ReferenceResult>>;
-  searchSymbols(workspaceId: string, query: string, options?: ProviderOptions): Promise<QueryResult<DefinitionResult>>;
+  findDefinition(
+    workspaceId: string,
+    symbolName: string,
+    options?: ProviderOptions
+  ): Promise<QueryResult<DefinitionResult>>;
+  findReferences(
+    workspaceId: string,
+    symbolName: string,
+    options?: ProviderOptions
+  ): Promise<QueryResult<ReferenceResult>>;
+  searchSymbols(
+    workspaceId: string,
+    query: string,
+    options?: ProviderOptions
+  ): Promise<QueryResult<DefinitionResult>>;
 }

@@ -1,4 +1,11 @@
-import { ExecutionRequest, ExecutionContext, ExecutionProfile, ExecutionTarget, ShellDescriptor, TerminalProtocol } from '@ag/protocol';
+import {
+  ExecutionRequest,
+  ExecutionContext,
+  ExecutionProfile,
+  ExecutionTarget,
+  ShellDescriptor,
+  TerminalProtocol,
+} from '@ag/protocol';
 import { ExecutionBackendCapabilities } from '../terminal/pty/IExecutionBackend';
 
 export interface IContextResolver {
@@ -10,7 +17,10 @@ export interface IProfileResolver {
 }
 
 export interface IEnvironmentResolver {
-  resolve(request: ExecutionRequest, profile: ExecutionProfile): Promise<Readonly<Record<string, string>>>;
+  resolve(
+    request: ExecutionRequest,
+    profile: ExecutionProfile
+  ): Promise<Readonly<Record<string, string>>>;
 }
 
 export interface IWorkingDirectoryResolver {

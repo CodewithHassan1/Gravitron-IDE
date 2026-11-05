@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // Validates the shape of our Access Token JWT payload
 export const JWTPayloadSchema = z.object({
@@ -9,9 +9,9 @@ export const JWTPayloadSchema = z.object({
   exp: z.number(),
   jti: z.string(),
   sid: z.string().uuid(),
-  sub: z.string().uuid(),          // User ID
-  org_id: z.string().uuid(),      // Organization ID
-  roles: z.array(z.string()),     // ['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']
+  sub: z.string().uuid(), // User ID
+  org_id: z.string().uuid(), // Organization ID
+  roles: z.array(z.string()), // ['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']
   amr: z.array(z.string()).optional(),
   azp: z.string().optional(),
 });
@@ -25,7 +25,7 @@ export const RedisSessionSchema = z.object({
   current_jti: z.string(),
   expires_at: z.number(),
   device: z.string().optional(),
-  ip: z.string().optional()
+  ip: z.string().optional(),
 });
 
 export type RedisSession = z.infer<typeof RedisSessionSchema>;
@@ -36,11 +36,11 @@ export const ApiKeySchema = z.object({
   user_id: z.string().uuid(),
   org_id: z.string().uuid(),
   name: z.string(),
-  key_hash: z.string(),           // SHA-256 Hash of the raw secret
-  prefix: z.string(),             // 'ag_pat_'
+  key_hash: z.string(), // SHA-256 Hash of the raw secret
+  prefix: z.string(), // 'ag_pat_'
   created_at: z.date(),
   expires_at: z.date().optional(),
-  last_used_at: z.date().optional()
+  last_used_at: z.date().optional(),
 });
 
 export type ApiKey = z.infer<typeof ApiKeySchema>;

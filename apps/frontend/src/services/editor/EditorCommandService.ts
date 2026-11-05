@@ -3,7 +3,6 @@ import { CommandExecutionContext } from '../../lib/registries/CommandRegistry';
 import { DocumentFormattingService } from './DocumentFormattingService';
 
 class EditorCommandServiceImpl {
-  
   async undo(context: CommandExecutionContext) {
     EditorManager.getActiveEditor()?.trigger('keyboard', 'undo', null);
   }
@@ -21,13 +20,17 @@ class EditorCommandServiceImpl {
   }
 
   async paste(context: CommandExecutionContext) {
-    EditorManager.getActiveEditor()?.trigger('keyboard', 'editor.action.clipboardPasteAction', null);
+    EditorManager.getActiveEditor()?.trigger(
+      'keyboard',
+      'editor.action.clipboardPasteAction',
+      null
+    );
   }
 
   async delete(context: CommandExecutionContext) {
     const editor = EditorManager.getActiveEditor();
     if (!editor) return;
-    
+
     if (context.selectionEmpty) {
       editor.trigger('keyboard', 'deleteRight', null);
     } else {
@@ -44,7 +47,11 @@ class EditorCommandServiceImpl {
   }
 
   async replace(context: CommandExecutionContext) {
-    EditorManager.getActiveEditor()?.trigger('keyboard', 'editor.action.startFindReplaceAction', null);
+    EditorManager.getActiveEditor()?.trigger(
+      'keyboard',
+      'editor.action.startFindReplaceAction',
+      null
+    );
   }
 
   async toggleLineComment(context: CommandExecutionContext) {
@@ -58,7 +65,7 @@ class EditorCommandServiceImpl {
   async formatDocument(context: CommandExecutionContext) {
     await DocumentFormattingService.formatDocument(context);
   }
-  
+
   async formatSelection(context: CommandExecutionContext) {
     await DocumentFormattingService.formatSelection(context);
   }
@@ -66,13 +73,17 @@ class EditorCommandServiceImpl {
   async triggerAction(context: CommandExecutionContext, actionId: string) {
     EditorManager.getActiveEditor()?.trigger('keyboard', actionId, null);
   }
-  
+
   async goDefinition(context: CommandExecutionContext) {
     EditorManager.getActiveEditor()?.trigger('keyboard', 'editor.action.revealDefinition', null);
   }
-  
+
   async goReferences(context: CommandExecutionContext) {
-    EditorManager.getActiveEditor()?.trigger('keyboard', 'editor.action.referenceSearch.trigger', null);
+    EditorManager.getActiveEditor()?.trigger(
+      'keyboard',
+      'editor.action.referenceSearch.trigger',
+      null
+    );
   }
 }
 

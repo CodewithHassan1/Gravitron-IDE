@@ -3,7 +3,6 @@ import { EditorManager } from '../EditorManager';
 import { EditorServiceRegistry } from '../EditorServiceRegistry';
 
 export class MonacoEditorAdapter implements EditorAdapter {
-  
   async getDocumentSymbols(uri: string): Promise<DocumentSymbol[]> {
     const monaco = EditorServiceRegistry.monacoService.getMonaco();
     const model = monaco.editor.getModel(monaco.Uri.parse(uri));
@@ -12,17 +11,28 @@ export class MonacoEditorAdapter implements EditorAdapter {
     try {
       // 1. Get the language features service
       // @ts-expect-error - Internal Monaco API
-      const StandaloneServices = (await import('monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js')).StandaloneServices;
+      const StandaloneServices = (
+        await import('monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js')
+      ).StandaloneServices;
       // @ts-expect-error - Internal Monaco API
-      const ILanguageFeaturesService = (await import('monaco-editor/esm/vs/editor/common/services/languageFeatures.js')).ILanguageFeaturesService;
+      const ILanguageFeaturesService = (
+        await import('monaco-editor/esm/vs/editor/common/services/languageFeatures.js')
+      ).ILanguageFeaturesService;
       // @ts-expect-error - Internal Monaco API
-      const OutlineModel = (await import('monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js')).OutlineModel;
+      const OutlineModel = (
+        await import('monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js')
+      ).OutlineModel;
       // @ts-expect-error - Internal Monaco API
-      const CancellationToken = (await import('monaco-editor/esm/vs/base/common/cancellation.js')).CancellationToken;
+      const CancellationToken = (await import('monaco-editor/esm/vs/base/common/cancellation.js'))
+        .CancellationToken;
 
       const { documentSymbolProvider } = StandaloneServices.get(ILanguageFeaturesService);
-      
-      const outline = await OutlineModel.create(documentSymbolProvider, model, CancellationToken.None);
+
+      const outline = await OutlineModel.create(
+        documentSymbolProvider,
+        model,
+        CancellationToken.None
+      );
       return outline.asListOfDocumentSymbols() as DocumentSymbol[];
     } catch (e) {
       console.error('Failed to get document symbols', e);
@@ -39,16 +49,16 @@ export class MonacoEditorAdapter implements EditorAdapter {
 
     activeEditor.revealPositionInCenter({
       lineNumber: symbol.range.startLineNumber,
-      column: symbol.range.startColumn
+      column: symbol.range.startColumn,
     });
-    
+
     activeEditor.setSelection({
       startLineNumber: symbol.selectionRange.startLineNumber,
       startColumn: symbol.selectionRange.startColumn,
       endLineNumber: symbol.selectionRange.endLineNumber,
-      endColumn: symbol.selectionRange.endColumn
+      endColumn: symbol.selectionRange.endColumn,
     });
-    
+
     activeEditor.focus();
   }
 
@@ -58,15 +68,15 @@ export class MonacoEditorAdapter implements EditorAdapter {
 
     const position = activeEditor.getPosition();
     const model = activeEditor.getModel();
-    
+
     if (!position || !model) return null;
-    
+
     return {
       uri: model.uri.toString(),
       position: {
         lineNumber: position.lineNumber,
-        column: position.column
-      }
+        column: position.column,
+      },
     };
   }
 

@@ -7,7 +7,7 @@ export class TokenBudget {
     rules: 0,
     task: 0,
     retrieval: 0,
-    history: 0
+    history: 0,
   };
 
   private limits: Record<PromptSegment, number>;
@@ -18,12 +18,12 @@ export class TokenBudget {
   constructor(private readonly totalBudget: number) {
     // Dynamic allocation percentages
     this.limits = {
-      system: Math.floor(totalBudget * 0.1),       // 10%
+      system: Math.floor(totalBudget * 0.1), // 10%
       instructions: Math.floor(totalBudget * 0.1), // 10%
-      rules: Math.floor(totalBudget * 0.1),        // 10%
-      task: Math.floor(totalBudget * 0.05),        // 5%
-      retrieval: Math.floor(totalBudget * 0.25),   // 25%
-      history: Math.floor(totalBudget * 0.4)       // 40%
+      rules: Math.floor(totalBudget * 0.1), // 10%
+      task: Math.floor(totalBudget * 0.05), // 5%
+      retrieval: Math.floor(totalBudget * 0.25), // 25%
+      history: Math.floor(totalBudget * 0.4), // 40%
     };
   }
 

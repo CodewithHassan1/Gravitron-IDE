@@ -27,7 +27,7 @@ export class EditorManagerImpl {
       ContextEngine.setContext('selectionCount', selections.length);
       ContextEngine.setContext('editorReadOnly', isReadOnly);
       ContextEngine.setContext('editorWritable', !isReadOnly);
-      
+
       const model = editor.getModel();
       if (model && typeof model.canUndo === 'function') {
         ContextEngine.setContext('canUndo', !isReadOnly && model.canUndo());
@@ -36,12 +36,12 @@ export class EditorManagerImpl {
         ContextEngine.setContext('canUndo', false);
         ContextEngine.setContext('canRedo', false);
       }
-      
+
       const formatAction = editor.getAction('editor.action.formatDocument');
       if (formatAction) {
         ContextEngine.setContext('formatterAvailable', formatAction.isSupported());
       }
-      
+
       const blockCommentAction = editor.getAction('editor.action.blockComment');
       if (blockCommentAction) {
         ContextEngine.setContext('languageSupportsBlockComments', blockCommentAction.isSupported());
@@ -79,7 +79,7 @@ export class EditorManagerImpl {
       });
 
       const monaco = await monacoService.loadMonaco();
-      
+
       WorkerManager.initialize(monaco);
       ModelManager.setMonaco(monaco);
       ProviderRegistry.setMonaco(monaco);
@@ -99,11 +99,11 @@ export class EditorManagerImpl {
    * This ensures we never destroy and recreate editors unnecessarily.
    */
   getOrCreateEditor(groupId: string, container: HTMLElement, options: any) {
-    if (!this.initialized) throw new Error("EditorManager not initialized");
+    if (!this.initialized) throw new Error('EditorManager not initialized');
     const monaco = EditorServiceRegistry.monacoService.getMonaco();
-    
+
     let editor = this.groupEditors.get(groupId);
-    
+
     if (!editor) {
       editor = monaco.editor.create(container, options);
       DisposableRegistry.register(`editorManager-${groupId}`, editor);
@@ -129,26 +129,29 @@ export class EditorManagerImpl {
       });
 
       editor.onDidChangeCursorSelection((e: any) => {
-        editorEventBus.emit(EditorEvents.CursorChanged, { editorId: editor.getId(), groupId, position: e.selection.getStartPosition() });
+        editorEventBus.emit(EditorEvents.CursorChanged, {
+          editorId: editor.getId(),
+          groupId,
+          position: e.selection.getStartPosition(),
+        });
         this.syncContexts(editor);
       });
-      
+
       editor.onDidChangeModelContent((e: any) => {
         editorEventBus.emit(EditorEvents.ModelChanged, { editorId: editor.getId(), groupId });
         this.syncContexts(editor);
       });
-      
+
       editor.onDidChangeModelLanguage(() => {
         this.syncContexts(editor);
       });
-      
+
       editor.onDidChangeConfiguration(() => {
         this.syncContexts(editor);
       });
-
     } else {
       // If editor already exists for this group, we just need to ensure it's mounted to the provided container
-      // However, usually we don't move the container for the same group. 
+      // However, usually we don't move the container for the same group.
       // If the container changed, we might need to call editor.layout() or append the editor's DOM node.
       const editorDomNode = editor.getDomNode();
       if (editorDomNode && container !== editorDomNode.parentElement) {
@@ -164,7 +167,7 @@ export class EditorManagerImpl {
   getActiveEditor() {
     return this.activeEditorInstance;
   }
-  
+
   getEditorByGroup(groupId: string) {
     return this.groupEditors.get(groupId);
   }
@@ -180,13 +183,13 @@ export class EditorManagerImpl {
       if (model) {
         ViewStateManager.saveViewState(model.uri.toString(), editor);
       }
-      
+
       DisposableRegistry.unregister(`editorManager-${groupId}`, editor);
       editor.dispose();
       this.groupEditors.delete(groupId);
     }
   }
-  
+
   dispose() {
     this.groupEditors.forEach((editor, groupId) => {
       this.disposeEditorGroup(groupId);

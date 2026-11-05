@@ -20,9 +20,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@ag/protocol': path.resolve(
-        path.resolve(__dirname, '../../packages/protocol/src'),
-      ),
+      '@ag/protocol': path.resolve(path.resolve(__dirname, '../../packages/protocol/src')),
     },
   },
 });

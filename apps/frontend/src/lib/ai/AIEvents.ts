@@ -38,7 +38,7 @@ export class AIEventEmitter {
     const event: AIEvent = { type, payload, timestamp: Date.now() };
     const handlers = this.listeners.get(type);
     if (handlers) {
-      handlers.forEach(h => h(event));
+      handlers.forEach((h) => h(event));
     }
   }
 }

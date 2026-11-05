@@ -14,13 +14,35 @@ describe('TimelineService', () => {
     const p1: TimelineProvider = {
       id: 'p1',
       canProvide: () => true,
-      provideTimeline: async () => [{ id: '1', timestamp: 1000, provider: 'p1', type: 't', title: 'A', description: '', icon: '', metadata: {} }]
+      provideTimeline: async () => [
+        {
+          id: '1',
+          timestamp: 1000,
+          provider: 'p1',
+          type: 't',
+          title: 'A',
+          description: '',
+          icon: '',
+          metadata: {},
+        },
+      ],
     };
 
     const p2: TimelineProvider = {
       id: 'p2',
       canProvide: () => true,
-      provideTimeline: async () => [{ id: '2', timestamp: 2000, provider: 'p2', type: 't', title: 'B', description: '', icon: '', metadata: {} }]
+      provideTimeline: async () => [
+        {
+          id: '2',
+          timestamp: 2000,
+          provider: 'p2',
+          type: 't',
+          title: 'B',
+          description: '',
+          icon: '',
+          metadata: {},
+        },
+      ],
     };
 
     TimelineProviderRegistry.register(p1);
@@ -33,12 +55,12 @@ describe('TimelineService', () => {
     await TimelineService.refresh();
 
     const items = useTimelineStore.getState().items;
-    
+
     expect(items.length).toBe(2);
     // Should be sorted by timestamp descending
     expect(items[0].id).toBe('2');
     expect(items[1].id).toBe('1');
-    
+
     TimelineProviderRegistry.unregister('p1');
     TimelineProviderRegistry.unregister('p2');
   });

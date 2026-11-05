@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../../../components/ui/resizable';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '../../../components/ui/resizable';
 import { useTerminalStore } from '../../../stores/ide/terminalStore';
 import { SplitTerminal } from './SplitTerminal';
 import { EmptyTerminal } from './EmptyTerminal';
@@ -7,7 +11,7 @@ import { TerminalUIHelper } from './TerminalUIHelper';
 import { ContextEngine } from '../../../services/quickInput/ContextEngine';
 
 export function TerminalPanel() {
-  const groups = useTerminalStore(state => state.groups);
+  const groups = useTerminalStore((state) => state.groups);
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
@@ -19,7 +23,7 @@ export function TerminalPanel() {
   }
 
   return (
-    <div 
+    <div
       className={`w-full h-full flex bg-background transition-all outline-none ${isFocused ? 'ring-1 ring-blue-500' : ''}`}
       tabIndex={-1}
       onFocus={(e) => {

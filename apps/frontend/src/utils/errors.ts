@@ -5,7 +5,11 @@ export function getErrorMessage(err: unknown): string {
     }
 
     // Check if it's a ConnectError network failure
-    if (err.message.includes('fetch failed') || err.message.includes('NetworkError') || err.message.includes('Failed to fetch')) {
+    if (
+      err.message.includes('fetch failed') ||
+      err.message.includes('NetworkError') ||
+      err.message.includes('Failed to fetch')
+    ) {
       return 'Authentication service unavailable or network failure. Please try again.';
     }
 
@@ -17,7 +21,7 @@ export function getErrorMessage(err: unknown): string {
     }
     return err.message;
   }
-  
+
   if (typeof err === 'string') {
     return err;
   }

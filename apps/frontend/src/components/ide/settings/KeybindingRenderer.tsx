@@ -19,7 +19,7 @@ export const KeybindingRenderer: React.FC<ISettingRendererProps> = ({ value, onC
     if (e.altKey) keys.push('Alt');
     if (e.shiftKey) keys.push('Shift');
     if (e.metaKey) keys.push('Meta');
-    
+
     // Filter out modifier-only keypresses
     if (!['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
       keys.push(e.key.toUpperCase());
@@ -38,7 +38,7 @@ export const KeybindingRenderer: React.FC<ISettingRendererProps> = ({ value, onC
           : 'bg-ide-background border-ide-border text-ide-foreground hover:bg-ide-accent/10'
       }`}
     >
-      {recording ? 'Press keys (Escape to cancel)...' : (value || 'Unassigned')}
+      {recording ? 'Press keys (Escape to cancel)...' : value || 'Unassigned'}
     </button>
   );
 };

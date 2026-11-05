@@ -30,8 +30,9 @@ export class MemoryStore {
             timestamp INTEGER NOT NULL
           )
         `);
-        
-        this.db.run(`
+
+        this.db.run(
+          `
           CREATE TABLE IF NOT EXISTS long_term_memory (
             id TEXT PRIMARY KEY,
             workspaceId TEXT NOT NULL,
@@ -40,18 +41,25 @@ export class MemoryStore {
             confidence REAL NOT NULL,
             timestamp INTEGER NOT NULL
           )
-        `, (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
+        `,
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
       });
     });
   }
 
-  public async addEpisodic(workspaceId: string, sessionId: string, memory: EpisodicMemory): Promise<void> {
+  public async addEpisodic(
+    workspaceId: string,
+    sessionId: string,
+    memory: EpisodicMemory
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       const id = Math.random().toString(36).substring(2, 15);
-      const contentStr = typeof memory.content === 'string' ? memory.content : JSON.stringify(memory.content);
+      const contentStr =
+        typeof memory.content === 'string' ? memory.content : JSON.stringify(memory.content);
       this.db.run(
         `INSERT INTO episodic_memory (id, workspaceId, sessionId, role, content, timestamp) VALUES (?, ?, ?, ?, ?, ?)`,
         [id, workspaceId, sessionId, memory.role, contentStr, memory.timestamp],
@@ -63,18 +71,24 @@ export class MemoryStore {
     });
   }
 
-  public async getEpisodic(workspaceId: string, sessionId: string, limit = 100): Promise<EpisodicMemory[]> {
+  public async getEpisodic(
+    workspaceId: string,
+    sessionId: string,
+    limit = 100
+  ): Promise<EpisodicMemory[]> {
     return new Promise((resolve, reject) => {
       this.db.all(
         `SELECT role, content, timestamp FROM episodic_memory WHERE workspaceId = ? AND sessionId = ? ORDER BY timestamp ASC LIMIT ?`,
         [workspaceId, sessionId, limit],
         (err, rows: any[]) => {
           if (err) return reject(err);
-          resolve(rows.map(row => ({
-            role: row.role,
-            content: row.content,
-            timestamp: row.timestamp
-          })));
+          resolve(
+            rows.map((row) => ({
+              role: row.role,
+              content: row.content,
+              timestamp: row.timestamp,
+            }))
+          );
         }
       );
     });
@@ -110,7 +124,10 @@ export class MemoryStore {
     });
   }
 
-  private async findExactLongTerm(workspaceId: string, content: string): Promise<LongTermMemory | null> {
+  private async findExactLongTerm(
+    workspaceId: string,
+    content: string
+  ): Promise<LongTermMemory | null> {
     return new Promise((resolve, reject) => {
       this.db.get(
         `SELECT id, content, confidence, timestamp FROM long_term_memory WHERE workspaceId = ? AND content = ?`,
@@ -122,7 +139,7 @@ export class MemoryStore {
             id: row.id,
             content: row.content,
             confidence: row.confidence,
-            timestamp: row.timestamp
+            timestamp: row.timestamp,
           });
         }
       );
@@ -136,23 +153,29 @@ export class MemoryStore {
         [workspaceId, limit],
         (err, rows: any[]) => {
           if (err) return reject(err);
-          resolve(rows.map(row => ({
-            id: row.id,
-            content: row.content,
-            confidence: row.confidence,
-            timestamp: row.timestamp
-          })));
+          resolve(
+            rows.map((row) => ({
+              id: row.id,
+              content: row.content,
+              confidence: row.confidence,
+              timestamp: row.timestamp,
+            }))
+          );
         }
       );
     });
   }
 
-  public async searchLongTerm(workspaceId: string, queryEmbedding: number[], limit = 5): Promise<LongTermMemory[]> {
+  public async searchLongTerm(
+    workspaceId: string,
+    queryEmbedding: number[],
+    limit = 5
+  ): Promise<LongTermMemory[]> {
     // In a real SQLite environment with pgvector or custom extension, this would be an exact cosine distance query.
     // For this demonstration and compatibility, we retrieve top N based on confidence, or if a custom math function is registered, we use it.
-    // Assuming custom math isn't easily available in standard node-sqlite3 without compiling extensions, 
+    // Assuming custom math isn't easily available in standard node-sqlite3 without compiling extensions,
     // we would theoretically do: SELECT * FROM long_term_memory WHERE workspaceId = ? ORDER BY vec_distance(embedding_json, ?) LIMIT ?
-    
+
     // For the sake of the IDE milestone 6 which uses `sqlite-vec` or `sqlite-vss`, we will simulate a query format that the real implementation would catch.
     return new Promise((resolve, reject) => {
       // Dummy implementation for tests/fallback that just returns highly confident memories
@@ -161,12 +184,14 @@ export class MemoryStore {
         [workspaceId, limit],
         (err, rows: any[]) => {
           if (err) return reject(err);
-          resolve(rows.map(row => ({
-            id: row.id,
-            content: row.content,
-            confidence: row.confidence,
-            timestamp: row.timestamp
-          })));
+          resolve(
+            rows.map((row) => ({
+              id: row.id,
+              content: row.content,
+              confidence: row.confidence,
+              timestamp: row.timestamp,
+            }))
+          );
         }
       );
     });

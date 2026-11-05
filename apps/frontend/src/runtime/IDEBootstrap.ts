@@ -40,7 +40,6 @@ import { TerminalManager } from '../services/terminal';
 import { NavigationEngine } from '../services/navigation/NavigationEngine';
 import { DiagnosticsManager } from '../services/diagnostics/DiagnosticsManager';
 
-
 import { FileProvider } from '../services/quickInput/providers/FileProvider';
 import { RecentWorkspacesProvider } from '../services/quickInput/providers/RecentWorkspacesProvider';
 import { CommandProvider } from '../services/quickInput/providers/CommandProvider';
@@ -64,7 +63,7 @@ export async function bootstrapCore(onStage?: (stage: string) => void) {
   if (isCoreBootstrapped) return;
   isCoreBootstrapped = true;
 
-  const delay = () => new Promise(r => setTimeout(r, 0));
+  const delay = () => new Promise((r) => setTimeout(r, 0));
 
   onStage?.('Initializing Settings Registry...');
   await delay();
@@ -118,11 +117,11 @@ export async function bootstrapWorkbench(onStage?: (stage: string) => void) {
 let activeWorkspaceCleanups: (() => void)[] = [];
 
 export async function bootstrapWorkspace(onStage?: (stage: string) => void) {
-  // If already bootstrapped, clean up first or ignore? 
+  // If already bootstrapped, clean up first or ignore?
   // Let's assume we run this when opening a workspace.
 
   // Clean up any old workspace managers
-  activeWorkspaceCleanups.forEach(fn => fn());
+  activeWorkspaceCleanups.forEach((fn) => fn());
   activeWorkspaceCleanups = [];
 
   // Memory hook
@@ -131,7 +130,7 @@ export async function bootstrapWorkspace(onStage?: (stage: string) => void) {
     const totalNewTabs = state.groups.reduce((acc, g) => acc + g.tabs.length, 0);
     if (totalNewTabs < totalOldTabs) {
       const activeUris = new Set<string>();
-      state.groups.forEach(g => g.tabs.forEach(t => activeUris.add(t.path)));
+      state.groups.forEach((g) => g.tabs.forEach((t) => activeUris.add(t.path)));
       ModelManager.garbageCollect(activeUris);
     }
   });
@@ -148,7 +147,7 @@ export async function bootstrapWorkspace(onStage?: (stage: string) => void) {
   activeWorkspaceCleanups.push(unsubFileDel);
   activeWorkspaceCleanups.push(unsubFolderDel);
 
-  const delay = () => new Promise(r => setTimeout(r, 0));
+  const delay = () => new Promise((r) => setTimeout(r, 0));
 
   const unsubTerminal = TerminalUIHelper.initialize(WorkspaceManager.getWorkspaceId() || 'unknown');
   activeWorkspaceCleanups.push(unsubTerminal);
@@ -176,18 +175,21 @@ function registerCoreCommands() {
     id: 'workbench.action.openRecent',
     title: 'Open Recent Workspace',
     handler: () => {
-      import('../services/quickInput/QuickInputSession').then(m => m.QuickInputSession.setOpen(true, '~'));
+      import('../services/quickInput/QuickInputSession').then((m) =>
+        m.QuickInputSession.setOpen(true, '~')
+      );
     },
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.compareEditor', requiresWorkspace: true,
+    id: 'workbench.action.compareEditor',
+    requiresWorkspace: true,
     title: 'Compare with Timeline Item',
     handler: (item: any) => {
       console.log('Comparing editor with:', item);
       // We would open a diff editor comparing the active file with the version from this timeline item
       // This will likely require EditorManager.openDiffEditor() once implemented.
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
@@ -198,7 +200,7 @@ function registerCoreCommands() {
       try {
         if (typeof window !== 'undefined' && (window as any).agApi) {
           const rawResult = await (window as any).agApi.workspace.selectAndOpen();
-          const result = unwrapIpcResponse<{ path: string, name: string, type: string }>(rawResult);
+          const result = unwrapIpcResponse<{ path: string; name: string; type: string }>(rawResult);
           try {
             if (result && result.path) {
               const metadata: any = {
@@ -215,7 +217,7 @@ function registerCoreCommands() {
                   terminal: true,
                   multipleRoots: false,
                   writable: true,
-                }
+                },
               };
               await WorkspaceManager.openWorkspace(metadata, { nativeHandle: null });
             }
@@ -242,7 +244,7 @@ function registerCoreCommands() {
               terminal: true,
               multipleRoots: false,
               writable: true,
-            }
+            },
           };
           await WorkspaceManager.openWorkspace(metadata, { nativeHandle: handle });
         }
@@ -253,7 +255,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.files.reloadWorkspace', requiresWorkspace: true,
+    id: 'workbench.action.files.reloadWorkspace',
+    requiresWorkspace: true,
     title: 'Reload Workspace',
     category: 'File',
     handler: async () => {
@@ -282,7 +285,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.files.refreshExplorer', requiresWorkspace: true,
+    id: 'workbench.action.files.refreshExplorer',
+    requiresWorkspace: true,
     title: 'Refresh Explorer',
     category: 'File',
     handler: async () => {
@@ -291,21 +295,24 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.toggleSidebarVisibility', requiresWorkspace: true,
+    id: 'workbench.action.toggleSidebarVisibility',
+    requiresWorkspace: true,
     title: 'Toggle Sidebar Visibility',
     category: 'View',
     handler: () => useLayoutStore.getState().toggleSidebar(),
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.togglePanel', requiresWorkspace: true,
+    id: 'workbench.action.togglePanel',
+    requiresWorkspace: true,
     title: 'Toggle Bottom Panel',
     category: 'View',
     handler: () => useLayoutStore.getState().toggleBottomPanel(),
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.toggleSecondarySidebarVisibility', requiresWorkspace: true,
+    id: 'workbench.action.toggleSecondarySidebarVisibility',
+    requiresWorkspace: true,
     title: 'Toggle Secondary Sidebar',
     category: 'View',
     handler: () => useLayoutStore.getState().toggleSecondarySidebar(),
@@ -316,43 +323,59 @@ function registerCoreCommands() {
     title: 'Open Settings',
     handler: () => {
       const store = useEditorLayoutStore.getState();
-      const activeGroup = store.groups.find(g => g.id === store.activeGroupId) || store.groups[0];
+      const activeGroup = store.groups.find((g) => g.id === store.activeGroupId) || store.groups[0];
       if (activeGroup) {
-        store.openFile({
-          path: 'settings://user',
-          title: 'Settings',
-          language: 'json',
-          dirty: false,
-          pinned: false,
-          isPreview: false,
-        }, activeGroup.id);
+        store.openFile(
+          {
+            path: 'settings://user',
+            title: 'Settings',
+            language: 'json',
+            dirty: false,
+            pinned: false,
+            isPreview: false,
+          },
+          activeGroup.id
+        );
       }
     },
   });
 
-  CommandRegistry.registerCommand({
-    id: 'workbench.action.showCommands', requiresWorkspace: true,
-    title: 'Show Command Palette',
-    handler: () => QuickInputSession.setOpen(true, '>'),
-  }, 'Ctrl+Shift+P');
-
-  CommandRegistry.registerCommand({
-    id: 'workbench.action.quickOpen', requiresWorkspace: true,
-    title: 'Go to File',
-    handler: () => QuickInputSession.setOpen(true, ''),
-  }, 'Ctrl+P');
-
-  CommandRegistry.registerCommand({
-    id: 'workbench.action.findInFiles', requiresWorkspace: true,
-    title: 'Find in Files',
-    handler: () => {
-      useLayoutStore.getState().setSidebarOpen(true);
-      useLayoutStore.getState().setActiveActivity('search');
+  CommandRegistry.registerCommand(
+    {
+      id: 'workbench.action.showCommands',
+      requiresWorkspace: true,
+      title: 'Show Command Palette',
+      handler: () => QuickInputSession.setOpen(true, '>'),
     },
-  }, 'Ctrl+Shift+F');
+    'Ctrl+Shift+P'
+  );
+
+  CommandRegistry.registerCommand(
+    {
+      id: 'workbench.action.quickOpen',
+      requiresWorkspace: true,
+      title: 'Go to File',
+      handler: () => QuickInputSession.setOpen(true, ''),
+    },
+    'Ctrl+P'
+  );
+
+  CommandRegistry.registerCommand(
+    {
+      id: 'workbench.action.findInFiles',
+      requiresWorkspace: true,
+      title: 'Find in Files',
+      handler: () => {
+        useLayoutStore.getState().setSidebarOpen(true);
+        useLayoutStore.getState().setActiveActivity('search');
+      },
+    },
+    'Ctrl+Shift+F'
+  );
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.showSearch', requiresWorkspace: true,
+    id: 'workbench.action.showSearch',
+    requiresWorkspace: true,
     title: 'Show Search',
     handler: () => {
       useLayoutStore.getState().setSidebarOpen(true);
@@ -361,7 +384,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.showExplorer', requiresWorkspace: true,
+    id: 'workbench.action.showExplorer',
+    requiresWorkspace: true,
     title: 'Show Explorer',
     handler: () => {
       useLayoutStore.getState().setSidebarOpen(true);
@@ -369,20 +393,29 @@ function registerCoreCommands() {
     },
   });
 
-  CommandRegistry.registerCommand({
-    id: 'workbench.action.gotoSymbol', requiresWorkspace: true,
-    title: 'Go to Symbol',
-    handler: () => QuickInputSession.setOpen(true, '@'),
-  }, 'Ctrl+Shift+O');
+  CommandRegistry.registerCommand(
+    {
+      id: 'workbench.action.gotoSymbol',
+      requiresWorkspace: true,
+      title: 'Go to Symbol',
+      handler: () => QuickInputSession.setOpen(true, '@'),
+    },
+    'Ctrl+Shift+O'
+  );
+
+  CommandRegistry.registerCommand(
+    {
+      id: 'workbench.action.gotoLine',
+      requiresWorkspace: true,
+      title: 'Go to Line',
+      handler: () => QuickInputSession.setOpen(true, ':'),
+    },
+    'Ctrl+G'
+  );
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.gotoLine', requiresWorkspace: true,
-    title: 'Go to Line',
-    handler: () => QuickInputSession.setOpen(true, ':'),
-  }, 'Ctrl+G');
-
-  CommandRegistry.registerCommand({
-    id: 'workbench.action.terminal.toggleTerminal', requiresWorkspace: true,
+    id: 'workbench.action.terminal.toggleTerminal',
+    requiresWorkspace: true,
     title: 'Toggle Terminal',
     handler: () => {
       const isOpen = useLayoutStore.getState().isBottomPanelOpen;
@@ -397,7 +430,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.terminal.new', requiresWorkspace: true,
+    id: 'workbench.action.terminal.new',
+    requiresWorkspace: true,
     title: 'New Terminal',
     handler: () => {
       useLayoutStore.getState().setBottomPanelOpen(true);
@@ -412,7 +446,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.terminal.split', requiresWorkspace: true,
+    id: 'workbench.action.terminal.split',
+    requiresWorkspace: true,
     title: 'Split Terminal',
     handler: () => {
       useLayoutStore.getState().setBottomPanelOpen(true);
@@ -425,7 +460,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.terminal.clear', requiresWorkspace: true,
+    id: 'workbench.action.terminal.clear',
+    requiresWorkspace: true,
     title: 'Clear Terminal',
     handler: () => {
       // Implementation pending
@@ -434,13 +470,14 @@ function registerCoreCommands() {
 
   // Editor Tabs Commands
   CommandRegistry.registerCommand({
-    id: 'workbench.action.closeActiveEditor', requiresWorkspace: true,
+    id: 'workbench.action.closeActiveEditor',
+    requiresWorkspace: true,
     title: 'Close Active Editor',
     category: 'View',
     handler: () => {
       const store = useEditorLayoutStore.getState();
       if (store.activeGroupId) {
-        const group = store.groups.find(g => g.id === store.activeGroupId);
+        const group = store.groups.find((g) => g.id === store.activeGroupId);
         if (group && group.activeTabId) {
           store.closeFile(group.id, group.activeTabId);
         }
@@ -449,7 +486,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.reopenClosedEditor', requiresWorkspace: true,
+    id: 'workbench.action.reopenClosedEditor',
+    requiresWorkspace: true,
     title: 'Reopen Closed Editor',
     category: 'View',
     handler: () => {
@@ -458,7 +496,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.nextEditor', requiresWorkspace: true,
+    id: 'workbench.action.nextEditor',
+    requiresWorkspace: true,
     title: 'Open Next Editor',
     category: 'View',
     handler: () => {
@@ -470,7 +509,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.previousEditor', requiresWorkspace: true,
+    id: 'workbench.action.previousEditor',
+    requiresWorkspace: true,
     title: 'Open Previous Editor',
     category: 'View',
     handler: () => {
@@ -482,7 +522,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.nextEditorInGroup', requiresWorkspace: true,
+    id: 'workbench.action.nextEditorInGroup',
+    requiresWorkspace: true,
     title: 'Open Next Editor in Group',
     category: 'View',
     handler: () => {
@@ -494,7 +535,8 @@ function registerCoreCommands() {
   });
 
   CommandRegistry.registerCommand({
-    id: 'workbench.action.previousEditorInGroup', requiresWorkspace: true,
+    id: 'workbench.action.previousEditorInGroup',
+    requiresWorkspace: true,
     title: 'Open Previous Editor in Group',
     category: 'View',
     handler: () => {
@@ -513,7 +555,7 @@ function registerCoreCommands() {
       if ((window as any).agApi) {
         (window as any).agApi.window.create();
       }
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
@@ -523,7 +565,7 @@ function registerCoreCommands() {
     handler: async () => {
       if ((window as any).agApi) {
         const rawResult = await (window as any).agApi.workspace.openFile();
-        const result = unwrapIpcResponse<{ path: string, name: string, type: string }>(rawResult);
+        const result = unwrapIpcResponse<{ path: string; name: string; type: string }>(rawResult);
         if (result && result.path) {
           const metadata: any = {
             id: result.path,
@@ -539,7 +581,7 @@ function registerCoreCommands() {
               terminal: true,
               multipleRoots: false,
               writable: true,
-            }
+            },
           };
           await WorkspaceManager.openWorkspace(metadata, { nativeHandle: null });
 
@@ -550,19 +592,74 @@ function registerCoreCommands() {
             language: 'plaintext', // Later inferred
             dirty: false,
             pinned: false,
-            isPreview: false
+            isPreview: false,
           });
         }
       }
-    }
+    },
   });
-
 
   // --- REAL IMPLEMENTATIONS OF WORKBENCH COMMANDS ---
 
-  const registerAction = (id: string, title: string, handler: (...args: any[]) => void, passedEnablement?: string) => {
+  const registerAction = (
+    id: string,
+    title: string,
+    handler: (...args: any[]) => void,
+    passedEnablement?: string
+  ) => {
     let enablement = passedEnablement;
-    const workspaceCommands = ["workbench.action.compareEditor", "workbench.action.files.reloadWorkspace", "workbench.action.files.refreshExplorer", "workbench.action.toggleSidebarVisibility", "workbench.action.togglePanel", "workbench.action.toggleSecondarySidebarVisibility", "workbench.action.showCommands", "workbench.action.quickOpen", "workbench.action.findInFiles", "workbench.action.showSearch", "workbench.action.showExplorer", "workbench.action.gotoSymbol", "workbench.action.gotoLine", "workbench.action.terminal.toggleTerminal", "workbench.action.terminal.new", "workbench.action.terminal.split", "workbench.action.terminal.clear", "workbench.action.closeActiveEditor", "workbench.action.reopenClosedEditor", "workbench.action.nextEditor", "workbench.action.previousEditor", "workbench.action.nextEditorInGroup", "workbench.action.previousEditorInGroup", "workbench.action.files.newTextFile", "workbench.action.files.newFile", "workbench.action.files.save", "workbench.action.files.saveAll", "workbench.action.closeEditor", "workbench.action.closeFolder", "workbench.action.edit.undo", "workbench.action.edit.redo", "workbench.action.edit.cut", "workbench.action.edit.copy", "workbench.action.edit.paste", "workbench.action.edit.find", "workbench.action.edit.replace", "workbench.action.edit.toggleLineComment", "workbench.action.edit.formatDocument", "workbench.action.selection.selectAll", "workbench.action.selection.expandSelection", "workbench.action.selection.shrinkSelection", "workbench.action.selection.copyLineUp", "workbench.action.selection.copyLineDown", "workbench.action.selection.moveLineUp", "workbench.action.selection.moveLineDown", "workbench.action.selection.duplicateSelection", "workbench.action.go.definition", "workbench.action.go.references", "workbench.action.go.back", "workbench.action.go.forward"];
+    const workspaceCommands = [
+      'workbench.action.compareEditor',
+      'workbench.action.files.reloadWorkspace',
+      'workbench.action.files.refreshExplorer',
+      'workbench.action.toggleSidebarVisibility',
+      'workbench.action.togglePanel',
+      'workbench.action.toggleSecondarySidebarVisibility',
+      'workbench.action.showCommands',
+      'workbench.action.quickOpen',
+      'workbench.action.findInFiles',
+      'workbench.action.showSearch',
+      'workbench.action.showExplorer',
+      'workbench.action.gotoSymbol',
+      'workbench.action.gotoLine',
+      'workbench.action.terminal.toggleTerminal',
+      'workbench.action.terminal.new',
+      'workbench.action.terminal.split',
+      'workbench.action.terminal.clear',
+      'workbench.action.closeActiveEditor',
+      'workbench.action.reopenClosedEditor',
+      'workbench.action.nextEditor',
+      'workbench.action.previousEditor',
+      'workbench.action.nextEditorInGroup',
+      'workbench.action.previousEditorInGroup',
+      'workbench.action.files.newTextFile',
+      'workbench.action.files.newFile',
+      'workbench.action.files.save',
+      'workbench.action.files.saveAll',
+      'workbench.action.closeEditor',
+      'workbench.action.closeFolder',
+      'workbench.action.edit.undo',
+      'workbench.action.edit.redo',
+      'workbench.action.edit.cut',
+      'workbench.action.edit.copy',
+      'workbench.action.edit.paste',
+      'workbench.action.edit.find',
+      'workbench.action.edit.replace',
+      'workbench.action.edit.toggleLineComment',
+      'workbench.action.edit.formatDocument',
+      'workbench.action.selection.selectAll',
+      'workbench.action.selection.expandSelection',
+      'workbench.action.selection.shrinkSelection',
+      'workbench.action.selection.copyLineUp',
+      'workbench.action.selection.copyLineDown',
+      'workbench.action.selection.moveLineUp',
+      'workbench.action.selection.moveLineDown',
+      'workbench.action.selection.duplicateSelection',
+      'workbench.action.go.definition',
+      'workbench.action.go.references',
+      'workbench.action.go.back',
+      'workbench.action.go.forward',
+    ];
     if (workspaceCommands.includes(id)) {
       enablement = 'workspaceIsOpen';
     }
@@ -591,7 +688,7 @@ function registerCoreCommands() {
         language: 'plaintext',
         dirty: false,
         pinned: false,
-        isPreview: false
+        isPreview: false,
       });
     } else {
       const name = NamingUtility.generateUntitledName();
@@ -601,7 +698,7 @@ function registerCoreCommands() {
         language: 'plaintext',
         dirty: true,
         pinned: false,
-        isPreview: false
+        isPreview: false,
       });
     }
   });
@@ -630,8 +727,6 @@ function registerCoreCommands() {
     treeState.setCreateState({ parentId: parentNodeId, type: 'file' });
   });
 
-
-
   // openWorkspace is disabled via when: false in WorkbenchContributions
 
   CommandRegistry.registerCommand({
@@ -641,16 +736,16 @@ function registerCoreCommands() {
     handler: () => {
       const state = useEditorLayoutStore.getState();
       if (state.activeGroupId) {
-        const group = state.groups.find(g => g.id === state.activeGroupId);
+        const group = state.groups.find((g) => g.id === state.activeGroupId);
         if (group && group.activeTabId) {
-          const tab = group.tabs.find(t => t.id === group.activeTabId);
+          const tab = group.tabs.find((t) => t.id === group.activeTabId);
           if (tab) {
             const nodeId = WorkspaceManager.resolvePath(tab.path);
             if (nodeId) WorkspaceManager.contentManager.saveFile(nodeId);
           }
         }
       }
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
@@ -659,7 +754,7 @@ function registerCoreCommands() {
     requiresWorkspace: true,
     handler: () => {
       WorkspaceManager.contentManager.saveAll();
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
@@ -669,12 +764,12 @@ function registerCoreCommands() {
     handler: () => {
       const state = useEditorLayoutStore.getState();
       if (state.activeGroupId) {
-        const group = state.groups.find(g => g.id === state.activeGroupId);
+        const group = state.groups.find((g) => g.id === state.activeGroupId);
         if (group && group.activeTabId) {
           state.closeFile(group.id, group.activeTabId);
         }
       }
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
@@ -685,19 +780,23 @@ function registerCoreCommands() {
       WorkspaceManager.closeWorkspace();
       useWorkspaceTreeStore.getState().setTree([]);
       useWorkspaceTreeStore.getState().setFocusedNode(null);
-    }
+    },
   });
 
   CommandRegistry.registerCommand({
     id: 'workbench.action.closeWindow',
     title: 'Close Window',
     handler: () => {
-      if ((window as any).agApi && (window as any).agApi.window && (window as any).agApi.window.close) {
+      if (
+        (window as any).agApi &&
+        (window as any).agApi.window &&
+        (window as any).agApi.window.close
+      ) {
         (window as any).agApi.window.close();
       } else {
         window.close();
       }
-    }
+    },
   });
 
   registerAction('workbench.action.quit', 'Exit', () => {
@@ -709,10 +808,10 @@ function registerCoreCommands() {
   // --- EDIT MENU ---
   registerAction('workbench.action.files.save', 'Save', async () => {
     const editorStore = useEditorLayoutStore.getState();
-    const activeGroup = editorStore.groups.find(g => g.id === editorStore.activeGroupId);
+    const activeGroup = editorStore.groups.find((g) => g.id === editorStore.activeGroupId);
     if (!activeGroup || !activeGroup.activeTabId) return;
 
-    const activeTab = activeGroup.tabs.find(t => t.id === activeGroup.activeTabId);
+    const activeTab = activeGroup.tabs.find((t) => t.id === activeGroup.activeTabId);
     if (!activeTab) return;
 
     const nodeId = WorkspaceManager.resolvePath(activeTab.path);
@@ -725,8 +824,8 @@ function registerCoreCommands() {
   registerAction('workbench.action.files.saveAll', 'Save All', async () => {
     await WorkspaceManager.contentManager.saveAll();
     const editorStore = useEditorLayoutStore.getState();
-    editorStore.groups.forEach(g => {
-      g.tabs.forEach(t => {
+    editorStore.groups.forEach((g) => {
+      g.tabs.forEach((t) => {
         if (t.dirty) {
           editorStore.updateTabDirtyState(g.id, t.id, false);
         }
@@ -734,79 +833,77 @@ function registerCoreCommands() {
     });
   });
 
-
-
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.undo',
     title: 'Undo',
     enablement: 'canUndo',
-    handler: async (ctx) => EditorCommandService.undo(ctx)
+    handler: async (ctx) => EditorCommandService.undo(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.redo',
     title: 'Redo',
     enablement: 'canRedo',
-    handler: async (ctx) => EditorCommandService.redo(ctx)
+    handler: async (ctx) => EditorCommandService.redo(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.cut',
     title: 'Cut',
     enablement: 'editorHasSelection && editorWritable',
-    handler: async (ctx) => EditorCommandService.cut(ctx)
+    handler: async (ctx) => EditorCommandService.cut(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.copy',
     title: 'Copy',
     enablement: 'editorHasSelection',
-    handler: async (ctx) => EditorCommandService.copy(ctx)
+    handler: async (ctx) => EditorCommandService.copy(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.paste',
     title: 'Paste',
     enablement: 'editorWritable',
-    handler: async (ctx) => EditorCommandService.paste(ctx)
+    handler: async (ctx) => EditorCommandService.paste(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.delete',
     title: 'Delete',
     enablement: 'editorWritable',
-    handler: async (ctx) => EditorCommandService.delete(ctx)
+    handler: async (ctx) => EditorCommandService.delete(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.find',
     title: 'Find',
     enablement: 'activeEditorExists',
-    handler: async (ctx) => EditorCommandService.find(ctx)
+    handler: async (ctx) => EditorCommandService.find(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.replace',
     title: 'Replace',
     enablement: 'editorWritable',
-    handler: async (ctx) => EditorCommandService.replace(ctx)
+    handler: async (ctx) => EditorCommandService.replace(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.toggleLineComment',
     title: 'Toggle Line Comment',
     enablement: 'editorWritable',
-    handler: async (ctx) => EditorCommandService.toggleLineComment(ctx)
+    handler: async (ctx) => EditorCommandService.toggleLineComment(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.toggleBlockComment',
     title: 'Toggle Block Comment',
     enablement: 'editorWritable && languageSupportsBlockComments',
-    handler: async (ctx) => EditorCommandService.toggleBlockComment(ctx)
+    handler: async (ctx) => EditorCommandService.toggleBlockComment(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.formatDocument',
     title: 'Format Document',
     enablement: 'editorWritable && formatterAvailable',
-    handler: async (ctx) => EditorCommandService.formatDocument(ctx)
+    handler: async (ctx) => EditorCommandService.formatDocument(ctx),
   });
   CommandRegistry.registerCommand({
     id: 'workbench.action.edit.formatSelection',
     title: 'Format Selection',
     enablement: 'editorWritable && formatterAvailable && editorHasSelection',
-    handler: async (ctx) => EditorCommandService.formatSelection(ctx)
+    handler: async (ctx) => EditorCommandService.formatSelection(ctx),
   });
 
   // --- SELECTION MENU ---
@@ -833,18 +930,27 @@ function registerCoreCommands() {
       } else {
         await EditorCommandService.selectAll(ctx);
       }
-    }
+    },
   });
 
   // selection commands omitted for brevity - they belong in Selection menu, but we can register them quickly
   const selectionCommands = [
-    { id: 'workbench.action.selection.expandSelection', action: 'editor.action.smartSelect.expand' },
-    { id: 'workbench.action.selection.shrinkSelection', action: 'editor.action.smartSelect.shrink' },
+    {
+      id: 'workbench.action.selection.expandSelection',
+      action: 'editor.action.smartSelect.expand',
+    },
+    {
+      id: 'workbench.action.selection.shrinkSelection',
+      action: 'editor.action.smartSelect.shrink',
+    },
     { id: 'workbench.action.selection.copyLineUp', action: 'editor.action.copyLinesUpAction' },
     { id: 'workbench.action.selection.copyLineDown', action: 'editor.action.copyLinesDownAction' },
     { id: 'workbench.action.selection.moveLineUp', action: 'editor.action.moveLinesUpAction' },
     { id: 'workbench.action.selection.moveLineDown', action: 'editor.action.moveLinesDownAction' },
-    { id: 'workbench.action.selection.duplicateSelection', action: 'editor.action.duplicateSelection' }
+    {
+      id: 'workbench.action.selection.duplicateSelection',
+      action: 'editor.action.duplicateSelection',
+    },
   ];
 
   for (const cmd of selectionCommands) {
@@ -855,7 +961,7 @@ function registerCoreCommands() {
       handler: async () => {
         const { EditorManager } = await import('../services/editor/EditorManager');
         EditorManager.getActiveEditor()?.trigger('keyboard', cmd.action, null);
-      }
+      },
     });
   }
 
@@ -877,7 +983,7 @@ function registerCoreCommands() {
       const defaultGroup = {
         id: `group_${Date.now()}`,
         tabs: [],
-        activeTabId: null
+        activeTabId: null,
       };
       state.addGroup(defaultGroup);
       await TerminalUIHelper.createTerminal(defaultGroup.id);
@@ -895,7 +1001,7 @@ function registerCoreCommands() {
   registerAction('workbench.action.terminal.kill', 'Kill Terminal', () => {
     const state = useTerminalStore.getState();
     if (state.activeGroupId) {
-      const group = state.groups.find(g => g.id === state.activeGroupId);
+      const group = state.groups.find((g) => g.id === state.activeGroupId);
       if (group && group.activeTabId) {
         TerminalManager.destroyTerminal(group.activeTabId);
         state.removeTab(group.id, group.activeTabId);
@@ -906,7 +1012,7 @@ function registerCoreCommands() {
   registerAction('workbench.action.terminal.clear', 'Clear Terminal', () => {
     const state = useTerminalStore.getState();
     if (state.activeGroupId) {
-      const group = state.groups.find(g => g.id === state.activeGroupId);
+      const group = state.groups.find((g) => g.id === state.activeGroupId);
       if (group && group.activeTabId) {
         const session = TerminalManager.getRegistry().getSession(group.activeTabId);
         if (session) {
@@ -919,11 +1025,10 @@ function registerCoreCommands() {
   registerAction('workbench.action.terminal.focus', 'Focus Terminal', () => {
     const state = useTerminalStore.getState();
     if (state.activeGroupId) {
-      const group = state.groups.find(g => g.id === state.activeGroupId);
+      const group = state.groups.find((g) => g.id === state.activeGroupId);
       if (group && group.activeTabId) {
         TerminalManager.getRegistry().getSession(group.activeTabId)?.focus();
       }
     }
   });
-
 }

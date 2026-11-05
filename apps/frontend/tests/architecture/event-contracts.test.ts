@@ -14,7 +14,7 @@ import * as path from 'path';
 describe('Event Contracts', () => {
   it('Event Ordering: Multiple synchronous emits must be received in exact order', () => {
     const received: number[] = [];
-    
+
     // Subscribe
     WorkspaceEvents.on(WorkspaceEventType.WorkspaceOpened, () => received.push(1));
     WorkspaceEvents.on(WorkspaceEventType.WorkspaceClosed, () => received.push(2));
@@ -48,13 +48,16 @@ describe('Event Contracts', () => {
   it('Event Registry Completeness: Every WorkspaceEvent exists in WorkspaceEventPayloads', () => {
     const typesPath = path.resolve(__dirname, '../../src/services/workspace/types.ts');
     const content = fs.readFileSync(typesPath, 'utf8');
-    
+
     // Extract enum keys
     const enumMatch = content.match(/export enum WorkspaceEventType \{([^}]+)\}/);
     expect(enumMatch).toBeTruthy();
-    
-    const lines = enumMatch![1].split(',').map(l => l.trim()).filter(l => l);
-    lines.forEach(line => {
+
+    const lines = enumMatch![1]
+      .split(',')
+      .map((l) => l.trim())
+      .filter((l) => l);
+    lines.forEach((line) => {
       const key = line.split('=')[0].trim();
       // Ensure the key exists in WorkspaceEventPayloads
       expect(content).toContain(`[WorkspaceEventType.${key}]`);

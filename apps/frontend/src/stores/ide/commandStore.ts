@@ -10,16 +10,16 @@ interface CommandStore {
 
 export const useCommandStore = create<CommandStore>((set, get) => ({
   commands: {},
-  
+
   registerCommand: (command: Command) => {
     set((state) => ({
       commands: {
         ...state.commands,
-        [command.id]: command
-      }
+        [command.id]: command,
+      },
     }));
   },
-  
+
   executeCommand: async (id: string) => {
     const command = get().commands[id];
     if (command) {
@@ -28,8 +28,8 @@ export const useCommandStore = create<CommandStore>((set, get) => ({
       console.warn(`Command not found: ${id}`);
     }
   },
-  
+
   getCommandsByCategory: (category: string) => {
-    return Object.values(get().commands).filter(cmd => cmd.category === category);
-  }
+    return Object.values(get().commands).filter((cmd) => cmd.category === category);
+  },
 }));

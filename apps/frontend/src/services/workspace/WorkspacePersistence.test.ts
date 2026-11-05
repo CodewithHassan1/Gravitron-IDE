@@ -30,7 +30,14 @@ describe('WorkspacePersistence', () => {
         provider: 'browser',
         lastOpened: Date.now(),
         type: 'directory',
-        capabilities: { explorer: true, recursiveSearch: true, git: false, terminal: false, multipleRoots: false, writable: true }
+        capabilities: {
+          explorer: true,
+          recursiveSearch: true,
+          git: false,
+          terminal: false,
+          multipleRoots: false,
+          writable: true,
+        },
       };
 
       await persistence.saveWorkspace(metadata, { nativeHandle: 'mock-handle' });
@@ -49,12 +56,36 @@ describe('WorkspacePersistence', () => {
 
     it('should list multiple workspaces sorted by lastOpened', async () => {
       const ws1: WorkspaceMetadata = {
-        id: 'ws-1', name: 'WS 1', uri: '/w1', provider: 'browser',
-        lastOpened: 1000, type: 'directory', capabilities: { explorer: true, recursiveSearch: true, git: false, terminal: false, multipleRoots: false, writable: true }
+        id: 'ws-1',
+        name: 'WS 1',
+        uri: '/w1',
+        provider: 'browser',
+        lastOpened: 1000,
+        type: 'directory',
+        capabilities: {
+          explorer: true,
+          recursiveSearch: true,
+          git: false,
+          terminal: false,
+          multipleRoots: false,
+          writable: true,
+        },
       };
       const ws2: WorkspaceMetadata = {
-        id: 'ws-2', name: 'WS 2', uri: '/w2', provider: 'browser',
-        lastOpened: 2000, type: 'directory', capabilities: { explorer: true, recursiveSearch: true, git: false, terminal: false, multipleRoots: false, writable: true }
+        id: 'ws-2',
+        name: 'WS 2',
+        uri: '/w2',
+        provider: 'browser',
+        lastOpened: 2000,
+        type: 'directory',
+        capabilities: {
+          explorer: true,
+          recursiveSearch: true,
+          git: false,
+          terminal: false,
+          multipleRoots: false,
+          writable: true,
+        },
       };
 
       await persistence.saveWorkspace(ws1, null);
@@ -62,10 +93,10 @@ describe('WorkspacePersistence', () => {
 
       const list = await persistence.listWorkspaces();
       expect(list.length).toBeGreaterThanOrEqual(2);
-      
+
       // WS 2 should be first because it was opened later (2000 > 1000)
-      const w1Index = list.findIndex(w => w.id === 'ws-1');
-      const w2Index = list.findIndex(w => w.id === 'ws-2');
+      const w1Index = list.findIndex((w) => w.id === 'ws-1');
+      const w2Index = list.findIndex((w) => w.id === 'ws-2');
       expect(w2Index).toBeLessThan(w1Index);
     });
   });
@@ -75,12 +106,22 @@ describe('WorkspacePersistence', () => {
       const snapshot = {
         version: 1,
         nodes: [
-          { id: 'node-1', name: 'root', type: 'directory', path: '/', parentId: null, children: [], childrenLoaded: true, metadata: {}, content: null }
-        ]
+          {
+            id: 'node-1',
+            name: 'root',
+            type: 'directory',
+            path: '/',
+            parentId: null,
+            children: [],
+            childrenLoaded: true,
+            metadata: {},
+            content: null,
+          },
+        ],
       } as any;
 
       await persistence.saveSnapshot('ws-snapshot-1', snapshot);
-      
+
       const result = await persistence.getSnapshot('ws-snapshot-1');
       expect(result).toBeDefined();
       expect(result?.nodes.length).toBe(1);

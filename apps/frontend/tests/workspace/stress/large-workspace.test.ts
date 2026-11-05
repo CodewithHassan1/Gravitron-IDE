@@ -18,14 +18,22 @@ describe('Large Workspace Stress Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-large', name: 'LargeWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-large',
+        name: 'LargeWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
 
   afterEach(async () => {
     await manager.closeWorkspace();
-    
+
     // Validation Requirements:
     // Verify: listeners = 0, timers = 0, queues flushed
     expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
@@ -95,7 +103,7 @@ describe('Large Workspace Stress Test', () => {
     expect(Object.isFrozen(children[0])).toBe(true);
 
     // Force search invalidation completion
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Search for a specific file across 10,000
     const fullSearchRes = (manager as any).searchEngine.search(new SearchQuery('file_5'));
@@ -111,7 +119,7 @@ describe('Large Workspace Stress Test', () => {
     }
 
     const vfs = (manager as any).vfs;
-    
+
     // Capture UUIDs before
     const fileNodeBefore = vfs.index.get(vfs.resolve('/folder_1/file_0.ts'));
     const fileId = fileNodeBefore.id;
@@ -128,7 +136,7 @@ describe('Large Workspace Stress Test', () => {
     expect(vfs.resolve('/renamed_folder/file_0.ts')).toBe(fileId);
 
     // Search converges
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     const searchRes = (manager as any).searchEngine.search(new SearchQuery('file_0')).items;
     expect(searchRes.length).toBeGreaterThan(0);
     expect(searchRes[0].path).toBe('/renamed_folder/file_0.ts');
@@ -142,7 +150,7 @@ describe('Large Workspace Stress Test', () => {
 
     const vfs = (manager as any).vfs;
     const index = vfs.index;
-    
+
     expect(index.nodes.size).toBe(1102); // root + folder + 1100 files
 
     // Delete folder
@@ -157,9 +165,11 @@ describe('Large Workspace Stress Test', () => {
     // Usually a recursive delete queues 1 operation for the top folder.
     const syncEngine = (manager as any).syncEngine;
     const queuedOps = syncEngine.queue.getOperations();
-    const deleteOp = queuedOps.find((op: any) => op.type === 'DeleteFile' && op.path === '/folder_to_delete');
+    const deleteOp = queuedOps.find(
+      (op: any) => op.type === 'DeleteFile' && op.path === '/folder_to_delete'
+    );
     expect(deleteOp).toBeDefined();
-    
+
     // Clean queue
     syncEngine.queue.clear();
   });

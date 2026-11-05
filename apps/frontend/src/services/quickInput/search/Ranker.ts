@@ -9,11 +9,7 @@ export interface RankedItem {
 }
 
 export class Ranker {
-  static rank(
-    query: string,
-    items: QuickInputItem[],
-    providerId: string
-  ): QuickInputItem[] {
+  static rank(query: string, items: QuickInputItem[], providerId: string): QuickInputItem[] {
     if (!query) {
       // If no query, return items prioritizing MRU
       return this.sortByMru(items, providerId);
@@ -26,7 +22,7 @@ export class Ranker {
       const match = Matcher.match(query, item.label, []);
       if (match.matched) {
         let finalScore = match.score;
-        
+
         // MRU Boost
         const mruIndex = mruList.indexOf(item.id);
         if (mruIndex !== -1) {
@@ -41,17 +37,17 @@ export class Ranker {
     // Sort descending by score
     ranked.sort((a, b) => b.score - a.score);
 
-    return ranked.map(r => r.item);
+    return ranked.map((r) => r.item);
   }
 
   private static sortByMru(items: QuickInputItem[], providerId: string): QuickInputItem[] {
     const mruList = QuickInputCache.getMru(providerId);
-    
+
     // Sort items so MRU items are at the top, maintaining their relative MRU order
     return [...items].sort((a, b) => {
       const aIndex = mruList.indexOf(a.id);
       const bIndex = mruList.indexOf(b.id);
-      
+
       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
       if (aIndex !== -1) return -1;
       if (bIndex !== -1) return 1;

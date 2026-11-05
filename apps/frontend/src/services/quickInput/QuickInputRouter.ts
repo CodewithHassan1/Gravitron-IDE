@@ -11,7 +11,7 @@ export interface RouteResult {
 class QuickInputRouterImpl {
   route(query: string): RouteResult {
     const providers = QuickInputRegistry.getAllProviders();
-    
+
     // Check for explicit prefix matches first
     for (const provider of providers) {
       for (const prefix of provider.metadata.prefixes) {
@@ -19,19 +19,19 @@ class QuickInputRouterImpl {
           return {
             provider,
             strippedQuery: query.slice(prefix.length).trimStart(),
-            prefix
+            prefix,
           };
         }
       }
     }
 
     // No explicit prefix matched, fallback to the provider that supports empty queries (usually FileProvider)
-    const fallbackProvider = providers.find(p => p.metadata.supportsEmptyQuery) || null;
-    
+    const fallbackProvider = providers.find((p) => p.metadata.supportsEmptyQuery) || null;
+
     return {
       provider: fallbackProvider,
       strippedQuery: query,
-      prefix: ''
+      prefix: '',
     };
   }
 }

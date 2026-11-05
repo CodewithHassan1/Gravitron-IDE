@@ -12,7 +12,7 @@ async function main() {
       if (method.name === 'Register') {
         registerHandler = handler;
       }
-    }
+    },
   };
 
   setupRouter(mockRouter);
@@ -20,11 +20,14 @@ async function main() {
   const testEmail = `test_auto_${Date.now()}@gmail.com`;
   console.log('Invoking register with test email:', testEmail);
   try {
-    const res = await registerHandler({
-      email: testEmail,
-      password: 'password123',
-      displayName: 'Test Auto'
-    }, {});
+    const res = await registerHandler(
+      {
+        email: testEmail,
+        password: 'password123',
+        displayName: 'Test Auto',
+      },
+      {}
+    );
     console.log('Register response:', JSON.stringify(res));
   } catch (err: any) {
     console.error('Register failed:', err);

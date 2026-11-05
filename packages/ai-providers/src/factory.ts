@@ -16,7 +16,12 @@ export class ProviderFactory {
       case 'gemini':
         return new GeminiProvider(config);
       default:
-        throw new ProviderError(`Unsupported provider type: ${type}`, ProviderErrorType.InvalidRequest, 'factory', false);
+        throw new ProviderError(
+          `Unsupported provider type: ${type}`,
+          ProviderErrorType.InvalidRequest,
+          'factory',
+          false
+        );
     }
   }
 }

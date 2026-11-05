@@ -22,7 +22,7 @@ export class ConfigurationManager {
    */
   static async computeEffectiveConfiguration() {
     const defaults = ConfigurationDefaults.getDefaults();
-    
+
     // For now we assume only User Scope is fully implemented in the manager
     const userRecord = await this.settingsManager?.getRecord(ConfigurationScope.User);
     const userValues = userRecord?.values || {};
@@ -50,12 +50,19 @@ export class ConfigurationManager {
     return fallback as T;
   }
 
-  static async set(key: string, value: any, scope: ConfigurationScope = ConfigurationScope.User): Promise<void> {
+  static async set(
+    key: string,
+    value: any,
+    scope: ConfigurationScope = ConfigurationScope.User
+  ): Promise<void> {
     await this.settingsManager?.setValue(key, value, scope);
     await this.computeEffectiveConfiguration();
   }
 
-  static async reset(key: string, scope: ConfigurationScope = ConfigurationScope.User): Promise<void> {
+  static async reset(
+    key: string,
+    scope: ConfigurationScope = ConfigurationScope.User
+  ): Promise<void> {
     await this.settingsManager?.resetValue(key, scope);
     await this.computeEffectiveConfiguration();
   }

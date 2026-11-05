@@ -1,5 +1,16 @@
 import React from 'react';
-import { FileIcon, FolderIcon, FolderOpen, FileCode, FileText, Image, FileJson, TerminalSquare, GitBranch, FileCode2 } from 'lucide-react';
+import {
+  FileIcon,
+  FolderIcon,
+  FolderOpen,
+  FileCode,
+  FileText,
+  Image,
+  FileJson,
+  TerminalSquare,
+  GitBranch,
+  FileCode2,
+} from 'lucide-react';
 
 export interface IconDefinition {
   id: string;
@@ -60,7 +71,8 @@ IconRegistry.register({
 
 IconRegistry.register({
   id: 'png-icon',
-  match: (name, isDirectory) => !isDirectory && (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.svg')),
+  match: (name, isDirectory) =>
+    !isDirectory && (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.svg')),
   component: Image,
   priority: 10,
 });
@@ -80,61 +92,61 @@ IconRegistry.register({
 });
 
 const customSvgIcons: Record<string, string> = {
-  'node_modules': '01_node_modules.svg',
+  node_modules: '01_node_modules.svg',
   '.agents': '02_.agents.svg',
-  'skills': '03_skills.svg',
-  'mcp': '04_mcp.svg',
-  'prompts': '05_prompts.svg',
-  'tasks': '06_tasks.svg',
-  'artifacts': '07_artifacts.svg',
+  skills: '03_skills.svg',
+  mcp: '04_mcp.svg',
+  prompts: '05_prompts.svg',
+  tasks: '06_tasks.svg',
+  artifacts: '07_artifacts.svg',
   '.vscode': '08_.vscode.svg',
   '.github': '09_.github.svg',
-  'src': '10_src.svg',
-  'app': '11_app.svg',
-  'assets': '12_assets.svg',
-  'styles': '14_styles.svg',
-  'public': '15_public.svg',
-  'tests': '17_tests.svg',
-  '__tests__': '17_tests.svg',
-  'test': '17_tests.svg',
-  'api': '21_api.svg',
-  'logs': '42_logs.svg',
-  'modules': '57_modules.svg',
-  'nginx': '69_nginx.svg',
-  'apache': '70_apache.svg',
-  'deploy': '72_deploy.svg',
-  'deployments': '73_deployments.svg',
-  'environment': '74_environment.svg',
-  'env': '74_environment.svg',
+  src: '10_src.svg',
+  app: '11_app.svg',
+  assets: '12_assets.svg',
+  styles: '14_styles.svg',
+  public: '15_public.svg',
+  tests: '17_tests.svg',
+  __tests__: '17_tests.svg',
+  test: '17_tests.svg',
+  api: '21_api.svg',
+  logs: '42_logs.svg',
+  modules: '57_modules.svg',
+  nginx: '69_nginx.svg',
+  apache: '70_apache.svg',
+  deploy: '72_deploy.svg',
+  deployments: '73_deployments.svg',
+  environment: '74_environment.svg',
+  env: '74_environment.svg',
   '.env': '74_environment.svg',
-  'media': '98_media.svg',
-  'audio': '100_audio.svg',
-  'fixtures': '104_fixtures.svg',
-  'coverage': '105_coverage.svg',
-  'snapshots': '107_ snapshot.svg',
-  '__snapshots__': '107_ snapshot.svg',
-  'webpack': '110_webpack.svg',
+  media: '98_media.svg',
+  audio: '100_audio.svg',
+  fixtures: '104_fixtures.svg',
+  coverage: '105_coverage.svg',
+  snapshots: '107_ snapshot.svg',
+  __snapshots__: '107_ snapshot.svg',
+  webpack: '110_webpack.svg',
   '.eslintrc': '113_eslint.svg',
   '.eslintrc.js': '113_eslint.svg',
   '.eslintrc.json': '113_eslint.svg',
-  'secrets': '125_secrets.svg',
-  'monitoring': '126_monitoring.svg',
-  'analytics': '127_analytics.svg',
-  'notifications': '128_notifications.svg',
-  'routes': 'routes.svg',
+  secrets: '125_secrets.svg',
+  monitoring: '126_monitoring.svg',
+  analytics: '127_analytics.svg',
+  notifications: '128_notifications.svg',
+  routes: 'routes.svg',
 };
 
 Object.entries(customSvgIcons).forEach(([name, filename]) => {
   IconRegistry.register({
     id: `custom-icon-${name}`,
     match: (itemName, isDirectory) => itemName.toLowerCase() === name.toLowerCase(),
-    component: ({ className }) => React.createElement('img', {
-      src: `/icons/${filename}`,
-      className,
-      style: { objectFit: 'contain', margin: 0, background: 'transparent' },
-      alt: `${name} icon`
-    }),
+    component: ({ className }) =>
+      React.createElement('img', {
+        src: `/icons/${filename}`,
+        className,
+        style: { objectFit: 'contain', margin: 0, background: 'transparent' },
+        alt: `${name} icon`,
+      }),
     priority: 20,
   });
 });
-

@@ -5,11 +5,11 @@ import * as child_process from 'child_process';
 import * as pty from 'node-pty';
 
 vi.mock('child_process', () => ({
-  execFile: vi.fn()
+  execFile: vi.fn(),
 }));
 
 vi.mock('node-pty', () => ({
-  spawn: vi.fn()
+  spawn: vi.fn(),
 }));
 
 describe('DockerBackend', () => {
@@ -22,7 +22,7 @@ describe('DockerBackend', () => {
     shell: { executable: 'bash', args: [] },
     cwd: '/workspace',
     cols: 80,
-    rows: 24
+    rows: 24,
   };
 
   beforeEach(() => {
@@ -40,7 +40,9 @@ describe('DockerBackend', () => {
       callback(new Error('ENOENT'), '', '');
     });
 
-    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow('Docker executable not found in PATH or unavailable.');
+    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow(
+      'Docker executable not found in PATH or unavailable.'
+    );
     expect(mockPtySpawn).not.toHaveBeenCalled();
   });
 
@@ -51,7 +53,9 @@ describe('DockerBackend', () => {
       callback(new Error('Unexpected command'), '', '');
     });
 
-    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow('Docker daemon is unavailable or not running.');
+    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow(
+      'Docker daemon is unavailable or not running.'
+    );
     expect(mockPtySpawn).not.toHaveBeenCalled();
   });
 
@@ -63,7 +67,9 @@ describe('DockerBackend', () => {
       callback(new Error('Unexpected command'), '', '');
     });
 
-    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow("Target container 'test-container' does not exist or is unavailable.");
+    await expect(backend.createProcess('session-1', mockContext)).rejects.toThrow(
+      "Target container 'test-container' does not exist or is unavailable."
+    );
     expect(mockPtySpawn).not.toHaveBeenCalled();
   });
 
@@ -75,23 +81,24 @@ describe('DockerBackend', () => {
     let exitCb: () => void = () => {};
     const mockProcess = {
       pid: 1234,
-      onExit: vi.fn((cb) => { exitCb = cb; }),
+      onExit: vi.fn((cb) => {
+        exitCb = cb;
+      }),
       onData: vi.fn(),
       write: vi.fn(),
       resize: vi.fn(),
-      kill: vi.fn()
+      kill: vi.fn(),
     };
     mockPtySpawn.mockReturnValue(mockProcess);
 
     const pid = await backend.createProcess('session-1', mockContext);
-    
+
     expect(pid).toBe('1234');
-    expect(mockPtySpawn).toHaveBeenCalledWith('docker', [
-      'exec', '-it',
-      '--workdir', '/workspace',
-      'test-container',
-      'bash'
-    ], expect.any(Object));
+    expect(mockPtySpawn).toHaveBeenCalledWith(
+      'docker',
+      ['exec', '-it', '--workdir', '/workspace', 'test-container', 'bash'],
+      expect.any(Object)
+    );
   });
 
   it('TEST E — cleans up internal processes map on exit', async () => {
@@ -102,11 +109,13 @@ describe('DockerBackend', () => {
     let exitCb: () => void = () => {};
     const mockProcess = {
       pid: 1234,
-      onExit: vi.fn((cb) => { exitCb = cb; }),
+      onExit: vi.fn((cb) => {
+        exitCb = cb;
+      }),
       onData: vi.fn(),
       write: vi.fn(),
       resize: vi.fn(),
-      kill: vi.fn()
+      kill: vi.fn(),
     };
     mockPtySpawn.mockReturnValue(mockProcess);
 

@@ -12,9 +12,9 @@ export class MockTransport implements ITerminalTransport {
   public async createStream(config: TerminalDescriptor): Promise<ITerminalStream> {
     const stream = new MemoryTerminalStream();
     this.streams.set(config.metadata.id, stream);
-    
+
     // No fake prompt generation, rely on backend
-    
+
     return stream;
   }
 
@@ -30,7 +30,10 @@ export class MockTransport implements ITerminalTransport {
     }
   }
 
-  public async attachStream(terminalId: string, sessionId: string): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
+  public async attachStream(
+    terminalId: string,
+    sessionId: string
+  ): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
     let stream = this.streams.get(terminalId);
     if (!stream) {
       stream = new MemoryTerminalStream();
@@ -44,7 +47,7 @@ export class MockTransport implements ITerminalTransport {
   }
 
   public async listSessions(): Promise<{ sessionId: string; state: string }[]> {
-    return Array.from(this.streams.keys()).map(id => ({ sessionId: id, state: 'running' }));
+    return Array.from(this.streams.keys()).map((id) => ({ sessionId: id, state: 'running' }));
   }
 
   public async getProfiles(): Promise<any[]> {
@@ -52,7 +55,7 @@ export class MockTransport implements ITerminalTransport {
   }
 
   public dispose(): void {
-    Array.from(this.streams.values()).forEach(stream => stream.dispose());
+    Array.from(this.streams.values()).forEach((stream) => stream.dispose());
     this.streams.clear();
   }
 }

@@ -9,8 +9,8 @@ async function testRegistrationE2E() {
     body: JSON.stringify({
       email: testEmail,
       password: 'password123',
-      displayName: 'Fresh Test User'
-    })
+      displayName: 'Fresh Test User',
+    }),
   });
 
   console.log('Registration HTTP Status:', res.status);

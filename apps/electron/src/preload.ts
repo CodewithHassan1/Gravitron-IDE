@@ -1,17 +1,25 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Channels, TerminalProtocol, RequestEnvelope, ProtocolVersion, unwrapIpcResponse } from '@ag/protocol';
+import {
+  Channels,
+  TerminalProtocol,
+  RequestEnvelope,
+  ProtocolVersion,
+  unwrapIpcResponse,
+} from '@ag/protocol';
 
 console.log('[FORENSIC:PRELOAD:INIT] preload.ts is executing!');
 
-
 window.addEventListener('error', (event) => {
-  console.log(`[BROWSER CONSOLE] UNCAUGHT ERROR: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`);
+  console.log(
+    `[BROWSER CONSOLE] UNCAUGHT ERROR: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`
+  );
   if (event.error && event.error.stack) {
     console.log(`[BROWSER CONSOLE] STACK: ${event.error.stack}`);
   }
 });
 
-let cachedAppConfig: { gatewayUrl: string | null; isPackaged: boolean; source: string } | null = null;
+let cachedAppConfig: { gatewayUrl: string | null; isPackaged: boolean; source: string } | null =
+  null;
 try {
   cachedAppConfig = ipcRenderer.sendSync(Channels.App.GetConfigSync);
 } catch {
@@ -24,7 +32,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<TerminalProtocol.TerminalCreateRequestOptions> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: config
+        payload: config,
       };
       const response = await ipcRenderer.invoke(Channels.Terminal.CreateRequest, envelope);
       return unwrapIpcResponse<any>(response).sessionId; // Extract ID from response payload
@@ -33,7 +41,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { sessionId, cols, rows }
+        payload: { sessionId, cols, rows },
       };
       return ipcRenderer.invoke(Channels.Terminal.ResizeRequest, envelope);
     },
@@ -41,7 +49,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: sessionId
+        payload: sessionId,
       };
       return ipcRenderer.invoke(Channels.Terminal.DestroyRequest, envelope);
     },
@@ -49,7 +57,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: {}
+        payload: {},
       };
       const response = await ipcRenderer.invoke(Channels.Terminal.ListSessionsRequest, envelope);
       return unwrapIpcResponse<any>(response).sessions;
@@ -58,7 +66,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: {}
+        payload: {},
       };
       const response = await ipcRenderer.invoke(Channels.Terminal.GetProfilesRequest, envelope);
       return unwrapIpcResponse<any>(response);
@@ -67,17 +75,18 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<string> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: sessionId
+        payload: sessionId,
       };
       const response = await ipcRenderer.invoke(Channels.Terminal.AttachSessionRequest, envelope);
       const payload = unwrapIpcResponse<any>(response);
       return {
-        history: payload.history instanceof Buffer ? new Uint8Array(payload.history) : payload.history,
+        history:
+          payload.history instanceof Buffer ? new Uint8Array(payload.history) : payload.history,
         send: (data: Uint8Array) => {
           const envelope: RequestEnvelope<any> = {
             version: ProtocolVersion.V1,
             requestId: crypto.randomUUID(),
-            payload: { sessionId, data }
+            payload: { sessionId, data },
           };
           ipcRenderer.invoke(Channels.Terminal.WriteRequest, envelope);
         },
@@ -85,7 +94,8 @@ contextBridge.exposeInMainWorld('agApi', {
           const handler = (_event: any, payload: any) => {
             if (payload?.sessionId === sessionId) {
               if (payload.type === 'data') {
-                const data = payload.data instanceof Buffer ? new Uint8Array(payload.data) : payload.data;
+                const data =
+                  payload.data instanceof Buffer ? new Uint8Array(payload.data) : payload.data;
                 callback({ ...payload, data } as TerminalProtocol.TerminalEvent);
               } else {
                 callback(payload as TerminalProtocol.TerminalEvent);
@@ -96,14 +106,14 @@ contextBridge.exposeInMainWorld('agApi', {
           return {
             dispose: () => {
               ipcRenderer.removeListener(Channels.Terminal.OnEvent, handler);
-            }
+            },
           };
         },
         detach: () => {
           const envelope: RequestEnvelope<string> = {
             version: ProtocolVersion.V1,
             requestId: crypto.randomUUID(),
-            payload: sessionId
+            payload: sessionId,
           };
           ipcRenderer.invoke(Channels.Terminal.DetachSessionRequest, envelope);
         },
@@ -112,27 +122,27 @@ contextBridge.exposeInMainWorld('agApi', {
           const envelope: RequestEnvelope<any> = {
             version: ProtocolVersion.V1,
             requestId: crypto.randomUUID(),
-            payload: sessionId
+            payload: sessionId,
           };
           ipcRenderer.invoke(Channels.Terminal.DestroyRequest, envelope);
-        }
+        },
       };
     },
     detach: (sessionId: string) => {
       const envelope: RequestEnvelope<string> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: sessionId
+        payload: sessionId,
       };
       return ipcRenderer.invoke(Channels.Terminal.DetachSessionRequest, envelope);
-    }
+    },
   },
   workspace: {
     openFile: async () => {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       return ipcRenderer.invoke(Channels.Workspace.OpenFileRequest, envelope);
     },
@@ -140,7 +150,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, query, options }
+        payload: { workspaceId, query, options },
       };
       return ipcRenderer.invoke(Channels.Workspace.SearchRequest, envelope);
     },
@@ -148,7 +158,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<string> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: path
+        payload: path,
       };
       return ipcRenderer.invoke(Channels.Workspace.Open, envelope);
     },
@@ -156,7 +166,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<string> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: workspaceId
+        payload: workspaceId,
       };
       return ipcRenderer.invoke(Channels.Workspace.Close, envelope);
     },
@@ -165,7 +175,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       const response = await ipcRenderer.invoke(Channels.Workspace.SelectFolderRequest, envelope);
       console.log('[FORENSIC:PRELOAD:OPEN] response received from ipcRenderer.invoke:', response);
@@ -175,98 +185,132 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       return ipcRenderer.invoke(Channels.Workspace.GetDefaultWorkspaceRequest, envelope);
     },
     readDirectory: async (workspaceId: string, path: string) => {
       console.log('[FORENSIC:PRELOAD:READDIR] workspaceId:', workspaceId, 'path:', path);
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string }> = {
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path }
+        payload: { workspaceId, path },
       };
       const response = await ipcRenderer.invoke(Channels.Workspace.ReadDirectory, envelope);
       console.log('[FORENSIC:PRELOAD:READDIR] response received:', response);
       return response;
     },
     readFile: (workspaceId: string, path: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string }> = {
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path }
+        payload: { workspaceId, path },
       };
       return ipcRenderer.invoke(Channels.Workspace.ReadFile, envelope);
     },
-    writeFile: (workspaceId: string, path: string, content: string | Uint8Array, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, content: string | Uint8Array, mutationId?: string }> = {
+    writeFile: (
+      workspaceId: string,
+      path: string,
+      content: string | Uint8Array,
+      mutationId?: string
+    ) => {
+      const envelope: RequestEnvelope<{
+        workspaceId: string;
+        path: string;
+        content: string | Uint8Array;
+        mutationId?: string;
+      }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, content, mutationId }
+        payload: { workspaceId, path, content, mutationId },
       };
       return ipcRenderer.invoke(Channels.Workspace.WriteFile, envelope);
     },
     createFile: (workspaceId: string, path: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, mutationId?: string }> = {
-        version: ProtocolVersion.V1,
-        requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, mutationId }
-      };
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string; mutationId?: string }> =
+        {
+          version: ProtocolVersion.V1,
+          requestId: crypto.randomUUID(),
+          payload: { workspaceId, path, mutationId },
+        };
       return ipcRenderer.invoke(Channels.Workspace.CreateFile, envelope);
     },
     createFolder: (workspaceId: string, path: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, mutationId?: string }> = {
-        version: ProtocolVersion.V1,
-        requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, mutationId }
-      };
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string; mutationId?: string }> =
+        {
+          version: ProtocolVersion.V1,
+          requestId: crypto.randomUUID(),
+          payload: { workspaceId, path, mutationId },
+        };
       return ipcRenderer.invoke(Channels.Workspace.CreateFolder, envelope);
     },
     deleteFile: (workspaceId: string, path: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, mutationId?: string }> = {
-        version: ProtocolVersion.V1,
-        requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, mutationId }
-      };
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string; mutationId?: string }> =
+        {
+          version: ProtocolVersion.V1,
+          requestId: crypto.randomUUID(),
+          payload: { workspaceId, path, mutationId },
+        };
       return ipcRenderer.invoke(Channels.Workspace.DeleteFile, envelope);
     },
     deleteFolder: (workspaceId: string, path: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, mutationId?: string }> = {
-        version: ProtocolVersion.V1,
-        requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, mutationId }
-      };
+      const envelope: RequestEnvelope<{ workspaceId: string; path: string; mutationId?: string }> =
+        {
+          version: ProtocolVersion.V1,
+          requestId: crypto.randomUUID(),
+          payload: { workspaceId, path, mutationId },
+        };
       return ipcRenderer.invoke(Channels.Workspace.DeleteFolder, envelope);
     },
     renameFile: (workspaceId: string, path: string, newPath: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, newPath: string, mutationId?: string }> = {
+      const envelope: RequestEnvelope<{
+        workspaceId: string;
+        path: string;
+        newPath: string;
+        mutationId?: string;
+      }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, newPath, mutationId }
+        payload: { workspaceId, path, newPath, mutationId },
       };
       return ipcRenderer.invoke(Channels.Workspace.RenameFile, envelope);
     },
     renameFolder: (workspaceId: string, path: string, newPath: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, newPath: string, mutationId?: string }> = {
+      const envelope: RequestEnvelope<{
+        workspaceId: string;
+        path: string;
+        newPath: string;
+        mutationId?: string;
+      }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, newPath, mutationId }
+        payload: { workspaceId, path, newPath, mutationId },
       };
       return ipcRenderer.invoke(Channels.Workspace.RenameFolder, envelope);
     },
     moveFile: (workspaceId: string, path: string, newPath: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, newPath: string, mutationId?: string }> = {
+      const envelope: RequestEnvelope<{
+        workspaceId: string;
+        path: string;
+        newPath: string;
+        mutationId?: string;
+      }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, newPath, mutationId }
+        payload: { workspaceId, path, newPath, mutationId },
       };
       return ipcRenderer.invoke(Channels.Workspace.MoveFile, envelope);
     },
     copy: (workspaceId: string, path: string, newPath: string, mutationId?: string) => {
-      const envelope: RequestEnvelope<{ workspaceId: string, path: string, newPath: string, mutationId?: string }> = {
+      const envelope: RequestEnvelope<{
+        workspaceId: string;
+        path: string;
+        newPath: string;
+        mutationId?: string;
+      }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, path, newPath, mutationId }
+        payload: { workspaceId, path, newPath, mutationId },
       };
       return ipcRenderer.invoke(Channels.Workspace.Copy, envelope);
     },
@@ -279,16 +323,23 @@ contextBridge.exposeInMainWorld('agApi', {
       return {
         dispose: () => {
           ipcRenderer.removeListener(Channels.Workspace.OnEvent, handler);
-        }
+        },
       };
-    }
+    },
   },
   agent: {
-    start: async (workspaceId: string, conversationId: string, prompt: string, providerType: any, providerConfig: any, accessToken?: string) => {
+    start: async (
+      workspaceId: string,
+      conversationId: string,
+      prompt: string,
+      providerType: any,
+      providerConfig: any,
+      accessToken?: string
+    ) => {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, conversationId, prompt, providerType, providerConfig, accessToken }
+        payload: { workspaceId, conversationId, prompt, providerType, providerConfig, accessToken },
       };
       const response = await ipcRenderer.invoke(Channels.Agent.StartRequest, envelope);
       return unwrapIpcResponse<any>(response).agentId;
@@ -297,7 +348,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { agentId }
+        payload: { agentId },
       };
       return ipcRenderer.invoke(Channels.Agent.CancelRequest, envelope);
     },
@@ -305,7 +356,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { agentId }
+        payload: { agentId },
       };
       const response = await ipcRenderer.invoke(Channels.Agent.SnapshotRequest, envelope);
       return unwrapIpcResponse<any>(response);
@@ -314,7 +365,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { agentId, approvalId, toolCallId, approved }
+        payload: { agentId, approvalId, toolCallId, approved },
       };
       return ipcRenderer.invoke(Channels.Agent.ApproveToolRequest, envelope);
     },
@@ -326,19 +377,19 @@ contextBridge.exposeInMainWorld('agApi', {
       return {
         dispose: () => {
           ipcRenderer.removeListener(Channels.Agent.OnEvent, handler);
-        }
+        },
       };
-    }
+    },
   },
   app: {
     quit: () => {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       return ipcRenderer.invoke(Channels.App.QuitRequest, envelope);
-    }
+    },
   },
   getGatewayUrl: () => {
     if (cachedAppConfig?.gatewayUrl !== undefined) {
@@ -360,7 +411,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       const res = await ipcRenderer.invoke(Channels.App.GetConfigRequest, envelope);
       if (res?.payload) {
@@ -372,7 +423,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<{ url: string }> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { url }
+        payload: { url },
       };
       const res = await ipcRenderer.invoke(Channels.App.SetGatewayUrlRequest, envelope);
       if (res?.errorName) {
@@ -381,8 +432,10 @@ contextBridge.exposeInMainWorld('agApi', {
       if (res?.payload?.success && res.payload.gatewayUrl) {
         cachedAppConfig = {
           gatewayUrl: res.payload.gatewayUrl,
-          isPackaged: cachedAppConfig?.isPackaged ?? (typeof window !== 'undefined' && window.location.protocol === 'app:'),
-          source: 'runtime'
+          isPackaged:
+            cachedAppConfig?.isPackaged ??
+            (typeof window !== 'undefined' && window.location.protocol === 'app:'),
+          source: 'runtime',
         };
       }
       return res?.payload;
@@ -391,24 +444,26 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       const res = await ipcRenderer.invoke(Channels.App.ClearGatewayUrlRequest, envelope);
-      const isPkg = cachedAppConfig?.isPackaged ?? (typeof window !== 'undefined' && window.location.protocol === 'app:');
+      const isPkg =
+        cachedAppConfig?.isPackaged ??
+        (typeof window !== 'undefined' && window.location.protocol === 'app:');
       cachedAppConfig = {
         gatewayUrl: isPkg ? null : 'http://localhost:8080',
         isPackaged: isPkg,
-        source: isPkg ? 'none' : 'default_dev'
+        source: isPkg ? 'none' : 'default_dev',
       };
       return res?.payload;
-    }
+    },
   },
   window: {
     create: () => {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       return ipcRenderer.invoke(Channels.Window.CreateRequest, envelope);
     },
@@ -416,7 +471,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<void> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: undefined
+        payload: undefined,
       };
       return ipcRenderer.invoke(Channels.Window.CloseRequest, envelope);
     },
@@ -424,7 +479,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<string> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: url
+        payload: url,
       };
       return ipcRenderer.invoke(Channels.Window.OpenExternalRequest, envelope);
     },
@@ -432,7 +487,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: menuTree
+        payload: menuTree,
       };
       return ipcRenderer.invoke(Channels.Window.SetApplicationMenu, envelope);
     },
@@ -440,7 +495,7 @@ contextBridge.exposeInMainWorld('agApi', {
       const envelope: RequestEnvelope<any[]> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: updates
+        payload: updates,
       };
       return ipcRenderer.invoke(Channels.Window.UpdateMenuState, envelope);
     },
@@ -452,8 +507,8 @@ contextBridge.exposeInMainWorld('agApi', {
       return {
         dispose: () => {
           ipcRenderer.removeListener(Channels.Window.OnMenuCommand, handler);
-        }
+        },
       };
-    }
-  }
+    },
+  },
 });

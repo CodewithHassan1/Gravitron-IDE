@@ -1,6 +1,10 @@
 // src/services/workspace/sync/WorkspaceBatcher.ts
 
-import { WorkspaceOperation, WorkspaceOperationType, WriteFileOperation } from './WorkspaceOperation';
+import {
+  WorkspaceOperation,
+  WorkspaceOperationType,
+  WriteFileOperation,
+} from './WorkspaceOperation';
 
 export class WorkspaceBatcher {
   /**
@@ -24,11 +28,15 @@ export class WorkspaceBatcher {
           writeMap.set(op.path, batched.length - 1);
         }
       } else {
-        // For other operations, just append. If a file is renamed or deleted, 
-        // we should probably clear the write cache for that file, but for a 
+        // For other operations, just append. If a file is renamed or deleted,
+        // we should probably clear the write cache for that file, but for a
         // basic infrastructure batcher, we just append.
-        if (op.type === WorkspaceOperationType.DeleteFile || op.type === WorkspaceOperationType.Rename) {
-          const targetPath = op.type === WorkspaceOperationType.DeleteFile ? op.path : (op as any).sourcePath;
+        if (
+          op.type === WorkspaceOperationType.DeleteFile ||
+          op.type === WorkspaceOperationType.Rename
+        ) {
+          const targetPath =
+            op.type === WorkspaceOperationType.DeleteFile ? op.path : (op as any).sourcePath;
           if (writeMap.has(targetPath)) {
             writeMap.delete(targetPath);
           }

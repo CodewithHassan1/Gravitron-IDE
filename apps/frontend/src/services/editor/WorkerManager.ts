@@ -8,7 +8,7 @@ export class WorkerManagerImpl {
     // Define MonacoEnvironment if it doesn't exist to override worker loading
     if (typeof window !== 'undefined') {
       window.MonacoEnvironment = window.MonacoEnvironment || {};
-      
+
       const originalGetWorkerUrl = window.MonacoEnvironment.getWorkerUrl;
       window.MonacoEnvironment.getWorkerUrl = (moduleId: string, label: string) => {
         // Here we intercept worker creation to ensure they are reused and not needlessly fetched multiple times
@@ -19,7 +19,7 @@ export class WorkerManagerImpl {
         return './editor.worker.bundle.js'; // fallback if needed, but react-monaco handles standard ones
       };
     }
-    
+
     this.initialized = true;
   }
 

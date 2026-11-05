@@ -10,8 +10,8 @@ export class NamingUtility {
     const existingTitles = new Set<string>();
 
     // Collect open tabs
-    layoutStore.groups.forEach(g => {
-      g.tabs.forEach(t => {
+    layoutStore.groups.forEach((g) => {
+      g.tabs.forEach((t) => {
         existingTitles.add(t.title);
       });
     });
@@ -20,7 +20,7 @@ export class NamingUtility {
     const root = WorkspaceManager.getRoot();
     if (root) {
       const rootNodes = WorkspaceManager.getChildren(root.id);
-      rootNodes.forEach(node => {
+      rootNodes.forEach((node) => {
         existingTitles.add(node.name);
       });
     }

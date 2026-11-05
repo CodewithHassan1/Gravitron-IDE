@@ -7,21 +7,21 @@ describe('Architecture Validation', () => {
 
   it('should have zero circular dependencies', async () => {
     const res = await madge(srcPath, {
-      fileExtensions: ['ts', 'tsx']
+      fileExtensions: ['ts', 'tsx'],
     });
-    
+
     const circular = res.circular();
-    
+
     if (circular.length > 0) {
       console.error('Circular dependencies found:', circular);
     }
-    
+
     expect(circular).toHaveLength(0);
   }, 30000);
 
   it('domain layer should not import ui layer', async () => {
     const res = await madge(srcPath, {
-      fileExtensions: ['ts', 'tsx']
+      fileExtensions: ['ts', 'tsx'],
     });
 
     const dependencies = res.obj();
@@ -30,7 +30,7 @@ describe('Architecture Validation', () => {
     // The 'services/workspace' (Domain Engine) must not import anything from 'components/' or 'ui/'
     Object.entries(dependencies).forEach(([module, deps]) => {
       if (module.startsWith('services/workspace') || module.startsWith('services\\workspace')) {
-        deps.forEach(dep => {
+        deps.forEach((dep) => {
           if (dep.startsWith('components') || dep.startsWith('ui')) {
             violations.push(`${module} -> ${dep}`);
           }

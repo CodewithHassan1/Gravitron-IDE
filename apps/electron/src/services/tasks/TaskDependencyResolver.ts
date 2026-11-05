@@ -7,7 +7,6 @@ import { TaskDefinition } from '@ag/protocol';
 export type TaskExecutionGroup = TaskDefinition[];
 
 export class TaskDependencyResolver {
-  
   /**
    * Performs a topological sort of the provided tasks based on their dependencies.
    * Groups tasks into parallelizable execution batches.
@@ -32,7 +31,7 @@ export class TaskDependencyResolver {
         if (!taskMap.has(depId)) {
           throw new Error(`Task ${task.id} depends on missing task ${depId}`);
         }
-        
+
         adjacencyList.get(depId)!.push(task.id);
         inDegree.set(task.id, inDegree.get(task.id)! + 1);
       }
@@ -43,7 +42,7 @@ export class TaskDependencyResolver {
 
     // Kahn's algorithm modified to group by depth (parallel groups)
     let queue: string[] = [];
-    
+
     // Find all tasks with 0 in-degree
     for (const [taskId, count] of inDegree.entries()) {
       if (count === 0) {
@@ -52,12 +51,12 @@ export class TaskDependencyResolver {
     }
 
     while (queue.length > 0) {
-      const currentGroupTasks = queue.map(id => taskMap.get(id)!);
+      const currentGroupTasks = queue.map((id) => taskMap.get(id)!);
       groups.push(currentGroupTasks);
       processedCount += queue.length;
-      
+
       const nextQueue: string[] = [];
-      
+
       for (const taskId of queue) {
         const dependents = adjacencyList.get(taskId)!;
         for (const depId of dependents) {
@@ -68,7 +67,7 @@ export class TaskDependencyResolver {
           }
         }
       }
-      
+
       queue = nextQueue;
     }
 

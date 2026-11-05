@@ -17,7 +17,7 @@ class GitDecorationRegistryImpl {
 
   getDecorationForPath(workspaceId: string, path: string): GitDecoration | undefined {
     const decorations = this.getDecorations(workspaceId);
-    return decorations.find(d => d.path === path);
+    return decorations.find((d) => d.path === path);
   }
 }
 

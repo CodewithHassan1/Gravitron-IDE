@@ -14,7 +14,16 @@ describe('OutlineService', () => {
   it('should get symbols from provider and update cache', async () => {
     const mockProvider: OutlineProvider = {
       canHandle: () => true,
-      getSymbols: async () => [{ name: 'testSymbol', detail: '', kind: 1, tags: [], range: { startLineNumber: 1, startColumn: 1, endLineNumber: 2, endColumn: 2 }, selectionRange: { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 5 } }]
+      getSymbols: async () => [
+        {
+          name: 'testSymbol',
+          detail: '',
+          kind: 1,
+          tags: [],
+          range: { startLineNumber: 1, startColumn: 1, endLineNumber: 2, endColumn: 2 },
+          selectionRange: { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 5 },
+        },
+      ],
     };
 
     OutlineProviderRegistry.register(mockProvider);
@@ -24,7 +33,7 @@ describe('OutlineService', () => {
       getActiveEditorUri: () => 'file:///test.ts',
       getDocumentSymbols: vi.fn(),
       revealSymbol: vi.fn(),
-      getCurrentCursor: () => ({ uri: 'file:///test.ts', position: { lineNumber: 1, column: 1 } })
+      getCurrentCursor: () => ({ uri: 'file:///test.ts', position: { lineNumber: 1, column: 1 } }),
     };
 
     // Mock EditorManager active editor
@@ -32,23 +41,23 @@ describe('OutlineService', () => {
       getModel: () => ({
         uri: { toString: () => 'file:///test.ts' },
         getVersionId: () => 1,
-        getLanguageId: () => 'typescript'
-      })
+        getLanguageId: () => 'typescript',
+      }),
     } as any);
 
     await (OutlineService as any).rebuildOutline('file:///test.ts');
 
     const state = useOutlineStore.getState();
     const cached = state.cache.get('file:///test.ts');
-    
+
     expect(cached).toBeDefined();
     expect(cached?.versionId).toBe(1);
     expect(cached?.symbols.length).toBe(1);
     expect(cached?.symbols[0].name).toBe('testSymbol');
-    
+
     // Test follow cursor highlight
     expect(cached?.selectedSymbol).toBe('testSymbol:1:1');
-    
+
     OutlineProviderRegistry.unregister(mockProvider);
   });
 });

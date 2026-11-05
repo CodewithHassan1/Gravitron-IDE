@@ -7,7 +7,7 @@ import {
   AIStreamEventType,
   ProviderConfig,
   ChatMessage,
-  ToolCall
+  ToolCall,
 } from '../types';
 import { ProviderError, ProviderErrorType } from '../errors';
 import { AGLogger } from '@ag/logger';
@@ -19,10 +19,15 @@ export class GeminiProvider implements AIProvider {
 
   constructor(private config: ProviderConfig) {
     if (!config.apiKey) {
-      throw new ProviderError('Gemini API key is missing', ProviderErrorType.Authentication, 'gemini', false);
+      throw new ProviderError(
+        'Gemini API key is missing',
+        ProviderErrorType.Authentication,
+        'gemini',
+        false
+      );
     }
     this.client = new GoogleGenAI({
-      apiKey: config.apiKey
+      apiKey: config.apiKey,
       // Note: @google/genai doesn't natively expose timeout directly in the constructor in the same way,
       // but we will enforce AbortSignal natively.
     });
@@ -38,49 +43,78 @@ export class GeminiProvider implements AIProvider {
     // Google API errors typically have err.status
     if (err.status) {
       if (err.status === 401 || err.status === 403) {
-        return new ProviderError(err.message, ProviderErrorType.Authentication, 'gemini', false, err.status);
+        return new ProviderError(
+          err.message,
+          ProviderErrorType.Authentication,
+          'gemini',
+          false,
+          err.status
+        );
       }
       if (err.status === 429) {
-        return new ProviderError(err.message, ProviderErrorType.RateLimit, 'gemini', true, err.status);
+        return new ProviderError(
+          err.message,
+          ProviderErrorType.RateLimit,
+          'gemini',
+          true,
+          err.status
+        );
       }
       if (err.status === 400) {
-        return new ProviderError(err.message, ProviderErrorType.InvalidRequest, 'gemini', false, err.status);
+        return new ProviderError(
+          err.message,
+          ProviderErrorType.InvalidRequest,
+          'gemini',
+          false,
+          err.status
+        );
       }
       if (err.status >= 500) {
-        return new ProviderError(err.message, ProviderErrorType.Unknown, 'gemini', true, err.status);
+        return new ProviderError(
+          err.message,
+          ProviderErrorType.Unknown,
+          'gemini',
+          true,
+          err.status
+        );
       }
     }
 
-    return new ProviderError(err.message || 'Unknown error', ProviderErrorType.Unknown, 'gemini', false);
+    return new ProviderError(
+      err.message || 'Unknown error',
+      ProviderErrorType.Unknown,
+      'gemini',
+      false
+    );
   }
 
   private mapMessages(messages: ChatMessage[]): any[] {
     const contents: any[] = [];
-    
+
     for (const msg of messages) {
       if (msg.role === 'system') {
         // Handled in systemInstruction
         continue;
       }
-      
+
       let role = msg.role === 'assistant' ? 'model' : 'user';
       const parts: any[] = [];
-      
+
       if (msg.content) {
         parts.push({ text: msg.content });
       }
-      
+
       if (msg.toolCalls && msg.toolCalls.length > 0) {
         for (const tc of msg.toolCalls) {
           parts.push({
             functionCall: {
               name: tc.name,
-              args: tc.arguments as any
-            }
+              args: tc.arguments as any,
+            },
           });
         }
       }
-      
+
       if (msg.role === 'tool') {
         role = 'user'; // Tool results are passed in user messages
         let responseParsed: any = msg.content;
@@ -92,26 +126,28 @@ export class GeminiProvider implements AIProvider {
         parts.push({
           functionResponse: {
             name: msg.toolCallId || 'unknown_tool',
-            response: responseParsed
-          }
+            response: responseParsed,
+          },
         });
       }
-      
+
       contents.push({ role, parts });
     }
-    
+
     return contents;
   }
 
   private mapTools(tools: CompletionRequest['tools']): any[] | undefined {
     if (!tools || tools.length === 0) return undefined;
-    return [{
-      functionDeclarations: tools.map(t => ({
-        name: t.name,
-        description: t.description,
-        parameters: t.inputSchema // @google/genai accepts JSON schema directly here
-      }))
-    }];
+    return [
+      {
+        functionDeclarations: tools.map((t) => ({
+          name: t.name,
+          description: t.description,
+          parameters: t.inputSchema, // @google/genai accepts JSON schema directly here
+        })),
+      },
+    ];
   }
 
   private async executeWithRetry<T>(operation: () => Promise<T>, signal?: AbortSignal): Promise<T> {
@@ -127,41 +163,58 @@ export class GeminiProvider implements AIProvider {
         // Enforce timeout combined with signal manually if needed
         const abortController = new AbortController();
         const onAbort = () => abortController.abort();
-        
+
         let timeoutId: any;
         if (this.config.timeoutMs) {
-          timeoutId = setTimeout(() => abortController.abort(new Error('Timeout')), this.config.timeoutMs);
+          timeoutId = setTimeout(
+            () => abortController.abort(new Error('Timeout')),
+            this.config.timeoutMs
+          );
         }
-        
+
         if (signal) {
           signal.addEventListener('abort', onAbort);
         }
-        
+
         try {
           return await operation();
         } finally {
           if (timeoutId) clearTimeout(timeoutId);
           if (signal) signal.removeEventListener('abort', onAbort);
         }
-        
       } catch (err: any) {
         const mappedError = this.mapError(err);
-        
+
         if (!mappedError.isTransient || attempt >= maxRetries || signal?.aborted) {
           throw mappedError;
         }
 
         attempt++;
         const delayMs = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
-        logger.warn({ trace_id: 'provider', span_id: 'retry', request_id: 'provider' }, 'Transient error, retrying', { attempt, delayMs, error: mappedError.message });
-        
+        logger.warn(
+          { trace_id: 'provider', span_id: 'retry', request_id: 'provider' },
+          'Transient error, retrying',
+          { attempt, delayMs, error: mappedError.message }
+        );
+
         await new Promise<void>((resolve, reject) => {
           const timeout = setTimeout(resolve, delayMs);
           if (signal) {
-            signal.addEventListener('abort', () => {
-              clearTimeout(timeout);
-              reject(new ProviderError('Request cancelled during retry delay', ProviderErrorType.Cancelled, 'gemini', false));
-            }, { once: true });
+            signal.addEventListener(
+              'abort',
+              () => {
+                clearTimeout(timeout);
+                reject(
+                  new ProviderError(
+                    'Request cancelled during retry delay',
+                    ProviderErrorType.Cancelled,
+                    'gemini',
+                    false
+                  )
+                );
+              },
+              { once: true }
+            );
           }
         });
       }
@@ -170,9 +223,9 @@ export class GeminiProvider implements AIProvider {
 
   async completeChat(req: CompletionRequest, signal?: AbortSignal): Promise<CompletionResponse> {
     return this.executeWithRetry(async () => {
-      const systemMsg = req.messages.find(m => m.role === 'system');
+      const systemMsg = req.messages.find((m) => m.role === 'system');
       const systemInstruction = systemMsg?.content;
-      
+
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
@@ -183,8 +236,8 @@ export class GeminiProvider implements AIProvider {
           systemInstruction,
           temperature: req.temperature,
           maxOutputTokens: req.maxTokens,
-          tools
-        }
+          tools,
+        },
       });
 
       let textContent = '';
@@ -201,7 +254,7 @@ export class GeminiProvider implements AIProvider {
             toolCalls.push({
               id: `tc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
               name: part.functionCall.name || 'unknown',
-              arguments: part.functionCall.args
+              arguments: part.functionCall.args,
             });
           }
         }
@@ -220,19 +273,19 @@ export class GeminiProvider implements AIProvider {
         usage: {
           promptTokens: usage?.promptTokenCount || 0,
           completionTokens: usage?.candidatesTokenCount || 0,
-          totalTokens: usage?.totalTokenCount || 0
+          totalTokens: usage?.totalTokenCount || 0,
         },
         toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
-        finishReason
+        finishReason,
       };
     }, signal);
   }
 
   async *streamChat(req: CompletionRequest, signal?: AbortSignal): AsyncIterable<AIStreamEvent> {
     const streamPromise = this.executeWithRetry(async () => {
-      const systemMsg = req.messages.find(m => m.role === 'system');
+      const systemMsg = req.messages.find((m) => m.role === 'system');
       const systemInstruction = systemMsg?.content;
-      
+
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
@@ -243,8 +296,8 @@ export class GeminiProvider implements AIProvider {
           systemInstruction,
           temperature: req.temperature,
           maxOutputTokens: req.maxTokens,
-          tools
-        }
+          tools,
+        },
       });
     }, signal);
 
@@ -262,7 +315,7 @@ export class GeminiProvider implements AIProvider {
             if (part.text) {
               yield {
                 type: AIStreamEventType.TextDelta,
-                content: part.text
+                content: part.text,
               };
             }
             if (part.functionCall) {
@@ -271,39 +324,39 @@ export class GeminiProvider implements AIProvider {
                 type: AIStreamEventType.ToolCallStart,
                 toolCall: {
                   id,
-                  name: part.functionCall.name || 'unknown'
-                }
+                  name: part.functionCall.name || 'unknown',
+                },
               };
               yield {
                 type: AIStreamEventType.ToolCallDelta,
                 toolCall: {
                   id,
-                  rawArguments: JSON.stringify(part.functionCall.args)
-                }
+                  rawArguments: JSON.stringify(part.functionCall.args),
+                },
               };
             }
           }
-          
+
           const gFinish = chunk.candidates[0].finishReason;
           if (gFinish) {
             let finishReason: CompletionResponse['finishReason'] = 'stop';
             if (gFinish === 'MAX_TOKENS') finishReason = 'length';
-            
+
             yield {
               type: AIStreamEventType.Finish,
-              finishReason
+              finishReason,
             };
           }
         }
-        
+
         if (chunk.usageMetadata) {
           yield {
             type: AIStreamEventType.Usage,
             usage: {
               promptTokens: chunk.usageMetadata.promptTokenCount || 0,
               completionTokens: chunk.usageMetadata.candidatesTokenCount || 0,
-              totalTokens: chunk.usageMetadata.totalTokenCount || 0
-            }
+              totalTokens: chunk.usageMetadata.totalTokenCount || 0,
+            },
           };
         }
       }
@@ -314,10 +367,20 @@ export class GeminiProvider implements AIProvider {
 
   public async embed(text: string, signal?: AbortSignal): Promise<number[]> {
     // Note: Gemini provides `text-embedding-004` but we can configure this later.
-    throw new ProviderError('Embeddings are not yet supported by GeminiProvider in this implementation. Please configure an OpenAI provider for embeddings.', ProviderErrorType.InvalidRequest, 'gemini', false);
+    throw new ProviderError(
+      'Embeddings are not yet supported by GeminiProvider in this implementation. Please configure an OpenAI provider for embeddings.',
+      ProviderErrorType.InvalidRequest,
+      'gemini',
+      false
+    );
   }
 
   public async embedBatch(texts: string[], signal?: AbortSignal): Promise<number[][]> {
-    throw new ProviderError('Embeddings are not yet supported by GeminiProvider in this implementation. Please configure an OpenAI provider for embeddings.', ProviderErrorType.InvalidRequest, 'gemini', false);
+    throw new ProviderError(
+      'Embeddings are not yet supported by GeminiProvider in this implementation. Please configure an OpenAI provider for embeddings.',
+      ProviderErrorType.InvalidRequest,
+      'gemini',
+      false
+    );
   }
 }

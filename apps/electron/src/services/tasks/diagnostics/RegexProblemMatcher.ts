@@ -31,7 +31,7 @@ export class RegexProblemMatcher implements IProblemMatcher {
     const file = match[this.config.fileGroup];
     const lineNumber = parseInt(match[this.config.lineGroup], 10);
     const message = match[this.config.messageGroup];
-    
+
     if (!file || isNaN(lineNumber) || !message) {
       return undefined;
     }
@@ -64,7 +64,7 @@ export class RegexProblemMatcher implements IProblemMatcher {
       severity,
       message,
       code,
-      source: this.config.source || this.name
+      source: this.config.source || this.name,
     };
   }
 }

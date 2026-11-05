@@ -1,69 +1,44 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { GripVertical } from "lucide-react";
-import {
-  Group,
-  Panel,
-  Separator,
-} from "react-resizable-panels";
+import * as React from 'react';
+import { GripVertical } from 'lucide-react';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
-type ResizablePanelGroupProps =
-  Omit<React.ComponentPropsWithoutRef<typeof Group>, "orientation"> & {
-    direction: "horizontal" | "vertical";
-  };
+type ResizablePanelGroupProps = Omit<
+  React.ComponentPropsWithoutRef<typeof Group>,
+  'orientation'
+> & {
+  direction: 'horizontal' | 'vertical';
+};
 
-export function ResizablePanelGroup({
-  className,
-  direction,
-  ...props
-}: ResizablePanelGroupProps) {
+export function ResizablePanelGroup({ className, direction, ...props }: ResizablePanelGroupProps) {
   return (
     <Group
       orientation={direction}
-      className={cn(
-        "flex h-full w-full",
-        direction === "vertical" && "flex-col",
-        className
-      )}
+      className={cn('flex h-full w-full', direction === 'vertical' && 'flex-col', className)}
       {...props}
     />
   );
 }
 
-import type {
-  PanelImperativeHandle,
-  PanelProps,
-} from "react-resizable-panels";
+import type { PanelImperativeHandle, PanelProps } from 'react-resizable-panels';
 
-
-export const ResizablePanel = React.forwardRef<
-  PanelImperativeHandle,
-  PanelProps
->((props, ref) => {
+export const ResizablePanel = React.forwardRef<PanelImperativeHandle, PanelProps>((props, ref) => {
   return <Panel panelRef={ref} {...props} />;
 });
 
-ResizablePanel.displayName = "ResizablePanel";
+ResizablePanel.displayName = 'ResizablePanel';
 
-type ResizableHandleProps =
-  React.ComponentPropsWithoutRef<typeof Separator> & {
-    withHandle?: boolean;
-  };
+type ResizableHandleProps = React.ComponentPropsWithoutRef<typeof Separator> & {
+  withHandle?: boolean;
+};
 
-export function ResizableHandle({
-  className,
-  withHandle = false,
-  ...props
-}: ResizableHandleProps) {
+export function ResizableHandle({ className, withHandle = false, ...props }: ResizableHandleProps) {
   return (
     <Separator
-      className={cn(
-        "relative flex items-center justify-center bg-border",
-        className
-      )}
+      className={cn('relative flex items-center justify-center bg-border', className)}
       {...props}
     >
       {withHandle && (

@@ -12,7 +12,7 @@ vi.mock('idb', () => ({
     get: vi.fn(async (storeName, key) => mockDbStore.get(`${storeName}:${key}`)),
     put: vi.fn(async (storeName, val, key) => {
       if (dbPutDelay > 0) {
-        await new Promise(resolve => setTimeout(resolve, dbPutDelay));
+        await new Promise((resolve) => setTimeout(resolve, dbPutDelay));
       }
       const actualKey = key || val.workspaceId || val.id;
       mockDbStore.set(`${storeName}:${actualKey}`, val);
@@ -30,14 +30,22 @@ describe('Sync Races Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-sync-race', name: 'SyncRaceWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-sync-race',
+        name: 'SyncRaceWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
 
   afterEach(async () => {
     await manager.closeWorkspace();
-    
+
     // Cleanup assertions
     expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
     if ((manager as any).syncEngine) {
@@ -49,17 +57,22 @@ describe('Sync Races Test', () => {
 
   it('Concurrent Sync Cycles', async () => {
     const syncEngine = (manager as any).syncEngine;
-    
+
     // Add operations to queue
-    syncEngine.enqueueOperation({ id: 'op1', type: WorkspaceOperationType.CreateFile, path: '/file1', timestamp: 1 });
-    
+    syncEngine.enqueueOperation({
+      id: 'op1',
+      type: WorkspaceOperationType.CreateFile,
+      path: '/file1',
+      timestamp: 1,
+    });
+
     dbPutDelay = 50;
 
     // Call executeSyncCycle multiple times concurrently
     const promises = [
       syncEngine.executeSyncCycle(),
       syncEngine.executeSyncCycle(),
-      syncEngine.executeSyncCycle()
+      syncEngine.executeSyncCycle(),
     ];
 
     await Promise.all(promises);

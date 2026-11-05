@@ -1,7 +1,13 @@
 // src/services/workspace/search/SearchWorker.ts
 
 import { SearchIndex } from './SearchIndex';
-import { WorkerMessage, WorkerResponse, IndexNodePayload, SearchPayload, SearchResult } from './SearchTypes';
+import {
+  WorkerMessage,
+  WorkerResponse,
+  IndexNodePayload,
+  SearchPayload,
+  SearchResult,
+} from './SearchTypes';
 import { SearchQuery } from './SearchQuery';
 
 const index = new SearchIndex();
@@ -14,7 +20,7 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
       case 'INDEX_NODE': {
         const nodePayload = payload as IndexNodePayload;
         index.addNode(nodePayload);
-        
+
         const response: WorkerResponse = { id, type: 'INDEX_COMPLETE' };
         self.postMessage(response);
         break;
@@ -22,14 +28,14 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
       case 'REMOVE_NODE': {
         const nodeId = payload as string;
         index.removeNode(nodeId);
-        
+
         const response: WorkerResponse = { id, type: 'INDEX_COMPLETE' };
         self.postMessage(response);
         break;
       }
       case 'CLEAR': {
         index.clear();
-        
+
         const response: WorkerResponse = { id, type: 'INDEX_COMPLETE' };
         self.postMessage(response);
         break;
@@ -43,11 +49,11 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
         });
 
         const results = index.search(query);
-        
-        const response: WorkerResponse<SearchResult[]> = { 
-          id, 
-          type: 'SEARCH_RESULTS', 
-          payload: results 
+
+        const response: WorkerResponse<SearchResult[]> = {
+          id,
+          type: 'SEARCH_RESULTS',
+          payload: results,
         };
         self.postMessage(response);
         break;

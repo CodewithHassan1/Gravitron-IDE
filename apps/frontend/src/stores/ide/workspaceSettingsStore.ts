@@ -14,15 +14,16 @@ export const useWorkspaceSettingsStore = create<WorkspaceSettingsState>((set) =>
   isLoading: false,
 
   setSettings: (settings) => set({ settings }),
-  
-  updateSetting: (key, value) => set((state) => ({
-    settings: {
-      ...state.settings,
-      [key]: value
-    }
-  })),
+
+  updateSetting: (key, value) =>
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        [key]: value,
+      },
+    })),
 
   setLoading: (isLoading) => set({ isLoading }),
 
-  clearSettings: () => set({ settings: {} })
+  clearSettings: () => set({ settings: {} }),
 }));

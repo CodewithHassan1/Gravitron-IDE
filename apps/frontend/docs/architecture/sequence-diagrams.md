@@ -18,13 +18,13 @@ sequenceDiagram
     UI->>WM: createFile('/src/new.ts')
     WM->>Sync: enqueueOperation(CreateFile)
     Note over Sync: State: Pending (queued)
-    
+
     Sync->>Sync: executeSyncCycle() (batched)
     Sync->>VFS: createFile('/src/new.ts')
     VFS-->>Sync: WorkspaceNode created
     Sync->>EventBus: emit('fileEvent', { created, node })
     EventBus-->>UI: Trigger React Re-render
-    
+
     Sync->>DB: saveSnapshot(VFS)
     DB-->>Sync: success
     Note over Sync: State: Idle
@@ -42,7 +42,7 @@ sequenceDiagram
     UI->>WM: openWorkspace(metadata, handle)
     WM->>EventBus: emit('workspace.loadingStarted')
     WM->>DB: loadSnapshot(workspaceId)
-    
+
     alt Snapshot exists
         DB-->>WM: WorkspaceSnapshot
         WM->>WM: deserialize to VFS
@@ -50,7 +50,7 @@ sequenceDiagram
         DB-->>WM: null
         WM->>WM: initialize empty VFS root
     end
-    
+
     WM->>EventBus: emit('workspace.opened')
     WM->>EventBus: emit('workspace.loadingFinished')
     WM-->>UI: Promise.resolve()
@@ -82,7 +82,7 @@ sequenceDiagram
     UI->>WM: writeFile('/src/index.ts', content)
     WM->>Sync: enqueueOperation(WriteFile)
     WM-->>UI: Promise<WorkspaceOperationResult>(success)
-    
+
     Note over Sync: State: Pending (queued)
     Sync->>Sync: executeSyncCycle() (batched)
     Sync->>DB: flush writeFile payload to disk
@@ -107,7 +107,7 @@ sequenceDiagram
     WM->>EventBus: emit('fileEvent', { renamed, id: UUID, newPath })
     WM->>Sync: enqueueOperation(Rename)
     WM-->>UI: Promise<WorkspaceOperationResult>(success)
-    
+
     Note over EventBus: SearchEngine updates index incrementally
 ```
 
@@ -123,7 +123,7 @@ sequenceDiagram
 
     UI->>WM: getSearchEngine().search('index.ts')
     WM->>Search: search(query)
-    
+
     Search->>Cache: get(query)
     alt Cache Hit
         Cache-->>Search: Return cached SearchResult

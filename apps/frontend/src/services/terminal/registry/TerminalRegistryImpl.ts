@@ -9,12 +9,14 @@ export class TerminalRegistryImpl implements TerminalRegistry {
   // We keep an ordered array for deterministic ordering (e.g. tabs)
   private sessionOrder: string[] = [];
   private activeId: string | null = null;
-  
-  private registryListeners: Set<(sessions: ReadonlyArray<Readonly<TerminalSession>>) => void> = new Set();
-  private activeListeners: Set<(session: Readonly<TerminalSession> | undefined) => void> = new Set();
+
+  private registryListeners: Set<(sessions: ReadonlyArray<Readonly<TerminalSession>>) => void> =
+    new Set();
+  private activeListeners: Set<(session: Readonly<TerminalSession> | undefined) => void> =
+    new Set();
 
   public getSessions(): ReadonlyArray<Readonly<TerminalSession>> {
-    const list = this.sessionOrder.map(id => this.sessions.get(id)!).filter(Boolean);
+    const list = this.sessionOrder.map((id) => this.sessions.get(id)!).filter(Boolean);
     return Object.freeze(list);
   }
 
@@ -42,7 +44,7 @@ export class TerminalRegistryImpl implements TerminalRegistry {
     }
     this.sessions.set(session.id, session);
     this.sessionOrder.push(session.id);
-    
+
     if (this.activeId === null) {
       this.activeId = session.id;
       this.notifyActiveChanged();
@@ -61,7 +63,7 @@ export class TerminalRegistryImpl implements TerminalRegistry {
     const oldSession = this.sessions.get(id)!;
     oldSession.dispose();
     this.sessions.set(id, session);
-    
+
     if (this.activeId === id) {
       this.notifyActiveChanged();
     }
@@ -70,35 +72,40 @@ export class TerminalRegistryImpl implements TerminalRegistry {
 
   public removeSession(id: string): void {
     if (!this.sessions.has(id)) return;
-    
+
     const session = this.sessions.get(id)!;
     session.dispose(); // Registry owns the session lifecycle
     this.sessions.delete(id);
-    
+
     const idx = this.sessionOrder.indexOf(id);
     if (idx !== -1) {
       this.sessionOrder.splice(idx, 1);
     }
 
     if (this.activeId === id) {
-      this.activeId = this.sessionOrder.length > 0 ? this.sessionOrder[this.sessionOrder.length - 1] : null;
+      this.activeId =
+        this.sessionOrder.length > 0 ? this.sessionOrder[this.sessionOrder.length - 1] : null;
       this.notifyActiveChanged();
     }
 
     this.notifyRegistryChanged();
   }
 
-  public onRegistryChanged(listener: (sessions: ReadonlyArray<Readonly<TerminalSession>>) => void): IDisposable {
+  public onRegistryChanged(
+    listener: (sessions: ReadonlyArray<Readonly<TerminalSession>>) => void
+  ): IDisposable {
     this.registryListeners.add(listener);
     return {
-      dispose: () => this.registryListeners.delete(listener)
+      dispose: () => this.registryListeners.delete(listener),
     };
   }
 
-  public onActiveSessionChanged(listener: (session: Readonly<TerminalSession> | undefined) => void): IDisposable {
+  public onActiveSessionChanged(
+    listener: (session: Readonly<TerminalSession> | undefined) => void
+  ): IDisposable {
     this.activeListeners.add(listener);
     return {
-      dispose: () => this.activeListeners.delete(listener)
+      dispose: () => this.activeListeners.delete(listener),
     };
   }
 
@@ -107,7 +114,7 @@ export class TerminalRegistryImpl implements TerminalRegistry {
     for (const listener of Array.from(this.registryListeners)) {
       try {
         listener(sessions);
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
     }
@@ -118,7 +125,7 @@ export class TerminalRegistryImpl implements TerminalRegistry {
     for (const listener of Array.from(this.activeListeners)) {
       try {
         listener(active);
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
     }
@@ -132,7 +139,7 @@ export class TerminalRegistryImpl implements TerminalRegistry {
     this.sessions.clear();
     this.sessionOrder = [];
     this.activeId = null;
-    
+
     this.registryListeners.clear();
     this.activeListeners.clear();
   }

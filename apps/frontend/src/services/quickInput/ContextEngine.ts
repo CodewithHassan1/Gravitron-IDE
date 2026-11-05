@@ -32,7 +32,7 @@ export class ContextEngineImpl {
       ast = ContextExpression.parse(expression);
       this.parsedExpressions.set(expression, ast);
     }
-    
+
     return ast.evaluate(this.context);
   }
 }

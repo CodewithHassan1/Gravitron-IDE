@@ -12,10 +12,10 @@ export interface IIndexScheduler {
 export class IndexScheduler implements IIndexScheduler {
   private queue = new PriorityQueue();
   private batchPlanner = new BatchPlanner();
-  
+
   private totalEnqueued = 0;
   private totalDequeued = 0;
-  
+
   constructor(private throttleController: ThrottleController) {}
 
   schedule(item: DocumentWorkItem): void {
@@ -29,17 +29,17 @@ export class IndexScheduler implements IIndexScheduler {
     }
     const batchSize = this.throttleController.getMaxBatchSize();
     const items = this.queue.dequeueBatch(batchSize);
-    
+
     if (items.length === 0) {
       return null;
     }
-    
+
     this.totalDequeued += items.length;
     this.throttleController.acquireWorker();
-    
+
     return this.batchPlanner.plan(items);
   }
-  
+
   // Note: the worker should call this when done processing the batch
   completeBatch(): void {
     this.throttleController.releaseWorker();
@@ -52,9 +52,13 @@ export class IndexScheduler implements IIndexScheduler {
       oldestItemAgeMs: this.queue.getOldestAgeMs(),
       coalescedDocuments: this.totalEnqueued - this.totalDequeued - this.queue.size(),
       cancelledJobs: 0,
-      workerUtilization: this.throttleController.getMaxBatchSize() === 0 ? 0 : 
-        (1 - (this.throttleController.getAvailableWorkers() / this.throttleController.getMaxBatchSize())), // approx
-      averageLatencyMs: 0
+      workerUtilization:
+        this.throttleController.getMaxBatchSize() === 0
+          ? 0
+          : 1 -
+            this.throttleController.getAvailableWorkers() /
+              this.throttleController.getMaxBatchSize(), // approx
+      averageLatencyMs: 0,
     };
   }
 }

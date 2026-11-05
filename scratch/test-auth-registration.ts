@@ -9,13 +9,13 @@ async function main() {
   console.log('Testing Mailer initialization...');
   console.log('SMTP_URL is set:', !!process.env.SMTP_URL);
   console.log('FROM_EMAIL is set:', !!process.env.FROM_EMAIL);
-  
+
   const config = validateConfig(process.env);
   console.log('config.SMTP_URL is set:', !!config.SMTP_URL);
   console.log('config.FROM_EMAIL is set:', !!config.FROM_EMAIL);
 
-  const mailer = config.SMTP_URL 
-    ? new ProductionMailer(config.SMTP_URL, config.FROM_EMAIL) 
+  const mailer = config.SMTP_URL
+    ? new ProductionMailer(config.SMTP_URL, config.FROM_EMAIL)
     : new DevelopmentMailer();
 
   console.log('Mailer class:', mailer.constructor.name);

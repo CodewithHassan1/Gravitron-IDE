@@ -15,13 +15,16 @@ export class PromptBuilder {
 
   public build(context: PromptContext): ChatMessage[] {
     const messages: ChatMessage[] = [];
-    
+
     // 1. System Safety (Always included, high priority)
     let systemContent = context.systemSafety + '\n\n';
     this.budget.consume('system', context.systemSafety);
 
     // 2. Project Instructions
-    if (context.projectInstructions && this.budget.canFit('instructions', context.projectInstructions)) {
+    if (
+      context.projectInstructions &&
+      this.budget.canFit('instructions', context.projectInstructions)
+    ) {
       systemContent += `--- PROJECT INSTRUCTIONS ---\n${context.projectInstructions}\n\n`;
       this.budget.consume('instructions', context.projectInstructions);
     }
@@ -47,7 +50,7 @@ export class PromptBuilder {
         this.budget.consume('retrieval', entry);
       }
     }
-    
+
     if (memoryContent) {
       systemContent += `--- RELEVANT MEMORY ---\n${memoryContent}\n`;
     }

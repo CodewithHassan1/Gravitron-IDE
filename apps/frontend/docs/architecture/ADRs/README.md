@@ -1,8 +1,8 @@
 # Architecture Decision Records (ADRs)
 
-This directory contains records of significant architectural decisions made during the development of the Workspace Engine. 
+This directory contains records of significant architectural decisions made during the development of the Workspace Engine.
 
-An ADR is a short text file in a standard format that documents a single decision, its context, and its consequences. 
+An ADR is a short text file in a standard format that documents a single decision, its context, and its consequences.
 
 ## Current Decisions
 

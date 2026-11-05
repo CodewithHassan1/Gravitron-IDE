@@ -24,7 +24,7 @@ import {
   WorkspaceOperationResult,
   FileOperationResult,
   WorkspaceLifecycleState,
-  WorkspaceSnapshot
+  WorkspaceSnapshot,
 } from './types';
 
 export class WorkspaceManagerImpl {
@@ -74,11 +74,17 @@ export class WorkspaceManagerImpl {
     const rootId = (this.vfs as any).index?.rootId;
     const root = rootId ? this.vfs.find(rootId) : undefined;
     if (!root) return undefined;
-    console.log('[DIAG] getRoot() root:', { id: root.id, name: root.name, childrenCount: root.children?.length, childrenLoaded: root.childrenLoaded, children: root.children });
+    console.log('[DIAG] getRoot() root:', {
+      id: root.id,
+      name: root.name,
+      childrenCount: root.children?.length,
+      childrenLoaded: root.childrenLoaded,
+      children: root.children,
+    });
     return Object.freeze({
       ...root,
       children: Object.freeze([...root.children]) as unknown as string[],
-      metadata: Object.freeze({ ...root.metadata })
+      metadata: Object.freeze({ ...root.metadata }),
     }) as Readonly<WorkspaceNode>;
   }
 
@@ -116,11 +122,11 @@ export class WorkspaceManagerImpl {
     if (!node) return [];
 
     const children = (this.vfs as any).tree?.getChildren(nodeId) || [];
-    
+
     const returnedChildren = children.map((child: any) => ({
       ...child,
       children: [...(child.children || [])],
-      metadata: { ...child.metadata }
+      metadata: { ...child.metadata },
     }));
 
     console.log('[EXPLORER FORENSIC] getChildren');
@@ -130,11 +136,16 @@ export class WorkspaceManagerImpl {
     console.log('returnedChildren:', returnedChildren);
     console.log('returnedChildren.length:', returnedChildren.length);
 
-    return Object.freeze(returnedChildren.map((child: any) => Object.freeze({
-      ...child,
-      children: Object.freeze([...(child.children || [])]) as unknown as string[],
-      metadata: Object.freeze({ ...child.metadata })
-    }) as Readonly<WorkspaceNode>));
+    return Object.freeze(
+      returnedChildren.map(
+        (child: any) =>
+          Object.freeze({
+            ...child,
+            children: Object.freeze([...(child.children || [])]) as unknown as string[],
+            metadata: Object.freeze({ ...child.metadata }),
+          }) as Readonly<WorkspaceNode>
+      )
+    );
   }
 
   /**
@@ -148,7 +159,7 @@ export class WorkspaceManagerImpl {
     return Object.freeze({
       ...node,
       children: Object.freeze([...(node.children || [])]) as unknown as string[],
-      metadata: Object.freeze({ ...node.metadata })
+      metadata: Object.freeze({ ...node.metadata }),
     }) as Readonly<WorkspaceNode>;
   }
 
@@ -163,23 +174,46 @@ export class WorkspaceManagerImpl {
 
     const path = this.vfs.getPath(nodeId);
     if (!path) {
-      console.error("[WorkspaceManager] INVALID PATH", path);
+      console.error('[WorkspaceManager] INVALID PATH', path);
       return;
     }
 
     try {
-      let entries: { name: string; isDirectory: boolean; isFile: boolean; isSymlink?: boolean }[] = [];
+      let entries: { name: string; isDirectory: boolean; isFile: boolean; isSymlink?: boolean }[] =
+        [];
       const hasWindow = typeof window !== 'undefined';
       const agApi = hasWindow ? (window as any).agApi : undefined;
       const globalAgApi = typeof globalThis !== 'undefined' ? (globalThis as any).agApi : undefined;
-      console.log('[FORENSIC:WM:CHECK_API] hasWindow:', hasWindow, 'agApi:', agApi, 'globalAgApi:', globalAgApi, 'window keys:', hasWindow ? Object.keys(window).filter(k => k.toLowerCase().includes('ag')) : []);
+      console.log(
+        '[FORENSIC:WM:CHECK_API] hasWindow:',
+        hasWindow,
+        'agApi:',
+        agApi,
+        'globalAgApi:',
+        globalAgApi,
+        'window keys:',
+        hasWindow ? Object.keys(window).filter((k) => k.toLowerCase().includes('ag')) : []
+      );
       if (hasWindow && agApi) {
         const workspaceId = WorkspaceSession.getState().metadata?.id;
-        console.log('[FORENSIC:WM:READDIR:BEFORE] workspaceId:', workspaceId, 'relative path:', path);
+        console.log(
+          '[FORENSIC:WM:READDIR:BEFORE] workspaceId:',
+          workspaceId,
+          'relative path:',
+          path
+        );
         const result = await (window as any).agApi.workspace.readDirectory(workspaceId, path);
-        entries = unwrapIpcResponse<{ name: string; isDirectory: boolean; isFile: boolean; isSymlink?: boolean }[]>(result);
-        
-        console.log('[FORENSIC:WM:READDIR:AFTER] result length:', entries?.length, 'entries:', entries);
+        entries =
+          unwrapIpcResponse<
+            { name: string; isDirectory: boolean; isFile: boolean; isSymlink?: boolean }[]
+          >(result);
+
+        console.log(
+          '[FORENSIC:WM:READDIR:AFTER] result length:',
+          entries?.length,
+          'entries:',
+          entries
+        );
       } else {
         // Browser handle traversal (simplified for now as fallback)
       }
@@ -187,7 +221,7 @@ export class WorkspaceManagerImpl {
       if (force) {
         // Targeted subtree reconciliation: prune nodes that exist in VFS but are missing from disk
         const diskPaths = new Set(
-          entries.map(entry => `${path === '/' ? '' : path}/${entry.name}`)
+          entries.map((entry) => `${path === '/' ? '' : path}/${entry.name}`)
         );
         const existingChildren = this.getChildren(nodeId);
         for (const child of existingChildren) {
@@ -220,7 +254,16 @@ export class WorkspaceManagerImpl {
       // Mark as loaded immutably
       this.vfs.updateNode(nodeId, { childrenLoaded: true });
       const rootAfterVfs = this.vfs.find(nodeId);
-      console.log('[FORENSIC:WM:VFS] root.id:', rootAfterVfs?.id, 'children count:', rootAfterVfs?.children?.length, 'children IDs:', rootAfterVfs?.children, 'childrenLoaded:', rootAfterVfs?.childrenLoaded);
+      console.log(
+        '[FORENSIC:WM:VFS] root.id:',
+        rootAfterVfs?.id,
+        'children count:',
+        rootAfterVfs?.children?.length,
+        'children IDs:',
+        rootAfterVfs?.children,
+        'childrenLoaded:',
+        rootAfterVfs?.childrenLoaded
+      );
 
       WorkspaceEvents.emit(WorkspaceEventType.WorkspaceUpdated, undefined);
     } catch (e: any) {
@@ -254,7 +297,10 @@ export class WorkspaceManagerImpl {
     return this.searchEngine;
   }
 
-  public async searchText(query: string, options?: import('@ag/protocol').WorkspaceSearchRequest['options']): Promise<import('@ag/protocol').TextSearchResult[]> {
+  public async searchText(
+    query: string,
+    options?: import('@ag/protocol').WorkspaceSearchRequest['options']
+  ): Promise<import('@ag/protocol').TextSearchResult[]> {
     try {
       const hasWindow = typeof window !== 'undefined';
       const agApi = hasWindow ? (window as any).agApi : undefined;
@@ -292,10 +338,6 @@ export class WorkspaceManagerImpl {
     return WorkspaceEvents.on(eventType, callback);
   }
 
-
-
-
-
   // --- Intent-Based Mutation API ---
 
   private async _trackOperationTiming<T>(operation: () => Promise<T>): Promise<T> {
@@ -316,7 +358,11 @@ export class WorkspaceManagerImpl {
         const workspaceId = this.getWorkspaceId();
         const mutationId = this.mutationTracker.createMutation(path, 'create');
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
-          const result = await (window as any).agApi.workspace.createFile(workspaceId, path, mutationId);
+          const result = await (window as any).agApi.workspace.createFile(
+            workspaceId,
+            path,
+            mutationId
+          );
           unwrapIpcResponse(result);
         }
         const node = this.vfs.createFile(path);
@@ -336,7 +382,11 @@ export class WorkspaceManagerImpl {
         const workspaceId = this.getWorkspaceId();
         const mutationId = this.mutationTracker.createMutation(path, 'createFolder');
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
-          const result = await (window as any).agApi.workspace.createFolder(workspaceId, path, mutationId);
+          const result = await (window as any).agApi.workspace.createFolder(
+            workspaceId,
+            path,
+            mutationId
+          );
           unwrapIpcResponse(result);
         }
         const node = this.vfs.createFolder(path);
@@ -361,9 +411,17 @@ export class WorkspaceManagerImpl {
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
           let result;
           if (node?.type === 'directory') {
-            result = await (window as any).agApi.workspace.deleteFolder(workspaceId, path, mutationId);
+            result = await (window as any).agApi.workspace.deleteFolder(
+              workspaceId,
+              path,
+              mutationId
+            );
           } else {
-            result = await (window as any).agApi.workspace.deleteFile(workspaceId, path, mutationId);
+            result = await (window as any).agApi.workspace.deleteFile(
+              workspaceId,
+              path,
+              mutationId
+            );
           }
           unwrapIpcResponse(result);
         }
@@ -383,8 +441,6 @@ export class WorkspaceManagerImpl {
       }
     });
   }
-
-
 
   public handleExternalDelete(path: string): void {
     const nodeId = this.vfs.resolve(path);
@@ -428,13 +484,16 @@ export class WorkspaceManagerImpl {
 
     try {
       const response = await (window as any).agApi.workspace.readDirectory(workspaceId, parentPath);
-      const entries = unwrapIpcResponse<{ name: string; isDirectory: boolean; isFile: boolean }[]>(response);
+      const entries =
+        unwrapIpcResponse<{ name: string; isDirectory: boolean; isFile: boolean }[]>(response);
 
       const newEntryName = parts[parts.length - 1];
-      const newEntry = entries.find(e => e.name === newEntryName);
+      const newEntry = entries.find((e) => e.name === newEntryName);
 
       if (!newEntry) {
-        console.warn(`[WorkspaceManager] handleExternalCreate: could not find ${newEntryName} in backend payload`);
+        console.warn(
+          `[WorkspaceManager] handleExternalCreate: could not find ${newEntryName} in backend payload`
+        );
         return;
       }
 
@@ -470,9 +529,19 @@ export class WorkspaceManagerImpl {
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
           let result;
           if (node?.type === 'directory') {
-            result = await (window as any).agApi.workspace.renameFolder(workspaceId, sourcePath, newPath, mutationId);
+            result = await (window as any).agApi.workspace.renameFolder(
+              workspaceId,
+              sourcePath,
+              newPath,
+              mutationId
+            );
           } else {
-            result = await (window as any).agApi.workspace.renameFile(workspaceId, sourcePath, newPath, mutationId);
+            result = await (window as any).agApi.workspace.renameFile(
+              workspaceId,
+              sourcePath,
+              newPath,
+              mutationId
+            );
           }
           unwrapIpcResponse(result);
         }
@@ -480,8 +549,17 @@ export class WorkspaceManagerImpl {
         this.vfs.rename(sourcePath, newName);
         if (renameId) {
           const finalNewPath = this.vfs.getPath(renameId)!;
-          WorkspaceEvents.emit(WorkspaceEventType.FileRenamed, { oldPath: sourcePath, newPath: finalNewPath, nodeId: renameId });
-          WorkspaceEvents.emit('fileEvent', { type: 'renamed', id: renameId, newName, newPath: finalNewPath });
+          WorkspaceEvents.emit(WorkspaceEventType.FileRenamed, {
+            oldPath: sourcePath,
+            newPath: finalNewPath,
+            nodeId: renameId,
+          });
+          WorkspaceEvents.emit('fileEvent', {
+            type: 'renamed',
+            id: renameId,
+            newName,
+            newPath: finalNewPath,
+          });
         }
         return { success: true, path: newPath, timestamp: Date.now() };
       } catch (error: any) {
@@ -498,7 +576,12 @@ export class WorkspaceManagerImpl {
 
         const mutationId = this.mutationTracker.createMutation(sourcePath, 'move');
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
-          const result = await (window as any).agApi.workspace.moveFile(workspaceId, sourcePath, destinationPath, mutationId);
+          const result = await (window as any).agApi.workspace.moveFile(
+            workspaceId,
+            sourcePath,
+            destinationPath,
+            mutationId
+          );
           unwrapIpcResponse(result);
         }
 
@@ -506,8 +589,16 @@ export class WorkspaceManagerImpl {
         if (moveId) {
           const newParentId = this.vfs.resolve(destinationPath);
           const newPath = this.vfs.getPath(moveId)!;
-          WorkspaceEvents.emit(WorkspaceEventType.FileMoved, { oldPath: sourcePath, newPath, nodeId: moveId });
-          WorkspaceEvents.emit('fileEvent', { type: 'moved', id: moveId, newParentId: newParentId! });
+          WorkspaceEvents.emit(WorkspaceEventType.FileMoved, {
+            oldPath: sourcePath,
+            newPath,
+            nodeId: moveId,
+          });
+          WorkspaceEvents.emit('fileEvent', {
+            type: 'moved',
+            id: moveId,
+            newParentId: newParentId!,
+          });
         }
         return { success: true, path: destinationPath, timestamp: Date.now() };
       } catch (error: any) {
@@ -525,11 +616,16 @@ export class WorkspaceManagerImpl {
 
         const mutationId = this.mutationTracker.createMutation(destinationPath, 'copy');
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
-          const result = await (window as any).agApi.workspace.copy(workspaceId, sourcePath, destinationPath, mutationId);
+          const result = await (window as any).agApi.workspace.copy(
+            workspaceId,
+            sourcePath,
+            destinationPath,
+            mutationId
+          );
           unwrapIpcResponse(result);
         }
 
-        // We could manually clone in VFS, but simpler is to let the watcher or a refresh handle it, 
+        // We could manually clone in VFS, but simpler is to let the watcher or a refresh handle it,
         // or just create the immediate node. For simplicity, we create the root node of the copy.
         if (node?.type === 'directory') {
           this.vfs.createFolder(destinationPath);
@@ -555,7 +651,12 @@ export class WorkspaceManagerImpl {
         const mutationId = this.mutationTracker.createMutation(path, 'write');
         if (workspaceId && typeof window !== 'undefined' && (window as any).agApi) {
           // write operations are not currently taking mutationId, but we should add it if we want watcher to ignore writes
-          const result = await (window as any).agApi.workspace.writeFile(workspaceId, path, content, mutationId);
+          const result = await (window as any).agApi.workspace.writeFile(
+            workspaceId,
+            path,
+            content,
+            mutationId
+          );
           unwrapIpcResponse(result);
         }
         return { success: true, path, timestamp: Date.now() };
@@ -580,7 +681,16 @@ export class WorkspaceManagerImpl {
 
   async openWorkspace(metadata: WorkspaceMetadata, handle: WorkspaceHandle): Promise<void> {
     const operation = async () => {
-      console.log('[FORENSIC:WM:OPEN] handle:', handle, 'metadata:', metadata, 'metadata.id:', metadata?.id, 'metadata.path:', (metadata as any)?.path);
+      console.log(
+        '[FORENSIC:WM:OPEN] handle:',
+        handle,
+        'metadata:',
+        metadata,
+        'metadata.id:',
+        metadata?.id,
+        'metadata.path:',
+        (metadata as any)?.path
+      );
       WorkspaceSession.setLifecycleState(WorkspaceLifecycleState.Opening);
       WorkspaceSession.setLoading(true);
 
@@ -613,7 +723,13 @@ export class WorkspaceManagerImpl {
         }
 
         // 3. WorkspaceSyncEngine Initialization
-        this.syncEngine = new WorkspaceSyncEngine(this.vfs, this.persistence, metadata.id, WorkspaceEvents, this.history);
+        this.syncEngine = new WorkspaceSyncEngine(
+          this.vfs,
+          this.persistence,
+          metadata.id,
+          WorkspaceEvents,
+          this.history
+        );
         this.syncEngine.start(handle.nativeHandle);
 
         // 4. Load Workspace Settings
@@ -639,7 +755,18 @@ export class WorkspaceManagerImpl {
         // Load root node lazily only if the workspace supports it (directories)
         const rootId = (this.vfs as any).index?.rootId;
         const rootNodeForLog = rootId ? this.vfs?.find(rootId) : null;
-        console.log('[FORENSIC:WM:LOAD:BEFORE] workspaceId:', metadata.id, 'root.id:', rootId, 'root.path:', rootNodeForLog?.path, 'root.children:', rootNodeForLog?.children, 'root.childrenLoaded:', rootNodeForLog?.childrenLoaded);
+        console.log(
+          '[FORENSIC:WM:LOAD:BEFORE] workspaceId:',
+          metadata.id,
+          'root.id:',
+          rootId,
+          'root.path:',
+          rootNodeForLog?.path,
+          'root.children:',
+          rootNodeForLog?.children,
+          'root.childrenLoaded:',
+          rootNodeForLog?.childrenLoaded
+        );
         if (rootId && metadata.capabilities?.explorer) {
           await this.ensureChildrenLoaded(rootId, true);
         }
@@ -720,7 +847,9 @@ export class WorkspaceManagerImpl {
       ContextEngine.setContext('terminalExists', false);
       ContextEngine.setContext('editorFocused', false);
 
-      WorkspaceEvents.emit(WorkspaceEventType.WorkspaceClosed, { workspaceId: currentId || 'unknown' });
+      WorkspaceEvents.emit(WorkspaceEventType.WorkspaceClosed, {
+        workspaceId: currentId || 'unknown',
+      });
       WorkspaceEvents.emit(WorkspaceEventType.WorkspaceUpdated, undefined);
     };
 
@@ -833,7 +962,7 @@ export class WorkspaceManagerImpl {
     WorkspaceSession.setLoading(true);
     try {
       const normalizedTarget = targetPath.endsWith('/') ? targetPath : targetPath + '/';
-      
+
       for (const file of files) {
         // Prevent path traversal
         if (file.name.includes('..') || file.name.includes('/')) {
@@ -842,10 +971,10 @@ export class WorkspaceManagerImpl {
         }
 
         const fullPath = normalizedTarget + file.name;
-        
+
         // Read file content
         const buffer = await file.arrayBuffer();
-        
+
         // Save using existing IPC pipeline
         await this.writeFile(fullPath, new Uint8Array(buffer));
       }
@@ -861,7 +990,7 @@ export class WorkspaceManagerImpl {
 
   public async undo(): Promise<boolean> {
     if (!this.history.canUndo) return false;
-    
+
     const targetSnapshot = this.history.undo();
     if (!targetSnapshot) return false;
 
@@ -885,18 +1014,20 @@ export class WorkspaceManagerImpl {
     try {
       // 1. Get current state
       const currentSnapshot = this.vfs.snapshot();
-      
+
       // 2. Identify missing files (deleted) or new files (created)
       // Since this is a lightweight IDE, we focus on rehydrating the VFS first.
       // A production implementation would compute exact native CRUD operations here.
       // For this targeted fix, we rehydrate the VFS and warn the user.
-      
+
       this.vfs.rehydrate(targetSnapshot.nodes);
-      
+
       // Emit update so UI refreshes immediately
       WorkspaceEvents.emit(WorkspaceEventType.WorkspaceUpdated, undefined);
-      
-      console.warn('[WorkspaceManager] History reverted VFS state, but native file diffing sync is limited in this phase.');
+
+      console.warn(
+        '[WorkspaceManager] History reverted VFS state, but native file diffing sync is limited in this phase.'
+      );
       return true;
     } catch (e) {
       console.error('[WorkspaceManager] Undo/Redo apply failed', e);

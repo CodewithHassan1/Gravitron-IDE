@@ -1,5 +1,10 @@
 // src/services/workspace/types.ts
-import { FileCreatedEventDTO, FileDeletedEventDTO, FileRenamedEventDTO, FileMovedEventDTO } from './dto/events';
+import {
+  FileCreatedEventDTO,
+  FileDeletedEventDTO,
+  FileRenamedEventDTO,
+  FileMovedEventDTO,
+} from './dto/events';
 export type { FileCreatedEventDTO, FileDeletedEventDTO, FileRenamedEventDTO, FileMovedEventDTO };
 
 export type WorkspaceProviderType = 'browser' | 'electron' | 'remote' | 'memory';
@@ -41,7 +46,7 @@ export enum WorkspaceLifecycleState {
   Initializing = 'Initializing',
   Ready = 'Ready',
   Closing = 'Closing',
-  Error = 'Error'
+  Error = 'Error',
 }
 
 export interface IWorkspaceServiceLifecycle {
@@ -103,35 +108,33 @@ export interface FileOperationResult {
 export type WorkspaceEventPayloads = {
   [WorkspaceEventType.WorkspaceOpened]: { workspaceId: string };
   [WorkspaceEventType.WorkspaceClosed]: { workspaceId: string };
-  [WorkspaceEventType.FileCreated]: { path: string, nodeId: string };
-  [WorkspaceEventType.FileDeleted]: { path: string, nodeId: string };
+  [WorkspaceEventType.FileCreated]: { path: string; nodeId: string };
+  [WorkspaceEventType.FileDeleted]: { path: string; nodeId: string };
   [WorkspaceEventType.FileChanged]: { path: string };
   [WorkspaceEventType.FolderLoaded]: { folderId: string };
   [WorkspaceEventType.WorkspaceUpdated]: undefined;
 
-  [WorkspaceEventType.FileOpened]: { path: string, nodeId: string };
-  [WorkspaceEventType.FileModified]: { path: string, nodeId: string };
-  [WorkspaceEventType.FileSaved]: { path: string, nodeId: string };
-  [WorkspaceEventType.FileClosed]: { path: string, nodeId: string };
+  [WorkspaceEventType.FileOpened]: { path: string; nodeId: string };
+  [WorkspaceEventType.FileModified]: { path: string; nodeId: string };
+  [WorkspaceEventType.FileSaved]: { path: string; nodeId: string };
+  [WorkspaceEventType.FileClosed]: { path: string; nodeId: string };
 
-  [WorkspaceEventType.FileRenamed]: { oldPath: string, newPath: string, nodeId: string };
-  [WorkspaceEventType.FileMoved]: { oldPath: string, newPath: string, nodeId: string };
-  [WorkspaceEventType.FolderCreated]: { path: string, nodeId: string };
-  [WorkspaceEventType.FolderDeleted]: { path: string, nodeId: string };
+  [WorkspaceEventType.FileRenamed]: { oldPath: string; newPath: string; nodeId: string };
+  [WorkspaceEventType.FileMoved]: { oldPath: string; newPath: string; nodeId: string };
+  [WorkspaceEventType.FolderCreated]: { path: string; nodeId: string };
+  [WorkspaceEventType.FolderDeleted]: { path: string; nodeId: string };
   [WorkspaceEventType.WorkspaceNavigate]: { targetUrl: string };
 
-  'fileEvent':
-  | FileCreatedEventDTO
-  | FileDeletedEventDTO
-  | FileRenamedEventDTO
-  | FileMovedEventDTO;
-  'SnapshotSaving': { timestamp: number };
-  'SnapshotSaved': { version: number; size?: number };
-  'SnapshotFailed': { error: string };
-  'TreeRestored': { timestamp: number; nodeCount?: number };
+  fileEvent: FileCreatedEventDTO | FileDeletedEventDTO | FileRenamedEventDTO | FileMovedEventDTO;
+  SnapshotSaving: { timestamp: number };
+  SnapshotSaved: { version: number; size?: number };
+  SnapshotFailed: { error: string };
+  TreeRestored: { timestamp: number; nodeCount?: number };
 };
 
-export interface WorkspaceEvent<T extends keyof WorkspaceEventPayloads = keyof WorkspaceEventPayloads> {
+export interface WorkspaceEvent<
+  T extends keyof WorkspaceEventPayloads = keyof WorkspaceEventPayloads,
+> {
   type: T;
   timestamp: number;
   payload?: WorkspaceEventPayloads[T];

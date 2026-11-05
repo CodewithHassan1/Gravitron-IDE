@@ -23,14 +23,16 @@ interface DiagnosticsState {
 
 export const useDiagnosticsStore = create<DiagnosticsState>((set) => ({
   diagnostics: [],
-  publishDiagnostics: (uri, newDiagnostics) => set((state) => {
-    const filtered = state.diagnostics.filter(d => d.uri !== uri);
-    return { diagnostics: [...filtered, ...newDiagnostics] };
-  }),
-  clearDiagnostics: (uri) => set((state) => {
-    if (uri) {
-      return { diagnostics: state.diagnostics.filter(d => d.uri !== uri) };
-    }
-    return { diagnostics: [] };
-  }),
+  publishDiagnostics: (uri, newDiagnostics) =>
+    set((state) => {
+      const filtered = state.diagnostics.filter((d) => d.uri !== uri);
+      return { diagnostics: [...filtered, ...newDiagnostics] };
+    }),
+  clearDiagnostics: (uri) =>
+    set((state) => {
+      if (uri) {
+        return { diagnostics: state.diagnostics.filter((d) => d.uri !== uri) };
+      }
+      return { diagnostics: [] };
+    }),
 }));

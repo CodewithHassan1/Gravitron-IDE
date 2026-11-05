@@ -13,7 +13,7 @@ interface EditorConfig {
   smoothScrolling: boolean;
   fontLigatures: boolean;
   formatOnSave: boolean;
-  
+
   // Enterprise Extensions
   cursorBlinking: 'blink' | 'smooth' | 'phase' | 'expand' | 'solid';
   cursorStyle: 'line' | 'block' | 'underline' | 'line-thin' | 'block-outline' | 'underline-thin';
@@ -47,7 +47,7 @@ const defaultConfig: EditorConfig = {
   smoothScrolling: true,
   fontLigatures: true,
   formatOnSave: false,
-  
+
   // Enterprise defaults
   cursorBlinking: 'blink',
   cursorStyle: 'line',

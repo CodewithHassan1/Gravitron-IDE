@@ -11,13 +11,15 @@ export class MenuRegistryImpl {
       list = [];
       this.contributions.set(contribution.menuId, list);
     }
-    const existingIndex = list.findIndex(c => c.menuItemId === contribution.menuItemId);
+    const existingIndex = list.findIndex((c) => c.menuItemId === contribution.menuItemId);
     if (existingIndex > -1) {
       list[existingIndex] = contribution;
     } else {
       list.push(contribution);
     }
-    console.log(`[NativeMenuAudit] Registered menu contribution: ${contribution.menuItemId} -> ${contribution.menuId}`);
+    console.log(
+      `[NativeMenuAudit] Registered menu contribution: ${contribution.menuItemId} -> ${contribution.menuId}`
+    );
 
     return {
       dispose: () => {
@@ -25,13 +27,13 @@ export class MenuRegistryImpl {
         if (idx > -1) {
           list!.splice(idx, 1);
         }
-      }
+      },
     };
   }
 
   getMenuItems(menuId: MenuId | string): MenuContribution[] {
     const items = this.contributions.get(menuId) || [];
-    
+
     // Sort items by group then order
     return [...items].sort((a, b) => {
       const groupA = a.group || '';

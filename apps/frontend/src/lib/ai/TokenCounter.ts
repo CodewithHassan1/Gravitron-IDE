@@ -9,7 +9,7 @@ export class TokenCounter {
 
 export class PromptCompressor {
   static compress(messages: AIMessagePayload[], maxTokens: number): AIMessagePayload[] {
-    // Stub implementation: Just returns as is. 
+    // Stub implementation: Just returns as is.
     // Real implementation would summarize or truncate oldest contextual messages.
     return messages;
   }

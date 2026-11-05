@@ -45,8 +45,8 @@ describe('TerminalEventBus', () => {
         cwd: '/',
         executable: 'sh',
         args: [],
-        env: {}
-      }
+        env: {},
+      },
     });
 
     expect(Object.isFrozen(receivedPayload)).toBe(true);

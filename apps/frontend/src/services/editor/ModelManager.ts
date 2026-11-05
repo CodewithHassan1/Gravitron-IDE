@@ -9,7 +9,11 @@ export class ModelManagerImpl {
     this.monacoInstance = monaco;
   }
 
-  getModel(uriString: string, defaultLanguage: string = 'plaintext', initialValue: string = ''): any {
+  getModel(
+    uriString: string,
+    defaultLanguage: string = 'plaintext',
+    initialValue: string = ''
+  ): any {
     if (!this.monacoInstance) return null;
 
     let model = this.models.get(uriString);
@@ -17,7 +21,7 @@ export class ModelManagerImpl {
       const uri = this.monacoInstance.Uri.parse(uriString);
       // Check if it already exists in monaco memory
       model = this.monacoInstance.editor.getModel(uri);
-      
+
       if (!model) {
         model = this.monacoInstance.editor.createModel(initialValue, defaultLanguage, uri);
         DisposableRegistry.register('modelManager', model);

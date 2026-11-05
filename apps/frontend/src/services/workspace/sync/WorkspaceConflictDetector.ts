@@ -22,7 +22,10 @@ export class WorkspaceConflictDetector {
    * Detects conflicts for a given operation against the current Virtual File System state.
    * Does NOT resolve conflicts, only returns a structured conflict object if one is detected.
    */
-  public static detect(operation: WorkspaceOperation, vfs: VirtualFileSystem): WorkspaceConflict | null {
+  public static detect(
+    operation: WorkspaceOperation,
+    vfs: VirtualFileSystem
+  ): WorkspaceConflict | null {
     switch (operation.type) {
       case WorkspaceOperationType.CreateFile:
       case WorkspaceOperationType.CreateFolder:
@@ -59,7 +62,7 @@ export class WorkspaceConflictDetector {
             message: `Source ${operation.sourcePath} does not exist for rename.`,
           };
         }
-        
+
         // For rename, check if the parent already has a node with the new name
         const srcId = vfs.resolve(operation.sourcePath);
         if (srcId) {
@@ -67,7 +70,7 @@ export class WorkspaceConflictDetector {
           if (node && node.parentId) {
             const parent = vfs.find(node.parentId);
             if (parent) {
-              const conflictId = parent.children.find(childId => {
+              const conflictId = parent.children.find((childId) => {
                 const child = vfs.find(childId);
                 return child?.name === operation.newName;
               });

@@ -31,14 +31,16 @@ export class ToolRegistry {
 
     const isValid = validate(args);
     if (!isValid) {
-      const errors = validate.errors?.map((err) => `${err.instancePath} ${err.message}`) || ['Unknown validation error'];
+      const errors = validate.errors?.map((err) => `${err.instancePath} ${err.message}`) || [
+        'Unknown validation error',
+      ];
       throw new ToolInputValidationFailed(toolName, errors);
     }
-    
+
     return args; // args might be mutated if defaults are applied by ajv
   }
 
   public getDefinitions() {
-    return Array.from(this.tools.values()).map(t => t.definition);
+    return Array.from(this.tools.values()).map((t) => t.definition);
   }
 }

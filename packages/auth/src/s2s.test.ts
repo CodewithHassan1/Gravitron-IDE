@@ -100,7 +100,9 @@ describe('Trusted S2S Identity and Agent Delegation Constraints', () => {
       );
       const secondClaims = await verifyAgentDelegation(second, publicKey, 'worker-ai');
       // CSPRNG UUID, not a Math.random numeric string.
-      expect(secondClaims.jti).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+      expect(secondClaims.jti).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+      );
       expect(secondClaims.jti).not.toMatch(/^\d+$/);
       expect(secondClaims.jti).not.toBe('fixed-delegation-id');
     });
@@ -239,7 +241,11 @@ describe('Trusted S2S Identity and Agent Delegation Constraints', () => {
   describe('S2S purpose separation', () => {
     it('accepts a valid S2S token', async () => {
       // 40. Minted S2S passes verification.
-      const token = await issuer.mintS2S({ userId: 'user_123', orgId: 'org_A' }, 'internal-services', '5m');
+      const token = await issuer.mintS2S(
+        { userId: 'user_123', orgId: 'org_A' },
+        'internal-services',
+        '5m'
+      );
       const payload = await requireS2S(token, publicKey, 'internal-services');
       expect(payload.purpose).toBe('s2s');
     });
@@ -260,12 +266,16 @@ describe('Trusted S2S Identity and Agent Delegation Constraints', () => {
     it('a worker holding only the public verification key cannot mint delegation tokens', async () => {
       // 49. Worker does not possess the signing private key.
       const publicOnlyIssuer = new S2SIssuer(publicKey);
-      await expect(publicOnlyIssuer.mintDelegation(validContext(), 'worker-ai', '1h')).rejects.toThrow();
+      await expect(
+        publicOnlyIssuer.mintDelegation(validContext(), 'worker-ai', '1h')
+      ).rejects.toThrow();
     });
 
     it('a worker holding only the public verification key cannot mint S2S tokens', async () => {
       const publicOnlyIssuer = new S2SIssuer(publicKey);
-      await expect(publicOnlyIssuer.mintS2S({ userId: 'u', orgId: 'o' }, 'internal-services')).rejects.toThrow();
+      await expect(
+        publicOnlyIssuer.mintS2S({ userId: 'u', orgId: 'o' }, 'internal-services')
+      ).rejects.toThrow();
     });
 
     it('a foreign-signer token verifies only under the foreign key', async () => {
@@ -283,16 +293,18 @@ describe('Trusted S2S Identity and Agent Delegation Constraints', () => {
         .setAudience('worker-ai')
         .setJti('jti1')
         .sign(foreignPrivateKey);
-      const claims: DelegationClaims = await verifyAgentDelegation(forged, foreignPublicKey, 'worker-ai');
+      const claims: DelegationClaims = await verifyAgentDelegation(
+        forged,
+        foreignPublicKey,
+        'worker-ai'
+      );
       expect(claims.jti).toBe('jti1');
     });
 
     it('verification requires an explicit execution binding', async () => {
       const token = await issuer.mintDelegation(validContext(), 'worker-ai', '1h');
       // Bound verification must not accept an undefined/empty expected execution.
-      await expect(
-        requireAgentDelegation(token, publicKey, 'worker-ai', '')
-      ).rejects.toThrow();
+      await expect(requireAgentDelegation(token, publicKey, 'worker-ai', '')).rejects.toThrow();
     });
   });
 });

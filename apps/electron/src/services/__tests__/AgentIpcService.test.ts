@@ -89,9 +89,16 @@ describe('PHASE 8.3 Electron Main Process Delegation Exchange', () => {
   it('exchanges the renderer access token for a verified delegation and passes only metadata to the runtime', async () => {
     vi.resetModules();
     const { AgentIpcService } = await import('../AgentIpcService');
-    const service = new AgentIpcService(MOCK_WINDOW, MOCK_WORKSPACE, MOCK_EXECUTION, MOCK_INTELLIGENCE);
+    const service = new AgentIpcService(
+      MOCK_WINDOW,
+      MOCK_WORKSPACE,
+      MOCK_EXECUTION,
+      MOCK_INTELLIGENCE
+    );
 
-    const startHandler = service.registerHandlers().find((h) => h.channel === Channels.Agent.StartRequest)!;
+    const startHandler = service
+      .registerHandlers()
+      .find((h) => h.channel === Channels.Agent.StartRequest)!;
     const ctx: any = { requestId: 'req-1' };
 
     const response = await startHandler.handler(
@@ -136,12 +143,26 @@ describe('PHASE 8.3 Electron Main Process Delegation Exchange', () => {
   it('fails closed when the renderer supplies no access token', async () => {
     vi.resetModules();
     const { AgentIpcService } = await import('../AgentIpcService');
-    const service = new AgentIpcService(MOCK_WINDOW, MOCK_WORKSPACE, MOCK_EXECUTION, MOCK_INTELLIGENCE);
+    const service = new AgentIpcService(
+      MOCK_WINDOW,
+      MOCK_WORKSPACE,
+      MOCK_EXECUTION,
+      MOCK_INTELLIGENCE
+    );
 
-    const startHandler = service.registerHandlers().find((h) => h.channel === Channels.Agent.StartRequest)!;
+    const startHandler = service
+      .registerHandlers()
+      .find((h) => h.channel === Channels.Agent.StartRequest)!;
     await expect(
       startHandler.handler(
-        { workspaceId: 'ws-1', conversationId: 'c', prompt: 'p', providerType: 'x', providerConfig: {}, accessToken: '' },
+        {
+          workspaceId: 'ws-1',
+          conversationId: 'c',
+          prompt: 'p',
+          providerType: 'x',
+          providerConfig: {},
+          accessToken: '',
+        },
         { requestId: 'req-2' } as any
       )
     ).rejects.toThrow('renderer access token is required');

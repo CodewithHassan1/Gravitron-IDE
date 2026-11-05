@@ -2,7 +2,23 @@ import React from 'react';
 import { ViewRegistry } from '../../../lib/registries/ViewRegistry';
 import { ExplorerView } from '../explorer/ExplorerView';
 import { registerExplorerContextMenu } from '../explorer/registerExplorerContextMenu';
-import { Folder, Search, GitBranch, PlaySquare, Blocks, Minus, Plus, RefreshCw, FilePlus, FolderPlus, ArrowDownAZ, ArrowDown01, Clock, Eye, EyeOff } from 'lucide-react';
+import {
+  Folder,
+  Search,
+  GitBranch,
+  PlaySquare,
+  Blocks,
+  Minus,
+  Plus,
+  RefreshCw,
+  FilePlus,
+  FolderPlus,
+  ArrowDownAZ,
+  ArrowDown01,
+  Clock,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { SearchPanel } from '../search/SearchPanel';
 import { SourceControlView } from '../scm/SourceControlView';
 import { TreeController } from '../../../lib/tree/TreeController';
@@ -25,56 +41,61 @@ function ExplorerActions() {
 
   return (
     <>
-      <button 
+      <button
         title="New File"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => TreeController.beginCreate(getParentId(), 'file')}
       >
         <FilePlus size={14} />
       </button>
-      <button 
+      <button
         title="New Folder"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => TreeController.beginCreate(getParentId(), 'directory')}
       >
         <FolderPlus size={14} />
       </button>
-      <button 
+      <button
         title="Refresh Workspace"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => WorkspaceManager.reloadWorkspace()}
       >
         <RefreshCw size={14} />
       </button>
-      <button 
+      <button
         title="Collapse All"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => TreeController.collapseAll()}
       >
         <Minus size={14} />
       </button>
-      <button 
+      <button
         title="Expand All"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => TreeController.expandAll()}
       >
         <Plus size={14} />
       </button>
-      <button 
+      <button
         title="Cycle Sort Order"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => {
           const store = useWorkspaceTreeStore.getState();
           const current = store.sortOrder;
-          const next = current === 'default' ? 'modified' : current === 'modified' ? 'size' : 'default';
+          const next =
+            current === 'default' ? 'modified' : current === 'modified' ? 'size' : 'default';
           store.setSortOrder(next);
         }}
       >
-        {sortOrder === 'default' ? <ArrowDownAZ size={14} /> : 
-         sortOrder === 'modified' ? <Clock size={14} /> : 
-         <ArrowDown01 size={14} />}
+        {sortOrder === 'default' ? (
+          <ArrowDownAZ size={14} />
+        ) : sortOrder === 'modified' ? (
+          <Clock size={14} />
+        ) : (
+          <ArrowDown01 size={14} />
+        )}
       </button>
-      <button 
+      <button
         title="Toggle Hidden Files"
         className="p-1 rounded-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         onClick={() => {
@@ -93,7 +114,9 @@ function RunAndDebugView() {
     <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4">
       <div className="space-y-1">
         <h3 className="text-sm font-medium text-foreground">Run & Debug</h3>
-        <p className="text-xs text-muted-foreground">Debug support will become available once a launch configuration is created.</p>
+        <p className="text-xs text-muted-foreground">
+          Debug support will become available once a launch configuration is created.
+        </p>
       </div>
     </div>
   );
@@ -104,7 +127,9 @@ function ExtensionsView() {
     <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4">
       <div className="space-y-1">
         <h3 className="text-sm font-medium text-foreground">Extensions</h3>
-        <p className="text-xs text-muted-foreground">Extension marketplace will be available in a future milestone.</p>
+        <p className="text-xs text-muted-foreground">
+          Extension marketplace will be available in a future milestone.
+        </p>
       </div>
     </div>
   );
@@ -155,4 +180,3 @@ export function registerPrimaryViews() {
     component: ExtensionsView,
   });
 }
-

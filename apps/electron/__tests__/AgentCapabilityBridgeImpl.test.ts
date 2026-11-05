@@ -16,23 +16,27 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
     workspaceService = {
       registerHandlers: vi.fn().mockReturnValue([
         { channel: 'workspace.readFile', handler: vi.fn() },
-        { channel: 'workspace.writeFile', handler: vi.fn() }
-      ])
+        { channel: 'workspace.writeFile', handler: vi.fn() },
+      ]),
     } as unknown as IWorkspaceService;
 
     workspaceExecutionService = {} as IWorkspaceExecutionService;
 
     intelligenceManager = {
-      sendRequest: vi.fn()
+      sendRequest: vi.fn(),
     } as unknown as IntelligenceManager;
 
-    bridge = new AgentCapabilityBridgeImpl(workspaceService, workspaceExecutionService, intelligenceManager);
+    bridge = new AgentCapabilityBridgeImpl(
+      workspaceService,
+      workspaceExecutionService,
+      intelligenceManager
+    );
   });
 
   const createContext = (workspaceId: string): AgentProtocol.AgentCapabilityContext => ({
     agentId: randomUUID(),
     workspaceId,
-    signal: new AbortController().signal
+    signal: new AbortController().signal,
   });
 
   it('workspaceId comes from AgentCapabilityContext and agent cannot spoof it', async () => {
@@ -42,7 +46,7 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
     vi.mocked(intelligenceManager.sendRequest).mockResolvedValue({
       workspaceId: 'trusted-workspace-123',
       snapshotSequence: 1,
-      results: []
+      results: [],
     });
 
     // Assume the agent passes spoofedArgs via options or arguments, but bridge overrides
@@ -65,7 +69,7 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
     vi.mocked(intelligenceManager.sendRequest).mockResolvedValue({
       workspaceId: 'ws-1',
       snapshotSequence: 47,
-      results: [{ symbolName: 'Test', kind: 'class', filePath: '/test.ts', line: 1, column: 1 }]
+      results: [{ symbolName: 'Test', kind: 'class', filePath: '/test.ts', line: 1, column: 1 }],
     });
 
     const response = await bridge.findDefinition(ctx, 'Test');
@@ -83,13 +87,13 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
       return {
         workspaceId: ws,
         snapshotSequence: ws === 'workspace-A' ? 1 : 2,
-        results: []
+        results: [],
       };
     });
 
     const [respA, respB] = await Promise.all([
       bridge.searchWorkspace(ctxA, 'queryA'),
-      bridge.searchWorkspace(ctxB, 'queryB')
+      bridge.searchWorkspace(ctxB, 'queryB'),
     ]);
 
     expect(respA.workspaceId).toBe('workspace-A');
@@ -106,18 +110,22 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
       send: vi.fn(),
       connected: true,
       on: vi.fn(),
-      kill: vi.fn()
+      kill: vi.fn(),
     } as any;
     (manager as any).workerProcess = mockWorker;
 
     // We must manually attach the listeners since we skipped spawnWorker()
     // To do this simply, we will just simulate what IntelligenceManager does on exit
-    const promise = manager.sendRequest(IntelligenceProtocol.IntelligenceRequestType.SearchWorkspace, 'ws-1', {});
-    
+    const promise = manager.sendRequest(
+      IntelligenceProtocol.IntelligenceRequestType.SearchWorkspace,
+      'ws-1',
+      {}
+    );
+
     // Simulate crash
     const pending = (manager as any).pendingRequests;
     expect(pending.size).toBe(1);
-    
+
     // Trigger worker exit logic manually: manager rejects all pending
     const error = new Error(`Worker exited with code 1`);
     for (const [id, { reject }] of pending.entries()) {
@@ -135,13 +143,15 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
       send: vi.fn(),
       connected: true,
       on: vi.fn(),
-      kill: vi.fn()
+      kill: vi.fn(),
     } as any;
     (manager as any).workerProcess = mockWorker;
-    
+
     // Fake the promise being created
-    const promiseA = manager.sendRequest(IntelligenceProtocol.IntelligenceRequestType.SearchWorkspace, 'ws-1', {}).catch(() => {});
-    
+    const promiseA = manager
+      .sendRequest(IntelligenceProtocol.IntelligenceRequestType.SearchWorkspace, 'ws-1', {})
+      .catch(() => {});
+
     const reqAId = Array.from((manager as any).pendingRequests.keys())[0] as string;
 
     // Simulate crash to clear pending A
@@ -153,11 +163,11 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
         requestId: reqAId,
         workspaceId: 'ws-1',
         success: true,
-        payload: { results: [] }
+        payload: { results: [] },
       });
     }).not.toThrow();
   });
-  
+
   it('Result bounding is preserved', async () => {
     const ctx = createContext('ws-1');
     // Simulate provider returning bounded payload
@@ -165,7 +175,7 @@ describe('AgentCapabilityBridgeImpl Intelligence Tests', () => {
     vi.mocked(intelligenceManager.sendRequest).mockResolvedValue({
       workspaceId: 'ws-1',
       snapshotSequence: 1,
-      results: mockResults
+      results: mockResults,
     });
 
     const response = await bridge.findReferences(ctx, 'Test');

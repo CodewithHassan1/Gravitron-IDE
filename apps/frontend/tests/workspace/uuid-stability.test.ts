@@ -18,7 +18,15 @@ describe('UUID Stability', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-uuid', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-uuid',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
@@ -28,10 +36,10 @@ describe('UUID Stability', () => {
     await manager.createFolder('/folderA');
     await manager.createFolder('/folderB');
     await manager.createFile('/folderA/test.ts');
-    
+
     const fileId = (manager as any).vfs.resolve('/folderA/test.ts');
     expect(fileId).toBeTruthy();
-    
+
     const node1 = manager.getNode(fileId!);
     expect(node1?.id).toBe(fileId);
 
@@ -44,7 +52,7 @@ describe('UUID Stability', () => {
     await manager.move('/folderA/renamed.ts', '/folderB');
     const node3Id = (manager as any).vfs.resolve('/folderB/renamed.ts');
     expect(node3Id).toBe(fileId);
-    
+
     // 4. Parent rename
     await manager.rename('/folderB', 'folderC');
     const node4Id = (manager as any).vfs.resolve('/folderC/renamed.ts');
@@ -65,10 +73,10 @@ describe('UUID Stability', () => {
 
     // Simulate reload
     const newManager = new WorkspaceManagerImpl();
-    // We inject the snapshot into openDB mock, but since idb is mocked to return null, 
+    // We inject the snapshot into openDB mock, but since idb is mocked to return null,
     // we can test rehydrate directly on vfs
     (newManager as any).vfs.rehydrate(snapshot);
-    
+
     const restoredId = (newManager as any).vfs.resolve('/persist.ts');
     expect(restoredId).toBe(fileId);
   });

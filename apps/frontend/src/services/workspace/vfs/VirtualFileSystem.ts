@@ -30,9 +30,10 @@ export class VirtualFileSystem {
     this.tree = new WorkspaceTree(this.index);
     this.resolver = new PathResolver(this.index);
 
-    const root = type === 'file' 
-      ? NodeFactory.createFile(name, null, '/', '') 
-      : NodeFactory.createDirectory(name, null, '/', '');
+    const root =
+      type === 'file'
+        ? NodeFactory.createFile(name, null, '/', '')
+        : NodeFactory.createDirectory(name, null, '/', '');
     this.tree.addNode(root);
     return root;
   }
@@ -46,7 +47,7 @@ export class VirtualFileSystem {
 
     const fileName = this.resolver.basename(path);
     if (!fileName) throw new Error('Filename cannot be empty.');
-    const existingChild = this.tree.getChildren(parentId).find(c => c.name === fileName);
+    const existingChild = this.tree.getChildren(parentId).find((c) => c.name === fileName);
     if (existingChild) throw new Error(`File ${fileName} already exists in ${parentPath}.`);
 
     const relativePath = path.startsWith('/') ? path.substring(1) : path;
@@ -62,7 +63,7 @@ export class VirtualFileSystem {
 
     const folderName = this.resolver.basename(path);
     if (!folderName) throw new Error('Folder name cannot be empty.');
-    const existingChild = this.tree.getChildren(parentId).find(c => c.name === folderName);
+    const existingChild = this.tree.getChildren(parentId).find((c) => c.name === folderName);
     if (existingChild) throw new Error(`Folder ${folderName} already exists in ${parentPath}.`);
 
     const relativePath = path.startsWith('/') ? path.substring(1) : path;
@@ -79,7 +80,7 @@ export class VirtualFileSystem {
     if (!existing) return;
 
     const updated = { ...existing, ...updates };
-    
+
     // We must manually swap it in the tree and index to preserve immutability
     this.index.remove(existing);
     this.index.add(updated);
@@ -98,12 +99,13 @@ export class VirtualFileSystem {
   public rename(path: string, newName: string): void {
     const nodeId = this.resolve(path);
     if (!nodeId) throw new Error(`Path ${path} not found.`);
-    
+
     // Check for sibling conflicts
     const parent = this.tree.getParent(nodeId);
     if (parent) {
-      const conflict = this.tree.getChildren(parent.id).find(c => c.name === newName);
-      if (conflict) throw new Error(`A node named ${newName} already exists in the same directory.`);
+      const conflict = this.tree.getChildren(parent.id).find((c) => c.name === newName);
+      if (conflict)
+        throw new Error(`A node named ${newName} already exists in the same directory.`);
     }
 
     this.tree.renameNode(nodeId, newName);
@@ -112,7 +114,7 @@ export class VirtualFileSystem {
   public delete(path: string): void {
     const nodeId = this.resolve(path);
     if (!nodeId) return; // Silent if doesn't exist
-    
+
     if (nodeId === this.index.rootId) {
       throw new Error('Cannot delete the workspace root.');
     }
@@ -139,7 +141,7 @@ export class VirtualFileSystem {
   }
 
   /**
-   * Serializes the current tree state. 
+   * Serializes the current tree state.
    * Useful for the forthcoming Persistence layer.
    */
   public snapshot(): WorkspaceNode[] {
@@ -166,7 +168,7 @@ export class VirtualFileSystem {
       }
       this.tree.addNode(node);
     }
-    
+
     const validation = this.validate();
     if (!validation.isValid) {
       throw new Error(`Tree rehydration failed validation: ${validation.errors.join(', ')}`);
@@ -198,7 +200,9 @@ export class VirtualFileSystem {
           // Parent Child Link Check
           const parentChildren = this.index.getChildren(node.parentId);
           if (!parentChildren.includes(node.id)) {
-            errors.push(`Node ${node.id} claims parent ${node.parentId}, but parent does not list it as a child.`);
+            errors.push(
+              `Node ${node.id} claims parent ${node.parentId}, but parent does not list it as a child.`
+            );
           }
         }
       }
@@ -207,7 +211,7 @@ export class VirtualFileSystem {
       let currentId: string | null = node.parentId;
       const pathSet = new Set<string>();
       pathSet.add(node.id);
-      
+
       while (currentId) {
         if (pathSet.has(currentId)) {
           errors.push(`Cyclic reference detected involving node ${currentId}.`);
@@ -237,7 +241,7 @@ export class VirtualFileSystem {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }

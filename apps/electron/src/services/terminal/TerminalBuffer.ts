@@ -9,17 +9,17 @@ export const DefaultBufferPolicy: TerminalBufferPolicy = {
   flushIntervalMs: 16, // ~60fps
   maxHistoryBytes: 1024 * 1024, // 1 MB ring buffer per session
   maxChunkBytes: 64 * 1024, // 64 KB max payload per flush
-  maxPendingFlushBytes: 5 * 1024 * 1024 // 5 MB max pending flush before dropping
+  maxPendingFlushBytes: 5 * 1024 * 1024, // 5 MB max pending flush before dropping
 };
 
 export class TerminalBuffer {
   private history: Uint8Array;
   private historyPos = 0;
   private historyLength = 0;
-  
+
   private pendingQueue: Uint8Array[] = [];
   private pendingBytes = 0;
-  
+
   private flushTimer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -68,7 +68,7 @@ export class TerminalBuffer {
       this.history.set(data.subarray(availableAtEnd), 0);
       this.historyPos = data.length - availableAtEnd;
     }
-    
+
     this.historyLength = Math.min(this.historyLength + data.length, size);
   }
 
@@ -76,7 +76,7 @@ export class TerminalBuffer {
     if (this.historyLength === 0) return new Uint8Array();
     const result = new Uint8Array(this.historyLength);
     const size = this.policy.maxHistoryBytes;
-    
+
     if (this.historyLength < size) {
       result.set(this.history.subarray(0, this.historyLength), 0);
     } else {
@@ -96,7 +96,8 @@ export class TerminalBuffer {
     this.flushTimer = null;
     if (this.pendingQueue.length === 0) return;
 
-    const chunk = this.pendingQueue.length === 1 ? this.pendingQueue[0] : Buffer.concat(this.pendingQueue);
+    const chunk =
+      this.pendingQueue.length === 1 ? this.pendingQueue[0] : Buffer.concat(this.pendingQueue);
     this.pendingQueue = [];
     this.pendingBytes = 0;
 

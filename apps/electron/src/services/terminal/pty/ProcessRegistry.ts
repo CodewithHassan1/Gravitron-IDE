@@ -20,11 +20,11 @@ export class ProcessRegistry {
       id,
       process,
       state: 'starting',
-      createdAt: Date.now()
+      createdAt: Date.now(),
     };
-    
+
     this.processes.set(id, record);
-    
+
     // Automatically manage state
     process.onExit((code) => {
       const rec = this.processes.get(id);

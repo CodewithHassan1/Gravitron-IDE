@@ -22,7 +22,7 @@ export class IndexedDBSessionPersistence implements SessionPersistence {
       }
 
       const request = indexedDB.open(this.dbName, this.version);
-      
+
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
         if (!db.objectStoreNames.contains(this.storeName)) {
@@ -44,7 +44,7 @@ export class IndexedDBSessionPersistence implements SessionPersistence {
         const tx = db.transaction(this.storeName, 'readwrite');
         const store = tx.objectStore(this.storeName);
         store.put({ id: workspaceId, snapshot });
-        
+
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
       });
@@ -60,7 +60,7 @@ export class IndexedDBSessionPersistence implements SessionPersistence {
         const tx = db.transaction(this.storeName, 'readonly');
         const store = tx.objectStore(this.storeName);
         const request = store.get(workspaceId);
-        
+
         request.onsuccess = () => {
           if (request.result) resolve(request.result.snapshot as TerminalSnapshot);
           else resolve(null);
@@ -80,7 +80,7 @@ export class IndexedDBSessionPersistence implements SessionPersistence {
         const tx = db.transaction(this.storeName, 'readwrite');
         const store = tx.objectStore(this.storeName);
         const request = store.delete(workspaceId);
-        
+
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
       });

@@ -1,4 +1,9 @@
-import { TerminalProtocol, ExecutionBackendKind, ExecutionTarget, ExecutionContext } from '@ag/protocol';
+import {
+  TerminalProtocol,
+  ExecutionBackendKind,
+  ExecutionTarget,
+  ExecutionContext,
+} from '@ag/protocol';
 import { IProcess } from './types';
 
 /**
@@ -9,7 +14,7 @@ export interface ExecutionBackendCapabilities extends TerminalProtocol.TerminalC
 export interface IExecutionBackend {
   readonly kind: ExecutionBackendKind;
   readonly capabilities: ExecutionBackendCapabilities;
-  
+
   createProcess(sessionId: string, context: ExecutionContext): Promise<string>;
   getProcess(nativeProcessId: string): IProcess | undefined;
   dispose(): void;

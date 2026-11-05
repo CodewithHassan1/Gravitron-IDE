@@ -41,7 +41,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
       id: crypto.randomUUID(),
       role: 'user',
       content,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
     set({ displayMessages: messages });
   },
@@ -53,7 +53,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
       role: 'tool',
       content,
       timestamp: Date.now(),
-      toolCallId
+      toolCallId,
     });
     set({ displayMessages: messages });
   },
@@ -68,7 +68,9 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
 
     // Sequence correlation check
     if (event.sequence <= currentState.lastSequence) {
-      console.warn(`[AgentStore] Dropping stale event seq=${event.sequence} (lastSeq=${currentState.lastSequence})`);
+      console.warn(
+        `[AgentStore] Dropping stale event seq=${event.sequence} (lastSeq=${currentState.lastSequence})`
+      );
       return;
     }
 
@@ -87,7 +89,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
         }
         break;
       }
-      
+
       case AgentProtocol.AgentEventType.ToolApprovalRequested: {
         const payload = event.payload as AgentProtocol.ToolApprovalRequestedEvent;
         updates.pendingApproval = {
@@ -99,12 +101,12 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
         updates.state = AgentProtocol.AgentState.AwaitingApproval;
         break;
       }
-      
+
       case AgentProtocol.AgentEventType.StreamEvent: {
         const payload = event.payload as AgentProtocol.StreamEventPayload;
         const messages = [...currentState.displayMessages];
         const streamEvent = payload.event;
-        
+
         if (streamEvent.type === 'text-delta') {
           let lastMsg = messages[messages.length - 1];
           if (!lastMsg || lastMsg.role !== 'assistant') {
@@ -113,11 +115,11 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
               role: 'assistant',
               content: '',
               timestamp: Date.now(),
-              toolCalls: []
+              toolCalls: [],
             };
             messages.push(lastMsg);
           }
-          lastMsg.content += (streamEvent.content || '');
+          lastMsg.content += streamEvent.content || '';
         } else if (streamEvent.type === 'tool-call-complete') {
           let lastMsg = messages[messages.length - 1];
           if (!lastMsg || lastMsg.role !== 'assistant') {
@@ -126,20 +128,20 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
               role: 'assistant',
               content: '',
               timestamp: Date.now(),
-              toolCalls: []
+              toolCalls: [],
             };
             messages.push(lastMsg);
           }
           if (!lastMsg.toolCalls) lastMsg.toolCalls = [];
           if (streamEvent.toolCall && streamEvent.toolCall.id && streamEvent.toolCall.name) {
-             lastMsg.toolCalls.push({
-               id: streamEvent.toolCall.id,
-               name: streamEvent.toolCall.name,
-               arguments: streamEvent.toolCall.arguments || {}
-             });
+            lastMsg.toolCalls.push({
+              id: streamEvent.toolCall.id,
+              name: streamEvent.toolCall.name,
+              arguments: streamEvent.toolCall.arguments || {},
+            });
           }
         }
-        
+
         updates.displayMessages = messages;
         break;
       }
@@ -155,7 +157,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
       state: AgentProtocol.AgentState.Idle,
       displayMessages: [],
       pendingApproval: null,
-      lastSequence: 0
+      lastSequence: 0,
     });
-  }
+  },
 }));

@@ -31,7 +31,7 @@ describe('WorkspaceSyncEngine Contract API', () => {
     it('transitions states cleanly', () => {
       engine.start({});
       expect(engine.getSyncState().status).toBe('Idle');
-      
+
       engine.stop();
       expect(engine.getSyncState().status).toBe('Offline');
     });
@@ -40,14 +40,14 @@ describe('WorkspaceSyncEngine Contract API', () => {
   describe('enqueueOperation', () => {
     it('queues an operation and updates pending count', () => {
       engine.start({});
-      
+
       engine.enqueueOperation({
         id: '1',
         type: WorkspaceOperationType.CreateFile,
         timestamp: Date.now(),
-        path: '/test.ts'
+        path: '/test.ts',
       });
-      
+
       expect(engine.getSyncState().pendingOperationsCount).toBe(1);
     });
   });

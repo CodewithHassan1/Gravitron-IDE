@@ -23,7 +23,7 @@ export class Matcher {
 
     return {
       matched: bestScore > 0,
-      score: bestScore
+      score: bestScore,
     };
   }
 

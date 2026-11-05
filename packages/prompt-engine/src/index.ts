@@ -25,7 +25,7 @@ export class PromptEngine {
     // Attempt to extract JSON from markdown fences if necessary
     const jsonMatch = rawOutput.match(/```json\n([\s\S]*?)\n```/);
     const jsonStr = jsonMatch ? jsonMatch[1] : rawOutput;
-    
+
     const parsed = JSON.parse(jsonStr);
     return schema.parse(parsed);
   }

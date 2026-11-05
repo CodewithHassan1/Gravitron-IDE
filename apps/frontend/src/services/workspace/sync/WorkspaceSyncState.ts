@@ -59,6 +59,6 @@ export class SyncStateManager {
   }
 
   private notify() {
-    this.listeners.forEach(listener => listener(this.state));
+    this.listeners.forEach((listener) => listener(this.state));
   }
 }

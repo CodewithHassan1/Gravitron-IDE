@@ -46,7 +46,7 @@ export class WindowService implements IWindowService {
         sandbox: true,
         preload: path.join(__dirname, '..', 'preload', 'preload.js'),
         webviewTag: false,
-      }
+      },
     });
 
     // Remove the default native menu (VS Code style custom menu)
@@ -146,7 +146,9 @@ export class WindowService implements IWindowService {
           });
 
           if (isOurApp) {
-            console.log(`[WindowService] Found dev server on port ${port} after ${attempt + 1} attempts`);
+            console.log(
+              `[WindowService] Found dev server on port ${port} after ${attempt + 1} attempts`
+            );
             return port;
           }
         } catch {
@@ -154,7 +156,7 @@ export class WindowService implements IWindowService {
         }
       }
       attempt++;
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     console.warn('[WindowService] Could not find dev server after 60 seconds, defaulting to 3000');
@@ -172,7 +174,7 @@ export class WindowService implements IWindowService {
         handler: async () => {
           console.log('[WindowService] CreateRequest');
           await this.createMainWindow();
-        }
+        },
       },
       {
         channel: Channels.Window.CloseRequest,
@@ -182,15 +184,15 @@ export class WindowService implements IWindowService {
           if (window && !window.isDestroyed()) {
             window.close();
           }
-        }
+        },
       },
       {
         channel: Channels.App.QuitRequest,
         handler: async () => {
           console.log('[WindowService] QuitRequest');
           app.quit();
-        }
-      }
+        },
+      },
     ];
   }
 }

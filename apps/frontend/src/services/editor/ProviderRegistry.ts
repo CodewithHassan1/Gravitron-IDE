@@ -8,7 +8,10 @@ export class ProviderRegistryImpl {
 
   registerCompletionProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerCompletionItemProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerCompletionItemProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
@@ -36,41 +39,56 @@ export class ProviderRegistryImpl {
 
   registerSignatureHelpProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerSignatureHelpProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerSignatureHelpProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
 
   registerInlineCompletionsProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerInlineCompletionsProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerInlineCompletionsProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
 
   registerDocumentSemanticTokensProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerDocumentSemanticTokensProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerDocumentSemanticTokensProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
 
   registerFoldingRangeProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerFoldingRangeProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerFoldingRangeProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
 
   registerDocumentFormattingEditProvider(language: string, provider: any) {
     if (!this.monacoInstance) return;
-    const disposable = this.monacoInstance.languages.registerDocumentFormattingEditProvider(language, provider);
+    const disposable = this.monacoInstance.languages.registerDocumentFormattingEditProvider(
+      language,
+      provider
+    );
     this.disposables.push(disposable);
     return disposable;
   }
 
   dispose() {
-    this.disposables.forEach(d => {
+    this.disposables.forEach((d) => {
       if (typeof d.dispose === 'function') d.dispose();
     });
     this.disposables = [];

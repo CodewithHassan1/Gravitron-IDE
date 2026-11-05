@@ -22,7 +22,11 @@ export class AgentStateMachine {
     const { AgentState } = AgentProtocol;
 
     // Terminal states cannot transition to anything else
-    if (from === AgentState.Completed || from === AgentState.Failed || from === AgentState.Cancelled) {
+    if (
+      from === AgentState.Completed ||
+      from === AgentState.Failed ||
+      from === AgentState.Cancelled
+    ) {
       return false;
     }
 
@@ -34,22 +38,30 @@ export class AgentStateMachine {
     switch (from) {
       case AgentState.Idle:
         return to === AgentState.Planning;
-      
+
       case AgentState.Planning:
         return to === AgentState.CallingProvider || to === AgentState.Completed;
-      
+
       case AgentState.CallingProvider:
         return to === AgentState.Streaming || to === AgentState.Completed;
-      
+
       case AgentState.Streaming:
-        return to === AgentState.ToolCallPending || to === AgentState.Completed || to === AgentState.Planning;
-        
+        return (
+          to === AgentState.ToolCallPending ||
+          to === AgentState.Completed ||
+          to === AgentState.Planning
+        );
+
       case AgentState.ToolCallPending:
         return to === AgentState.AwaitingApproval || to === AgentState.ExecutingTool;
-        
+
       case AgentState.AwaitingApproval:
-        return to === AgentState.ExecutingTool || to === AgentState.Planning || to === AgentState.Completed;
-        
+        return (
+          to === AgentState.ExecutingTool ||
+          to === AgentState.Planning ||
+          to === AgentState.Completed
+        );
+
       case AgentState.ExecutingTool:
         return to === AgentState.Planning || to === AgentState.Completed;
 

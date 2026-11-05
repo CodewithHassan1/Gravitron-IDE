@@ -52,7 +52,7 @@ export class PathResolver {
     for (const segment of segments) {
       let foundChildId: string | null = null;
       const childrenIds = this.index.getChildren(currentId);
-      
+
       for (const childId of childrenIds) {
         const childNode = this.index.get(childId);
         if (childNode && childNode.name === segment) {
@@ -116,7 +116,7 @@ export class PathResolver {
   public commonAncestor(nodeId1: string, nodeId2: string): string | null {
     const ancestors1 = new Set<string>();
     let current1 = this.index.get(nodeId1);
-    
+
     while (current1) {
       ancestors1.add(current1.id);
       if (!current1.parentId) break;
@@ -145,7 +145,7 @@ export class PathResolver {
     if (toPath.startsWith(fromPath + '/')) {
       return toPath.substring(fromPath.length + 1);
     }
-    
+
     return null;
   }
 }

@@ -30,7 +30,7 @@ import { ConfigService } from './services/ConfigService';
 
 // Register custom protocol for loading Next.js static export files securely
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true } }
+  { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true } },
 ]);
 
 // Set up the application host
@@ -51,7 +51,11 @@ const contextResolver = new ExecutionContextResolver(
 
 const policyPipeline = new ExecutionPolicyPipeline();
 
-const executionService = new WorkspaceExecutionService(contextResolver, policyPipeline, backendRegistry);
+const executionService = new WorkspaceExecutionService(
+  contextResolver,
+  policyPipeline,
+  backendRegistry
+);
 
 // Register services via constructor injection
 const windowService = new WindowService();
@@ -66,7 +70,7 @@ host.getServiceContainer().register(new ConfigService());
 
 const workspaceService = new WorkspaceService(fileWatcherService, eventBroker);
 workspaceService.onWorkspaceClosed((workspaceId) => {
-  executionService.cleanupWorkspace(workspaceId).catch(err => {
+  executionService.cleanupWorkspace(workspaceId).catch((err) => {
     console.error(`[main] Failed to cleanup workspace terminals for ${workspaceId}:`, err);
   });
 });
@@ -76,24 +80,25 @@ const intelligenceManager = new IntelligenceManager();
 host.getServiceContainer().register(workspaceService);
 host.getServiceContainer().register(intelligenceManager);
 
+host
+  .getServiceContainer()
+  .register(
+    new AgentIpcService(windowService, workspaceService, executionService, intelligenceManager)
+  );
+
 host.getServiceContainer().register(
-  new AgentIpcService(
-    windowService,
-    workspaceService,
-    executionService,
-    intelligenceManager
+  new TerminalService(
+    () => host.getServiceContainer().get(ServiceIds.Window),
+    () => host.getServiceContainer().get(ServiceIds.WorkspaceExecution)
   )
 );
 
-host.getServiceContainer().register(new TerminalService(
-  () => host.getServiceContainer().get(ServiceIds.Window),
-  () => host.getServiceContainer().get(ServiceIds.WorkspaceExecution)
-));
-
-host.getServiceContainer().register(new TaskService(
-  () => host.getServiceContainer().get(ServiceIds.Window),
-  () => host.getServiceContainer().get(ServiceIds.WorkspaceExecution)
-));
+host.getServiceContainer().register(
+  new TaskService(
+    () => host.getServiceContainer().get(ServiceIds.Window),
+    () => host.getServiceContainer().get(ServiceIds.WorkspaceExecution)
+  )
+);
 
 const wsServer = new WebSocketTerminalServer(
   () => host.getServiceContainer().get(ServiceIds.WorkspaceExecution),
@@ -146,8 +151,7 @@ app.whenReady().then(() => {
     const candidatePath = path.resolve(frontendRoot, targetRelativePath);
 
     const isInsideFrontend =
-      candidatePath === frontendRoot ||
-      candidatePath.startsWith(frontendRoot + path.sep);
+      candidatePath === frontendRoot || candidatePath.startsWith(frontendRoot + path.sep);
 
     if (!isInsideFrontend) {
       return new Response('Bad Request', { status: 400 });

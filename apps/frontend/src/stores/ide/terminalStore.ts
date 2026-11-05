@@ -50,45 +50,72 @@ export const useTerminalStore = create<TerminalStoreState & TerminalStoreActions
 
       clearAll: (workspaceId) => set({ groups: [], activeGroupId: null, workspaceId }),
 
-      addGroup: (group) => set((state) => ({
-        groups: [...state.groups, group],
-        activeGroupId: state.activeGroupId || group.id,
-      })),
+      addGroup: (group) =>
+        set((state) => ({
+          groups: [...state.groups, group],
+          activeGroupId: state.activeGroupId || group.id,
+        })),
 
-      addTab: (groupId, tab) => set((state) => ({
-        groups: state.groups.map(g => g.id === groupId ? { ...g, tabs: [...g.tabs, tab], activeTabId: tab.id } : g)
-      })),
+      addTab: (groupId, tab) =>
+        set((state) => ({
+          groups: state.groups.map((g) =>
+            g.id === groupId ? { ...g, tabs: [...g.tabs, tab], activeTabId: tab.id } : g
+          ),
+        })),
 
-      removeTab: (groupId, tabId) => set((state) => {
-        const groups = state.groups.map(g => {
-          if (g.id !== groupId) return g;
-          const newTabs = g.tabs.filter(t => t.id !== tabId);
+      removeTab: (groupId, tabId) =>
+        set((state) => {
+          const groups = state.groups
+            .map((g) => {
+              if (g.id !== groupId) return g;
+              const newTabs = g.tabs.filter((t) => t.id !== tabId);
+              return {
+                ...g,
+                tabs: newTabs,
+                activeTabId:
+                  g.activeTabId === tabId ? newTabs[newTabs.length - 1]?.id || null : g.activeTabId,
+              };
+            })
+            .filter((g) => g.tabs.length > 0);
           return {
-            ...g,
-            tabs: newTabs,
-            activeTabId: g.activeTabId === tabId ? (newTabs[newTabs.length - 1]?.id || null) : g.activeTabId
+            groups,
+            activeGroupId:
+              groups.length > 0
+                ? state.activeGroupId === groupId && groups.every((g) => g.id !== groupId)
+                  ? groups[0].id
+                  : state.activeGroupId
+                : null,
           };
-        }).filter(g => g.tabs.length > 0);
-        return { groups, activeGroupId: groups.length > 0 ? (state.activeGroupId === groupId && groups.every(g => g.id !== groupId) ? groups[0].id : state.activeGroupId) : null };
-      }),
+        }),
 
-      setActiveTab: (groupId, tabId) => set((state) => ({
-        groups: state.groups.map(g => g.id === groupId ? { ...g, activeTabId: tabId } : g)
-      })),
+      setActiveTab: (groupId, tabId) =>
+        set((state) => ({
+          groups: state.groups.map((g) => (g.id === groupId ? { ...g, activeTabId: tabId } : g)),
+        })),
 
-      updateTabTitle: (groupId, tabId, title) => set((state) => ({
-        groups: state.groups.map(g => g.id === groupId ? {
-          ...g,
-          tabs: g.tabs.map(t => t.id === tabId ? { ...t, title } : t)
-        } : g)
-      })),
+      updateTabTitle: (groupId, tabId, title) =>
+        set((state) => ({
+          groups: state.groups.map((g) =>
+            g.id === groupId
+              ? {
+                  ...g,
+                  tabs: g.tabs.map((t) => (t.id === tabId ? { ...t, title } : t)),
+                }
+              : g
+          ),
+        })),
 
-      updateTabCwd: (groupId, tabId, cwd) => set((state) => ({
-        groups: state.groups.map(g => g.id === groupId ? {
-          ...g,
-          tabs: g.tabs.map(t => t.id === tabId ? { ...t, cwd } : t)
-        } : g)
-      })),
+      updateTabCwd: (groupId, tabId, cwd) =>
+        set((state) => ({
+          groups: state.groups.map((g) =>
+            g.id === groupId
+              ? {
+                  ...g,
+                  tabs: g.tabs.map((t) => (t.id === tabId ? { ...t, cwd } : t)),
+                }
+              : g
+          ),
+        })),
 
       setActiveGroup: (groupId) => set({ activeGroupId: groupId }),
 
@@ -96,7 +123,9 @@ export const useTerminalStore = create<TerminalStoreState & TerminalStoreActions
     }),
     {
       name: 'ide-terminal-storage',
-      storage: createJSONStorage ? createJSONStorage(() => zustandStorageAdapter) : (zustandStorageAdapter as any),
+      storage: createJSONStorage
+        ? createJSONStorage(() => zustandStorageAdapter)
+        : (zustandStorageAdapter as any),
       partialize: (state) => ({
         workspaceId: state.workspaceId,
         groups: state.groups, // Serializing tabs handles persistent sessions

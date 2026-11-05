@@ -6,10 +6,10 @@ export class Scorer {
   static readonly FUZZY_MATCH_BASE = 10;
 
   static calculateTypoPenalty(typos: number): number {
-    return Math.max(0, 15 - (typos * 5));
+    return Math.max(0, 15 - typos * 5);
   }
 
   static calculateGapPenalty(gaps: number): number {
-    return Math.max(0, 10 - (gaps * 2));
+    return Math.max(0, 10 - gaps * 2);
   }
 }

@@ -9,16 +9,16 @@ describe('useAgentStore', () => {
 
   it('Test D - Stale event rejection', () => {
     const store = useAgentStore.getState();
-    
+
     // Apply initial snapshot with sequence = 100
     store.applySnapshot({
       agentId: 'agent-1',
       workspaceId: 'ws-1',
       state: AgentProtocol.AgentState.Planning,
       displayMessages: [],
-      sequence: 100
+      sequence: 100,
     });
-    
+
     let currentState = useAgentStore.getState();
     expect(currentState.lastSequence).toBe(100);
 
@@ -33,8 +33,8 @@ describe('useAgentStore', () => {
       payload: {
         type: AgentProtocol.AgentEventType.StateChanged,
         agentId: 'agent-1',
-        state: AgentProtocol.AgentState.CallingProvider
-      }
+        state: AgentProtocol.AgentState.CallingProvider,
+      },
     });
 
     currentState = useAgentStore.getState();
@@ -52,8 +52,8 @@ describe('useAgentStore', () => {
       payload: {
         type: AgentProtocol.AgentEventType.StateChanged,
         agentId: 'agent-1',
-        state: AgentProtocol.AgentState.CallingProvider
-      }
+        state: AgentProtocol.AgentState.CallingProvider,
+      },
     });
 
     currentState = useAgentStore.getState();
@@ -71,8 +71,8 @@ describe('useAgentStore', () => {
       payload: {
         type: AgentProtocol.AgentEventType.StateChanged,
         agentId: 'agent-1',
-        state: AgentProtocol.AgentState.Streaming
-      }
+        state: AgentProtocol.AgentState.Streaming,
+      },
     });
 
     currentState = useAgentStore.getState();
@@ -82,14 +82,14 @@ describe('useAgentStore', () => {
 
   it('Test E - Multiple agents isolation', () => {
     const store = useAgentStore.getState();
-    
+
     // Initial agent A
     store.applySnapshot({
       agentId: 'agent-A',
       workspaceId: 'ws-A',
       state: AgentProtocol.AgentState.Planning,
       displayMessages: [],
-      sequence: 10
+      sequence: 10,
     });
 
     // Event from agent B (should be ignored since we are tracking agent-A)
@@ -103,8 +103,8 @@ describe('useAgentStore', () => {
       payload: {
         type: AgentProtocol.AgentEventType.StateChanged,
         agentId: 'agent-B',
-        state: AgentProtocol.AgentState.Completed
-      }
+        state: AgentProtocol.AgentState.Completed,
+      },
     });
 
     const currentState = useAgentStore.getState();

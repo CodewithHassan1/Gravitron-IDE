@@ -25,12 +25,17 @@ export interface QuickInputEventPayload {
   [QuickInputEventType.ProviderError]: { error: Error; providerId: string };
 }
 
-type QuickInputEventHandler<T extends QuickInputEventType> = (payload: QuickInputEventPayload[T]) => void;
+type QuickInputEventHandler<T extends QuickInputEventType> = (
+  payload: QuickInputEventPayload[T]
+) => void;
 
 class QuickInputEventBusImpl {
   private listeners: Map<QuickInputEventType, Set<Function>> = new Map();
 
-  subscribe<T extends QuickInputEventType>(event: T, handler: QuickInputEventHandler<T>): () => void {
+  subscribe<T extends QuickInputEventType>(
+    event: T,
+    handler: QuickInputEventHandler<T>
+  ): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
@@ -52,7 +57,7 @@ class QuickInputEventBusImpl {
   publish<T extends QuickInputEventType>(event: T, payload: QuickInputEventPayload[T]): void {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
-      eventListeners.forEach(handler => {
+      eventListeners.forEach((handler) => {
         try {
           handler(payload);
         } catch (e) {

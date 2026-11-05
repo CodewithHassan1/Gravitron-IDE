@@ -6,19 +6,11 @@ import { Sidebar } from './Sidebar';
 import { EditorArea } from './EditorArea';
 import { BottomPanel } from './BottomPanel';
 import { SecondarySidebar } from './SecondarySidebar';
-import type {
-  PanelImperativeHandle,
-  PanelSize,
-} from "react-resizable-panels";
+import type { PanelImperativeHandle, PanelSize } from 'react-resizable-panels';
 import { useEditorSync } from './useEditorSync';
 
-const clampSize = (
-  value: number,
-  min: number,
-  max: number,
-  fallback: number
-): number => {
-  if (typeof value !== "number" || Number.isNaN(value)) {
+const clampSize = (value: number, min: number, max: number, fallback: number): number => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
     return fallback;
   }
 
@@ -39,7 +31,9 @@ function HydratedLayoutManager() {
 
   // Initialize strictly with clamped snapshot values post-hydration
   const initialSidebarSize = useRef(
-    useLayoutStore.getState().isSidebarOpen ? clampSize(useLayoutStore.getState().sidebarSize, 10, 40, 20) : 0
+    useLayoutStore.getState().isSidebarOpen
+      ? clampSize(useLayoutStore.getState().sidebarSize, 10, 40, 20)
+      : 0
   ).current;
   const initialBottomPanelSize = useRef(
     useLayoutStore.getState().isBottomPanelOpen
@@ -49,12 +43,7 @@ function HydratedLayoutManager() {
 
   const initialSecondarySidebarSize = useRef(
     useLayoutStore.getState().isSecondarySidebarOpen
-      ? clampSize(
-        useLayoutStore.getState().secondarySidebarSize,
-        10,
-        40,
-        20
-      )
+      ? clampSize(useLayoutStore.getState().secondarySidebarSize, 10, 40, 20)
       : 0
   ).current;
 
@@ -94,8 +83,10 @@ function HydratedLayoutManager() {
     const syncSizes = () => {
       const state = useLayoutStore.getState();
       if (state.isSidebarOpen) sidebarRef.current?.resize(clampSize(state.sidebarSize, 10, 40, 20));
-      if (state.isBottomPanelOpen) bottomPanelRef.current?.resize(clampSize(state.bottomPanelSize, 10, 80, 25));
-      if (state.isSecondarySidebarOpen) secondarySidebarRef.current?.resize(clampSize(state.secondarySidebarSize, 10, 40, 20));
+      if (state.isBottomPanelOpen)
+        bottomPanelRef.current?.resize(clampSize(state.bottomPanelSize, 10, 80, 25));
+      if (state.isSecondarySidebarOpen)
+        secondarySidebarRef.current?.resize(clampSize(state.secondarySidebarSize, 10, 40, 20));
     };
 
     if (useLayoutStore.persist.hasHydrated()) {
@@ -123,7 +114,10 @@ function HydratedLayoutManager() {
 
   useEffect(() => {
     if (isBottomPanelOpen) {
-      if (bottomPanelRef.current?.isCollapsed() || bottomPanelRef.current?.getSize()?.asPercentage === 0) {
+      if (
+        bottomPanelRef.current?.isCollapsed() ||
+        bottomPanelRef.current?.getSize()?.asPercentage === 0
+      ) {
         bottomPanelRef.current?.expand();
         const lastSize = clampSize(useLayoutStore.getState().lastBottomPanelSize, 10, 80, 25);
         bottomPanelRef.current?.resize(lastSize);
@@ -137,7 +131,10 @@ function HydratedLayoutManager() {
 
   useEffect(() => {
     if (isSecondarySidebarOpen) {
-      if (secondarySidebarRef.current?.isCollapsed() || secondarySidebarRef.current?.getSize()?.asPercentage === 0) {
+      if (
+        secondarySidebarRef.current?.isCollapsed() ||
+        secondarySidebarRef.current?.getSize()?.asPercentage === 0
+      ) {
         secondarySidebarRef.current?.expand();
         const lastSize = clampSize(useLayoutStore.getState().lastSecondarySidebarSize, 10, 40, 20);
         secondarySidebarRef.current?.resize(lastSize);
@@ -205,11 +202,7 @@ function HydratedLayoutManager() {
   const resizeTimeouts = useRef<{
     [key: string]: ReturnType<typeof setTimeout>;
   }>({});
-  const handleResize = (
-    id: string,
-    size: PanelSize,
-    setter: (size: number) => void
-  ) => {
+  const handleResize = (id: string, size: PanelSize, setter: (size: number) => void) => {
     const numericSize = size.asPercentage;
 
     if (resizeTimeouts.current[id]) {
@@ -234,7 +227,7 @@ function HydratedLayoutManager() {
           maxSize="30%"
           collapsible={true}
           collapsedSize={0}
-          onResize={(size) => handleResize("sidebar", size, setSidebarSize)}
+          onResize={(size) => handleResize('sidebar', size, setSidebarSize)}
           className="bg-card border-r border-border flex flex-col overflow-hidden"
         >
           <Sidebar />
@@ -246,19 +239,17 @@ function HydratedLayoutManager() {
           disableDoubleClick={true}
         />
 
-        <ResizablePanel id="main" defaultSize={100 - initialSidebarSize - initialSecondarySidebarSize} className="overflow-hidden">
+        <ResizablePanel
+          id="main"
+          defaultSize={100 - initialSidebarSize - initialSecondarySidebarSize}
+          className="overflow-hidden"
+        >
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel
               id="editor"
               defaultSize={100 - initialBottomPanelSize}
               minSize={20}
-              onResize={(size) =>
-                handleResize(
-                  "editor",
-                  size,
-                  setEditorGroupSize
-                )
-              }
+              onResize={(size) => handleResize('editor', size, setEditorGroupSize)}
               className="overflow-hidden"
             >
               <EditorArea />
@@ -278,7 +269,7 @@ function HydratedLayoutManager() {
               maxSize="60%"
               collapsible={true}
               collapsedSize={0}
-              onResize={(size) => handleResize("bottom", size, setBottomPanelSize)}
+              onResize={(size) => handleResize('bottom', size, setBottomPanelSize)}
               className="bg-card border-t border-border overflow-hidden"
             >
               <BottomPanel />
@@ -300,7 +291,7 @@ function HydratedLayoutManager() {
           maxSize="30%"
           collapsible={true}
           collapsedSize={0}
-          onResize={(size) => handleResize("secondary", size, setSecondarySidebarSize)}
+          onResize={(size) => handleResize('secondary', size, setSecondarySidebarSize)}
           className="bg-card border-l border-border flex flex-col overflow-hidden"
         >
           <SecondarySidebar />

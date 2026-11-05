@@ -18,13 +18,13 @@ describe('AgentCapabilityBridgeImpl', () => {
     workspaceService = {
       registerHandlers: vi.fn().mockReturnValue([
         { channel: Channels.Workspace.ReadFile, handler: mockReadHandler },
-        { channel: Channels.Workspace.WriteFile, handler: mockWriteHandler }
-      ])
+        { channel: Channels.Workspace.WriteFile, handler: mockWriteHandler },
+      ]),
     };
 
     executionService = {
       execute: vi.fn(),
-      terminateSession: vi.fn().mockResolvedValue(undefined)
+      terminateSession: vi.fn().mockResolvedValue(undefined),
     };
 
     bridge = new AgentCapabilityBridgeImpl(workspaceService as any, executionService as any);
@@ -32,26 +32,33 @@ describe('AgentCapabilityBridgeImpl', () => {
 
   it('readFile routes securely through WorkspaceService via workspaceId', async () => {
     mockReadHandler.mockResolvedValue('file content');
-    
+
     const result = await bridge.readFile(
-      { workspaceId: 'test-ws-1', agentId: 'agent-1' }, 
+      { workspaceId: 'test-ws-1', agentId: 'agent-1' },
       'src/index.ts'
     );
-    
+
     expect(result).toBe('file content');
-    expect(mockReadHandler).toHaveBeenCalledWith({ workspaceId: 'test-ws-1', path: 'src/index.ts' });
+    expect(mockReadHandler).toHaveBeenCalledWith({
+      workspaceId: 'test-ws-1',
+      path: 'src/index.ts',
+    });
   });
 
   it('writeFile routes securely through WorkspaceService via workspaceId', async () => {
     mockWriteHandler.mockResolvedValue(undefined);
-    
+
     await bridge.writeFile(
-      { workspaceId: 'test-ws-2', agentId: 'agent-1' }, 
+      { workspaceId: 'test-ws-2', agentId: 'agent-1' },
       'src/index.ts',
       'new content'
     );
-    
-    expect(mockWriteHandler).toHaveBeenCalledWith({ workspaceId: 'test-ws-2', path: 'src/index.ts', content: 'new content' });
+
+    expect(mockWriteHandler).toHaveBeenCalledWith({
+      workspaceId: 'test-ws-2',
+      path: 'src/index.ts',
+      content: 'new content',
+    });
   });
 
   it('executeCommand resolves properly and enforces constraints', async () => {
@@ -59,13 +66,17 @@ describe('AgentCapabilityBridgeImpl', () => {
     let onExitCallback: any;
 
     const mockProcess = {
-      onData: vi.fn((cb) => { onDataCallback = cb; }),
-      onExit: vi.fn((cb) => { onExitCallback = cb; }),
+      onData: vi.fn((cb) => {
+        onDataCallback = cb;
+      }),
+      onExit: vi.fn((cb) => {
+        onExitCallback = cb;
+      }),
     };
 
     executionService.execute.mockResolvedValue({
       id: 'session-1',
-      process: mockProcess
+      process: mockProcess,
     });
 
     const executePromise = bridge.executeCommand(
@@ -75,15 +86,15 @@ describe('AgentCapabilityBridgeImpl', () => {
     );
 
     // Simulate async data
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(executionService.execute).toHaveBeenCalledWith({
       workspaceId: 'test-ws-3',
       target: { kind: 'local' },
       shellOverride: {
         executable: 'powershell.exe',
-        args: ['-NoProfile', '-NonInteractive', '-Command', 'echo hello']
+        args: ['-NoProfile', '-NonInteractive', '-Command', 'echo hello'],
       },
-      cwdOverride: 'sub/dir'
+      cwdOverride: 'sub/dir',
     });
 
     onDataCallback(new TextEncoder().encode('hello output'));

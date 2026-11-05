@@ -6,16 +6,16 @@ import { ResponseEnvelope, ErrorEnvelope } from './envelopes';
  */
 export function unwrapIpcResponse<T>(response: ResponseEnvelope<T> | ErrorEnvelope): T {
   if (!response) {
-    throw new Error("[IPC Error] Invalid IPC Response: received null or undefined");
+    throw new Error('[IPC Error] Invalid IPC Response: received null or undefined');
   }
 
   if ('errorName' in response) {
     throw new Error(
       `[IPC Error]\n` +
-      `requestId: ${response.requestId ?? 'unknown'}\n` +
-      `errorName: ${response.errorName}\n` +
-      `code: ${response.code}\n` +
-      `message: ${response.message}`
+        `requestId: ${response.requestId ?? 'unknown'}\n` +
+        `errorName: ${response.errorName}\n` +
+        `code: ${response.code}\n` +
+        `message: ${response.message}`
     );
   }
 

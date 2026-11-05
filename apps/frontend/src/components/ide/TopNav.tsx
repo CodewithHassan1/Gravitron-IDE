@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import React from 'react';
 import { Bell, PanelLeft, PanelBottom, PanelRight, Settings } from 'lucide-react';
 import { useLayoutStore } from '../../stores/ide/layoutStore';
@@ -16,8 +16,8 @@ export function TopNav() {
   const isReady = lifecycleState === WorkspaceLifecycleState.Ready;
 
   const toggleClass = isReady
-    ? "text-muted-foreground hover:text-foreground transition-colors"
-    : "text-muted-foreground opacity-50 cursor-not-allowed";
+    ? 'text-muted-foreground hover:text-foreground transition-colors'
+    : 'text-muted-foreground opacity-50 cursor-not-allowed';
 
   return (
     <div className="h-12 border-b border-border bg-card flex items-center justify-between px-4 select-none shrink-0">
@@ -26,8 +26,7 @@ export function TopNav() {
         <WorkbenchMenu />
       </div>
 
-      <div className="flex-1 flex justify-center max-w-xl">
-      </div>
+      <div className="flex-1 flex justify-center max-w-xl"></div>
 
       <div className="flex items-center space-x-4 flex-1 justify-end">
         <button disabled={!isReady} className={toggleClass} onClick={toggleSidebar}>
@@ -43,10 +42,13 @@ export function TopNav() {
         <button className="text-muted-foreground hover:text-foreground transition-colors">
           <Bell className="w-4 h-4" />
         </button>
-        <Link href="/dashboard/settings" className="text-muted-foreground hover:text-foreground transition-colors">
+        <Link
+          href="/dashboard/settings"
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
           <Settings className="w-4 h-4" />
         </Link>
       </div>
     </div>
-  )
+  );
 }

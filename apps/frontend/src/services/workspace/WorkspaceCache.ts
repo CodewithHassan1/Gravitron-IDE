@@ -13,7 +13,7 @@ export class WorkspaceCacheImpl {
   private snapshotCache = new Map<string, CacheEntry<WorkspaceSnapshot>>();
 
   // Default Time-To-Live (e.g. 1 hour)
-  private readonly DEFAULT_TTL = 1000 * 60 * 60; 
+  private readonly DEFAULT_TTL = 1000 * 60 * 60;
 
   /**
    * Sets workspace metadata in the cache.

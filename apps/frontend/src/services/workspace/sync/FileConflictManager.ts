@@ -5,16 +5,20 @@ export enum ConflictState {
   None,
   ExternalChange,
   LocalChange,
-  BothChanged
+  BothChanged,
 }
 
 export class FileConflictManager {
   constructor(private workspaceManager: WorkspaceManagerImpl) {}
 
-  public async checkConflict(buffer: OpenFileBuffer, newExternalContent: string): Promise<ConflictState> {
+  public async checkConflict(
+    buffer: OpenFileBuffer,
+    newExternalContent: string
+  ): Promise<ConflictState> {
     const newHash = await this.hashString(newExternalContent);
-    
-    const localChanged = buffer.dirty || (await this.hashString(buffer.content)) !== buffer.lastSavedHash;
+
+    const localChanged =
+      buffer.dirty || (await this.hashString(buffer.content)) !== buffer.lastSavedHash;
     const externalChanged = newHash !== buffer.lastDiskHash;
 
     if (localChanged && externalChanged) {
@@ -24,7 +28,7 @@ export class FileConflictManager {
     } else if (localChanged) {
       return ConflictState.LocalChange;
     }
-    
+
     return ConflictState.None;
   }
 
@@ -60,6 +64,6 @@ export class FileConflictManager {
     const msgUint8 = new TextEncoder().encode(content);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 }

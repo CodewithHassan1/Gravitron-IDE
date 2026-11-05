@@ -3,8 +3,15 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
+import type {
+  BinaryReadOptions,
+  FieldList,
+  JsonReadOptions,
+  JsonValue,
+  PartialMessage,
+  PlainMessage,
+} from '@bufbuild/protobuf';
+import { Message, proto3, protoInt64 } from '@bufbuild/protobuf';
 
 /**
  * @generated from message common.v1.RequestMetadata
@@ -13,17 +20,17 @@ export class RequestMetadata extends Message<RequestMetadata> {
   /**
    * @generated from field: string request_id = 1;
    */
-  requestId = "";
+  requestId = '';
 
   /**
    * @generated from field: string trace_id = 2;
    */
-  traceId = "";
+  traceId = '';
 
   /**
    * @generated from field: string span_id = 3;
    */
-  spanId = "";
+  spanId = '';
 
   constructor(data?: PartialMessage<RequestMetadata>) {
     super();
@@ -31,11 +38,11 @@ export class RequestMetadata extends Message<RequestMetadata> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.RequestMetadata";
+  static readonly typeName = 'common.v1.RequestMetadata';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "trace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "span_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'request_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'trace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'span_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RequestMetadata {
@@ -50,7 +57,10 @@ export class RequestMetadata extends Message<RequestMetadata> {
     return new RequestMetadata().fromJsonString(jsonString, options);
   }
 
-  static equals(a: RequestMetadata | PlainMessage<RequestMetadata> | undefined, b: RequestMetadata | PlainMessage<RequestMetadata> | undefined): boolean {
+  static equals(
+    a: RequestMetadata | PlainMessage<RequestMetadata> | undefined,
+    b: RequestMetadata | PlainMessage<RequestMetadata> | undefined
+  ): boolean {
     return proto3.util.equals(RequestMetadata, a, b);
   }
 }
@@ -62,7 +72,7 @@ export class ResponseMetadata extends Message<ResponseMetadata> {
   /**
    * @generated from field: string request_id = 1;
    */
-  requestId = "";
+  requestId = '';
 
   /**
    * @generated from field: int32 execution_time_ms = 2;
@@ -75,10 +85,10 @@ export class ResponseMetadata extends Message<ResponseMetadata> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.ResponseMetadata";
+  static readonly typeName = 'common.v1.ResponseMetadata';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "request_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "execution_time_ms", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 1, name: 'request_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'execution_time_ms', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ResponseMetadata {
@@ -93,7 +103,10 @@ export class ResponseMetadata extends Message<ResponseMetadata> {
     return new ResponseMetadata().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ResponseMetadata | PlainMessage<ResponseMetadata> | undefined, b: ResponseMetadata | PlainMessage<ResponseMetadata> | undefined): boolean {
+  static equals(
+    a: ResponseMetadata | PlainMessage<ResponseMetadata> | undefined,
+    b: ResponseMetadata | PlainMessage<ResponseMetadata> | undefined
+  ): boolean {
     return proto3.util.equals(ResponseMetadata, a, b);
   }
 }
@@ -105,12 +118,12 @@ export class Error extends Message<Error> {
   /**
    * @generated from field: string code = 1;
    */
-  code = "";
+  code = '';
 
   /**
    * @generated from field: string message = 2;
    */
-  message = "";
+  message = '';
 
   /**
    * @generated from field: map<string, string> details = 3;
@@ -123,11 +136,17 @@ export class Error extends Message<Error> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.Error";
+  static readonly typeName = 'common.v1.Error';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "code", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "details", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 1, name: 'code', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'message', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    {
+      no: 3,
+      name: 'details',
+      kind: 'map',
+      K: 9 /* ScalarType.STRING */,
+      V: { kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Error {
@@ -142,7 +161,10 @@ export class Error extends Message<Error> {
     return new Error().fromJsonString(jsonString, options);
   }
 
-  static equals(a: Error | PlainMessage<Error> | undefined, b: Error | PlainMessage<Error> | undefined): boolean {
+  static equals(
+    a: Error | PlainMessage<Error> | undefined,
+    b: Error | PlainMessage<Error> | undefined
+  ): boolean {
     return proto3.util.equals(Error, a, b);
   }
 }
@@ -172,11 +194,11 @@ export class Pagination extends Message<Pagination> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.Pagination";
+  static readonly typeName = 'common.v1.Pagination';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "limit", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 2, name: "offset", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 3, name: "total", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 1, name: 'limit', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: 'offset', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: 'total', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Pagination {
@@ -191,7 +213,10 @@ export class Pagination extends Message<Pagination> {
     return new Pagination().fromJsonString(jsonString, options);
   }
 
-  static equals(a: Pagination | PlainMessage<Pagination> | undefined, b: Pagination | PlainMessage<Pagination> | undefined): boolean {
+  static equals(
+    a: Pagination | PlainMessage<Pagination> | undefined,
+    b: Pagination | PlainMessage<Pagination> | undefined
+  ): boolean {
     return proto3.util.equals(Pagination, a, b);
   }
 }
@@ -206,9 +231,8 @@ export class Empty extends Message<Empty> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.Empty";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-  ]);
+  static readonly typeName = 'common.v1.Empty';
+  static readonly fields: FieldList = proto3.util.newFieldList(() => []);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Empty {
     return new Empty().fromBinary(bytes, options);
@@ -222,7 +246,10 @@ export class Empty extends Message<Empty> {
     return new Empty().fromJsonString(jsonString, options);
   }
 
-  static equals(a: Empty | PlainMessage<Empty> | undefined, b: Empty | PlainMessage<Empty> | undefined): boolean {
+  static equals(
+    a: Empty | PlainMessage<Empty> | undefined,
+    b: Empty | PlainMessage<Empty> | undefined
+  ): boolean {
     return proto3.util.equals(Empty, a, b);
   }
 }
@@ -247,10 +274,10 @@ export class Timestamp extends Message<Timestamp> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.Timestamp";
+  static readonly typeName = 'common.v1.Timestamp';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "seconds", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
-    { no: 2, name: "nanos", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 1, name: 'seconds', kind: 'scalar', T: 3 /* ScalarType.INT64 */ },
+    { no: 2, name: 'nanos', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Timestamp {
@@ -265,7 +292,10 @@ export class Timestamp extends Message<Timestamp> {
     return new Timestamp().fromJsonString(jsonString, options);
   }
 
-  static equals(a: Timestamp | PlainMessage<Timestamp> | undefined, b: Timestamp | PlainMessage<Timestamp> | undefined): boolean {
+  static equals(
+    a: Timestamp | PlainMessage<Timestamp> | undefined,
+    b: Timestamp | PlainMessage<Timestamp> | undefined
+  ): boolean {
     return proto3.util.equals(Timestamp, a, b);
   }
 }
@@ -277,17 +307,17 @@ export class UserContext extends Message<UserContext> {
   /**
    * @generated from field: string user_id = 1;
    */
-  userId = "";
+  userId = '';
 
   /**
    * @generated from field: string organization_id = 2;
    */
-  organizationId = "";
+  organizationId = '';
 
   /**
    * @generated from field: string session_id = 3;
    */
-  sessionId = "";
+  sessionId = '';
 
   /**
    * @generated from field: repeated string roles = 4;
@@ -300,12 +330,12 @@ export class UserContext extends Message<UserContext> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.UserContext";
+  static readonly typeName = 'common.v1.UserContext';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "organization_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "session_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "roles", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 1, name: 'user_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'organization_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'session_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: 'roles', kind: 'scalar', T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserContext {
@@ -320,7 +350,10 @@ export class UserContext extends Message<UserContext> {
     return new UserContext().fromJsonString(jsonString, options);
   }
 
-  static equals(a: UserContext | PlainMessage<UserContext> | undefined, b: UserContext | PlainMessage<UserContext> | undefined): boolean {
+  static equals(
+    a: UserContext | PlainMessage<UserContext> | undefined,
+    b: UserContext | PlainMessage<UserContext> | undefined
+  ): boolean {
     return proto3.util.equals(UserContext, a, b);
   }
 }
@@ -332,12 +365,12 @@ export class WorkspaceContext extends Message<WorkspaceContext> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string repository_url = 2;
    */
-  repositoryUrl = "";
+  repositoryUrl = '';
 
   constructor(data?: PartialMessage<WorkspaceContext>) {
     super();
@@ -345,10 +378,10 @@ export class WorkspaceContext extends Message<WorkspaceContext> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "common.v1.WorkspaceContext";
+  static readonly typeName = 'common.v1.WorkspaceContext';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "repository_url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'repository_url', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): WorkspaceContext {
@@ -363,8 +396,10 @@ export class WorkspaceContext extends Message<WorkspaceContext> {
     return new WorkspaceContext().fromJsonString(jsonString, options);
   }
 
-  static equals(a: WorkspaceContext | PlainMessage<WorkspaceContext> | undefined, b: WorkspaceContext | PlainMessage<WorkspaceContext> | undefined): boolean {
+  static equals(
+    a: WorkspaceContext | PlainMessage<WorkspaceContext> | undefined,
+    b: WorkspaceContext | PlainMessage<WorkspaceContext> | undefined
+  ): boolean {
     return proto3.util.equals(WorkspaceContext, a, b);
   }
 }
-

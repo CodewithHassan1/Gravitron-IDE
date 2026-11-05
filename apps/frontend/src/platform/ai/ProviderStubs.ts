@@ -8,14 +8,23 @@ export class AnthropicProvider implements IAIProvider {
     return { role: 'assistant', content: 'Stub' };
   }
 
-  async *stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown> {
+  async *stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown> {
     yield 'Stub';
   }
 
-  async embeddings(texts: string[]): Promise<number[][]> { return []; }
+  async embeddings(texts: string[]): Promise<number[][]> {
+    return [];
+  }
   cancel(): void {}
-  async countTokens(text: string): Promise<number> { return 0; }
-  async availableModels(): Promise<string[]> { return ['claude-3-opus', 'claude-3-sonnet']; }
+  async countTokens(text: string): Promise<number> {
+    return 0;
+  }
+  async availableModels(): Promise<string[]> {
+    return ['claude-3-opus', 'claude-3-sonnet'];
+  }
 }
 
 export class GeminiProvider implements IAIProvider {
@@ -26,14 +35,23 @@ export class GeminiProvider implements IAIProvider {
     return { role: 'assistant', content: 'Stub' };
   }
 
-  async *stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown> {
+  async *stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown> {
     yield 'Stub';
   }
 
-  async embeddings(texts: string[]): Promise<number[][]> { return []; }
+  async embeddings(texts: string[]): Promise<number[][]> {
+    return [];
+  }
   cancel(): void {}
-  async countTokens(text: string): Promise<number> { return 0; }
-  async availableModels(): Promise<string[]> { return ['gemini-1.5-pro', 'gemini-1.5-flash']; }
+  async countTokens(text: string): Promise<number> {
+    return 0;
+  }
+  async availableModels(): Promise<string[]> {
+    return ['gemini-1.5-pro', 'gemini-1.5-flash'];
+  }
 }
 
 export class OllamaProvider implements IAIProvider {
@@ -44,14 +62,23 @@ export class OllamaProvider implements IAIProvider {
     return { role: 'assistant', content: 'Stub' };
   }
 
-  async *stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown> {
+  async *stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown> {
     yield 'Stub';
   }
 
-  async embeddings(texts: string[]): Promise<number[][]> { return []; }
+  async embeddings(texts: string[]): Promise<number[][]> {
+    return [];
+  }
   cancel(): void {}
-  async countTokens(text: string): Promise<number> { return 0; }
-  async availableModels(): Promise<string[]> { return ['llama3', 'mistral']; }
+  async countTokens(text: string): Promise<number> {
+    return 0;
+  }
+  async availableModels(): Promise<string[]> {
+    return ['llama3', 'mistral'];
+  }
 }
 
 export class AzureOpenAIProvider implements IAIProvider {
@@ -62,12 +89,21 @@ export class AzureOpenAIProvider implements IAIProvider {
     return { role: 'assistant', content: 'Stub' };
   }
 
-  async *stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown> {
+  async *stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown> {
     yield 'Stub';
   }
 
-  async embeddings(texts: string[]): Promise<number[][]> { return []; }
+  async embeddings(texts: string[]): Promise<number[][]> {
+    return [];
+  }
   cancel(): void {}
-  async countTokens(text: string): Promise<number> { return 0; }
-  async availableModels(): Promise<string[]> { return ['gpt-4']; }
+  async countTokens(text: string): Promise<number> {
+    return 0;
+  }
+  async availableModels(): Promise<string[]> {
+    return ['gpt-4'];
+  }
 }

@@ -55,7 +55,9 @@ export class AgentSession {
     capabilityBridge: AgentProtocol.IAgentCapabilityBridge
   ) {
     if (!isDelegationContext(delegation)) {
-      throw new Error('AgentSession requires a valid DelegationContext. A session cannot run without an authorized execution binding.');
+      throw new Error(
+        'AgentSession requires a valid DelegationContext. A session cannot run without an authorized execution binding.'
+      );
     }
     this.id = id;
     this.workspaceId = workspaceId;

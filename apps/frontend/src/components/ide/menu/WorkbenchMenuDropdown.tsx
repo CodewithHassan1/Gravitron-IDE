@@ -6,7 +6,7 @@ import {
   MenubarTrigger,
   MenubarSub,
   MenubarSubTrigger,
-  MenubarSubContent
+  MenubarSubContent,
 } from '../../ui/menubar';
 import { MenuViewModel } from '../../../services/menu/MenuTypes';
 import { MenuItemComponent } from './MenuItemComponent';
@@ -22,17 +22,15 @@ export function MenuDropdown({ model, isSubmenu = false }: MenuDropdownProps) {
   if (isSubmenu) {
     return (
       <MenubarSub>
-        <MenubarSubTrigger disabled={!model.enabled}>
-          {model.label}
-        </MenubarSubTrigger>
+        <MenubarSubTrigger disabled={!model.enabled}>{model.label}</MenubarSubTrigger>
         <MenubarSubContent>
-          {model.children?.map((child, idx) => (
+          {model.children?.map((child, idx) =>
             child.type === 'submenu' ? (
               <MenuDropdown key={child.id || idx} model={child} isSubmenu={true} />
             ) : (
               <MenuItemComponent key={child.id || idx} model={child} />
             )
-          ))}
+          )}
         </MenubarSubContent>
       </MenubarSub>
     );
@@ -40,17 +38,15 @@ export function MenuDropdown({ model, isSubmenu = false }: MenuDropdownProps) {
 
   return (
     <MenubarMenu>
-      <MenubarTrigger className="text-sm font-medium cursor-pointer">
-        {model.label}
-      </MenubarTrigger>
+      <MenubarTrigger className="text-sm font-medium cursor-pointer">{model.label}</MenubarTrigger>
       <MenubarContent>
-        {model.children?.map((child, idx) => (
+        {model.children?.map((child, idx) =>
           child.type === 'submenu' ? (
             <MenuDropdown key={child.id || idx} model={child} isSubmenu={true} />
           ) : (
             <MenuItemComponent key={child.id || idx} model={child} />
           )
-        ))}
+        )}
       </MenubarContent>
     </MenubarMenu>
   );

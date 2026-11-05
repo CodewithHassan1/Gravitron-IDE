@@ -14,7 +14,7 @@ export class AIManagerImpl {
   public memory = new MemoryManager();
   public streaming = new StreamingManager();
   public tool = new ToolManager();
-  
+
   initialize() {
     // Orchestrate setup
   }

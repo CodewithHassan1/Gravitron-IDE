@@ -6,7 +6,7 @@ const execFileAsync = promisify(execFile);
 
 export class ProcessManager {
   public static readonly MAX_ACTIVE_TERMINALS_PER_WORKSPACE = 10;
-  
+
   private sessions = new Map<string, ExecutionSessionImpl>();
   private terminationLocks = new Set<string>();
   private reservations = new Map<string, number>();
@@ -24,11 +24,13 @@ export class ProcessManager {
   public reserveSlot(workspaceId: string): void {
     const active = this.getWorkspaceSessionCount(workspaceId);
     const reserved = this.reservations.get(workspaceId) || 0;
-    
+
     if (active + reserved >= ProcessManager.MAX_ACTIVE_TERMINALS_PER_WORKSPACE) {
-      throw new Error(`TERMINAL_RESOURCE_LIMIT_EXCEEDED: Maximum number of active terminals (${ProcessManager.MAX_ACTIVE_TERMINALS_PER_WORKSPACE}) reached for this workspace.`);
+      throw new Error(
+        `TERMINAL_RESOURCE_LIMIT_EXCEEDED: Maximum number of active terminals (${ProcessManager.MAX_ACTIVE_TERMINALS_PER_WORKSPACE}) reached for this workspace.`
+      );
     }
-    
+
     this.reservations.set(workspaceId, reserved + 1);
   }
 
@@ -42,9 +44,9 @@ export class ProcessManager {
   public register(session: ExecutionSessionImpl): void {
     // Commit the reservation (move from reserved to active atomically)
     this.releaseReservation(session.context.workspaceId);
-    
+
     this.sessions.set(session.id, session);
-    
+
     // Normal exit cleanup
     session.process.onExit(() => {
       this.sessions.delete(session.id);
@@ -117,11 +119,11 @@ export class ProcessManager {
       }
     }
 
-    await Promise.all(toTerminate.map(id => this.terminateTree(id)));
+    await Promise.all(toTerminate.map((id) => this.terminateTree(id)));
   }
 
   public async terminateAll(): Promise<void> {
     const toTerminate = Array.from(this.sessions.keys());
-    await Promise.all(toTerminate.map(id => this.terminateTree(id)));
+    await Promise.all(toTerminate.map((id) => this.terminateTree(id)));
   }
 }

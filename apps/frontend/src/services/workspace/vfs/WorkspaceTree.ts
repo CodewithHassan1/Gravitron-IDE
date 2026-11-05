@@ -31,7 +31,7 @@ export class WorkspaceTree {
     }
 
     const cloned = cloneNode(node);
-    
+
     // Add to parent's children array
     if (cloned.parentId) {
       const parent = this.index.get(cloned.parentId);
@@ -86,11 +86,11 @@ export class WorkspaceTree {
     if (!node) throw new Error(`Node ${nodeId} not found.`);
     if (!newParent) throw new Error(`Parent ${newParentId} not found.`);
     if (newParent.type !== 'directory') throw new Error(`Target parent is not a directory.`);
-    
+
     // Prevent moving a directory into itself or its descendants
     if (node.type === 'directory') {
       const descendants = this.getDescendants(nodeId);
-      if (descendants.some(d => d.id === newParentId) || nodeId === newParentId) {
+      if (descendants.some((d) => d.id === newParentId) || nodeId === newParentId) {
         throw new Error(`Cannot move a directory into itself or its descendants.`);
       }
     }
@@ -102,7 +102,7 @@ export class WorkspaceTree {
     if (oldParentId) {
       const oldParent = this.index.get(oldParentId);
       if (oldParent) {
-        oldParent.children = oldParent.children.filter(id => id !== nodeId);
+        oldParent.children = oldParent.children.filter((id) => id !== nodeId);
         oldParent.metadata.modified = Date.now();
       }
     }
@@ -127,13 +127,14 @@ export class WorkspaceTree {
 
     this.index.remove(node); // Remove from old name maps
     node.name = newName;
-    
+
     // Update extension if it's a file
     if (node.type === 'file') {
       const lastDotIndex = newName.lastIndexOf('.');
-      node.extension = (lastDotIndex > 0 && lastDotIndex < newName.length - 1) 
-        ? newName.substring(lastDotIndex).toLowerCase() 
-        : '';
+      node.extension =
+        lastDotIndex > 0 && lastDotIndex < newName.length - 1
+          ? newName.substring(lastDotIndex).toLowerCase()
+          : '';
     }
 
     node.metadata.modified = Date.now();
@@ -154,9 +155,22 @@ export class WorkspaceTree {
     const newPath = parentNode.path === '/' ? `/${finalName}` : `${parentNode.path}/${finalName}`;
     const newRelativePath = newPath.startsWith('/') ? newPath.substring(1) : newPath;
 
-    const clonedRoot = originalRoot.type === 'directory' 
-      ? NodeFactory.createDirectory(finalName, newParentId, newPath, newRelativePath, originalRoot.metadata)
-      : NodeFactory.createFile(finalName, newParentId, newPath, newRelativePath, originalRoot.metadata);
+    const clonedRoot =
+      originalRoot.type === 'directory'
+        ? NodeFactory.createDirectory(
+            finalName,
+            newParentId,
+            newPath,
+            newRelativePath,
+            originalRoot.metadata
+          )
+        : NodeFactory.createFile(
+            finalName,
+            newParentId,
+            newPath,
+            newRelativePath,
+            originalRoot.metadata
+          );
 
     this.addNode(clonedRoot);
 
@@ -172,7 +186,7 @@ export class WorkspaceTree {
 
   public getChildren(nodeId: string): Readonly<WorkspaceNode>[] {
     const childrenIds = this.index.getChildren(nodeId);
-    return childrenIds.map(id => this.index.get(id)!).filter(Boolean);
+    return childrenIds.map((id) => this.index.get(id)!).filter(Boolean);
   }
 
   public getParent(nodeId: string): Readonly<WorkspaceNode> | null {

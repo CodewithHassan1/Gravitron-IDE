@@ -22,15 +22,7 @@ export class RepositorySnapshot {
   ) {}
 
   static createEmpty(): RepositorySnapshot {
-    return new RepositorySnapshot(
-      0,
-      new Map(),
-      new Map(),
-      new Map(),
-      new Map(),
-      new Map(),
-      {}
-    );
+    return new RepositorySnapshot(0, new Map(), new Map(), new Map(), new Map(), new Map(), {});
   }
 
   clone(newVersion: number = this.version + 1): RepositorySnapshot {

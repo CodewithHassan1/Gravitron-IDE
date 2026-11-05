@@ -6,8 +6,15 @@ export class BrowserFSAdapter {
   }
 
   // To support isomorphic-git, we need to map paths to DirectoryHandles/FileHandles
-  private async resolveHandle(path: string, create: boolean = false, type: 'file' | 'directory' = 'file'): Promise<any> {
-    const parts = path.replace(/^\/|\/$/g, '').split('/').filter(Boolean);
+  private async resolveHandle(
+    path: string,
+    create: boolean = false,
+    type: 'file' | 'directory' = 'file'
+  ): Promise<any> {
+    const parts = path
+      .replace(/^\/|\/$/g, '')
+      .split('/')
+      .filter(Boolean);
     let current: FileSystemDirectoryHandle = this.rootHandle;
 
     for (let i = 0; i < parts.length; i++) {
@@ -69,7 +76,9 @@ export class BrowserFSAdapter {
         await parent.removeEntry(name, { recursive: true });
       },
       async stat(path: string) {
-        const handle = await self.resolveHandle(path, false, 'file').catch(() => self.resolveHandle(path, false, 'directory'));
+        const handle = await self
+          .resolveHandle(path, false, 'file')
+          .catch(() => self.resolveHandle(path, false, 'directory'));
         if (handle.kind === 'file') {
           const file = await handle.getFile();
           return {
@@ -105,7 +114,7 @@ export class BrowserFSAdapter {
       },
       async symlink(target: string, path: string) {
         throw new Error('symlink not implemented');
-      }
+      },
     };
   }
 }

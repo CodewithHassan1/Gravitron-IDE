@@ -29,24 +29,51 @@ class WorkspaceTreeAdapterImpl {
     const root = WorkspaceManager.getRoot();
     const state = useWorkspaceTreeStore.getState();
     const isLoading = WorkspaceManager.getState().isLoading;
-    
+
     const updates: any = {
       tree: root ? [this.mapNode(root)] : [],
-      isLoading
+      isLoading,
     };
 
-    console.log('[FORENSIC:TREE:SYNC] root:', root, 'root.id:', root?.id, 'root.children:', root?.children, 'root.children.length:', root?.children?.length, 'mapped tree length:', updates.tree?.length, 'mapped tree[0].children.length:', updates.tree?.[0]?.children?.length);
+    console.log(
+      '[FORENSIC:TREE:SYNC] root:',
+      root,
+      'root.id:',
+      root?.id,
+      'root.children:',
+      root?.children,
+      'root.children.length:',
+      root?.children?.length,
+      'mapped tree length:',
+      updates.tree?.length,
+      'mapped tree[0].children.length:',
+      updates.tree?.[0]?.children?.length
+    );
     console.log('[FORENSIC:TREE:SYNC] expandedNodes BEFORE:', Array.from(state.expandedNodes));
 
     if (root && !state.expandedNodes.has(root.id)) {
       updates.expandedNodes = new Set(state.expandedNodes).add(root.id);
     }
-    console.log('[FORENSIC:TREE:SYNC] expandedNodes AFTER:', Array.from(updates.expandedNodes || state.expandedNodes));
-    
+    console.log(
+      '[FORENSIC:TREE:SYNC] expandedNodes AFTER:',
+      Array.from(updates.expandedNodes || state.expandedNodes)
+    );
+
     useWorkspaceTreeStore.setState(updates);
 
     const stateAfter = useWorkspaceTreeStore.getState();
-    console.log('[FORENSIC:STORE] tree.length:', stateAfter.tree?.length, 'tree[0]:', stateAfter.tree?.[0], 'tree[0].children.length:', stateAfter.tree?.[0]?.children?.length, 'expandedNodes:', Array.from(stateAfter.expandedNodes), 'expandedNodes.has(root.id):', root ? stateAfter.expandedNodes.has(root.id) : false);
+    console.log(
+      '[FORENSIC:STORE] tree.length:',
+      stateAfter.tree?.length,
+      'tree[0]:',
+      stateAfter.tree?.[0],
+      'tree[0].children.length:',
+      stateAfter.tree?.[0]?.children?.length,
+      'expandedNodes:',
+      Array.from(stateAfter.expandedNodes),
+      'expandedNodes.has(root.id):',
+      root ? stateAfter.expandedNodes.has(root.id) : false
+    );
   }
 
   private mapNode(vfsNode: any): any {
@@ -65,7 +92,7 @@ class WorkspaceTreeAdapterImpl {
 
     if (vfsNode.type === 'directory') {
       const children = WorkspaceManager.getChildren(vfsNode.id);
-      node.children = children.map(child => this.mapNode(child));
+      node.children = children.map((child) => this.mapNode(child));
     }
 
     return node;
@@ -75,11 +102,11 @@ class WorkspaceTreeAdapterImpl {
     this.syncTree();
   }
 
-  async createFile(parentId: string | null, name: string) { }
-  async createDirectory(parentId: string | null, name: string) { }
-  async renameNode(id: string, newName: string) { }
-  async deleteNode(id: string) { }
-  async moveNode(id: string, newParentId: string | null) { }
+  async createFile(parentId: string | null, name: string) {}
+  async createDirectory(parentId: string | null, name: string) {}
+  async renameNode(id: string, newName: string) {}
+  async deleteNode(id: string) {}
+  async moveNode(id: string, newParentId: string | null) {}
 }
 
 export const WorkspaceTreeAdapter = new WorkspaceTreeAdapterImpl();

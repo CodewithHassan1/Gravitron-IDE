@@ -1,54 +1,54 @@
-"use client"
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuthStore } from '../../stores/auth'
-import { getErrorMessage } from '../../utils/errors'
-import { getGatewayUrl, getAuthClient, isProductionRuntime } from '../../utils/gateway'
-import { GatewaySetupModal } from '../../components/auth/GatewaySetupModal'
+'use client';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../stores/auth';
+import { getErrorMessage } from '../../utils/errors';
+import { getGatewayUrl, getAuthClient, isProductionRuntime } from '../../utils/gateway';
+import { GatewaySetupModal } from '../../components/auth/GatewaySetupModal';
 
 export default function LoginPage() {
-  const router = useRouter()
-  const login = useAuthStore(state => state.login)
-  const setStatus = useAuthStore(state => state.setStatus)
+  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
+  const setStatus = useAuthStore((state) => state.setStatus);
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentGatewayUrl, setCurrentGatewayUrl] = useState<string | null>(null)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentGatewayUrl, setCurrentGatewayUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setCurrentGatewayUrl(getGatewayUrl())
-  }, [])
+    setCurrentGatewayUrl(getGatewayUrl());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isSubmitting) return
-    setError('')
-    setStatus('AUTHENTICATING')
-    setIsSubmitting(true)
+    e.preventDefault();
+    if (isSubmitting) return;
+    setError('');
+    setStatus('AUTHENTICATING');
+    setIsSubmitting(true);
 
     try {
-      const normalizedEmail = email.trim().toLowerCase()
-      const client = getAuthClient()
-      const res = await client.passwordLogin({ email: normalizedEmail, password })
-      
+      const normalizedEmail = email.trim().toLowerCase();
+      const client = getAuthClient();
+      const res = await client.passwordLogin({ email: normalizedEmail, password });
+
       if (res.status === 'PENDING_VERIFICATION') {
-        login(res.accessToken, { email: normalizedEmail }, 'PENDING_VERIFICATION')
-        router.push('/verify-email')
+        login(res.accessToken, { email: normalizedEmail }, 'PENDING_VERIFICATION');
+        router.push('/verify-email');
       } else {
-        login(res.accessToken, { email: normalizedEmail }, 'AUTHENTICATED')
-        router.push('/dashboard')
+        login(res.accessToken, { email: normalizedEmail }, 'AUTHENTICATED');
+        router.push('/dashboard');
       }
     } catch (err: unknown) {
-      setStatus('UNAUTHENTICATED')
-      setError(getErrorMessage(err))
+      setStatus('UNAUTHENTICATED');
+      setError(getErrorMessage(err));
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -69,7 +69,7 @@ export default function LoginPage() {
             </button>
           </div>
         )}
-        
+
         {error && (
           <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive space-y-1">
             <p className="font-medium">{error}</p>
@@ -87,33 +87,42 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <input 
-              type="email" 
-              placeholder="Email" 
+            <input
+              type="email"
+              placeholder="Email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               required
             />
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type="password"
+              placeholder="Password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               required
             />
           </div>
-          <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          >
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
         <div className="text-sm text-center">
-          Don&apos;t have an account? <Link href="/register" className="text-blue-500">Register</Link>
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-blue-500">
+            Register
+          </Link>
         </div>
         <div className="text-sm text-center">
-          <Link href="/forgot-password" className="text-blue-500">Forgot Password?</Link>
+          <Link href="/forgot-password" className="text-blue-500">
+            Forgot Password?
+          </Link>
         </div>
 
         <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
@@ -139,5 +148,5 @@ export default function LoginPage() {
         }}
       />
     </div>
-  )
+  );
 }

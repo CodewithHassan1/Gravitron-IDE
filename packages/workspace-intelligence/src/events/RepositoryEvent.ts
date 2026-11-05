@@ -86,7 +86,7 @@ export interface RecoveryCompletedEvent extends BaseRepositoryEvent {
   restoredSequenceNumber: number;
 }
 
-export type RepositoryEvent = 
+export type RepositoryEvent =
   | FileAddedEvent
   | FileModifiedEvent
   | FileRemovedEvent

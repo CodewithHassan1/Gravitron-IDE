@@ -24,7 +24,7 @@ it('Dependency boundary: Intelligence tools do not bypass the bridge', () => {
     'SQLiteStore',
     'IntelligenceManager',
     'child_process',
-    'worker-intelligence'
+    'worker-intelligence',
   ];
 
   for (const module of restrictedModules) {
@@ -37,7 +37,7 @@ describe('SearchWorkspaceTool', () => {
   const mockBridge = {
     searchWorkspace: vi.fn(),
   } as unknown as AgentProtocol.IAgentCapabilityBridge;
-  
+
   const mockContext = { workspaceId: 'trusted-ws-1' } as AgentProtocol.AgentCapabilityContext;
 
   it('has strict input schemas rejecting extraneous fields', () => {
@@ -49,22 +49,24 @@ describe('SearchWorkspaceTool', () => {
 
     // Invalid length
     expect(() => registry.validateArguments(tool.definition.name, { query: '' })).toThrow();
-    
+
     // Extraneous field (like workspaceId injection)
-    expect(() => registry.validateArguments(tool.definition.name, { query: 'test', workspaceId: 'hacker-ws' })).toThrow();
+    expect(() =>
+      registry.validateArguments(tool.definition.name, { query: 'test', workspaceId: 'hacker-ws' })
+    ).toThrow();
   });
 
   it('calls bridge and preserves snapshot sequence', async () => {
     vi.mocked(mockBridge.searchWorkspace).mockResolvedValueOnce({
       workspaceId: 'trusted-ws-1',
       snapshotSequence: 42,
-      results: [{ symbolName: 'test', kind: 'var', filePath: '/a.ts', line: 1, column: 1 }]
+      results: [{ symbolName: 'test', kind: 'var', filePath: '/a.ts', line: 1, column: 1 }],
     });
 
     const res = await tool.execute({ query: 'test' }, mockBridge, mockContext);
-    
+
     expect(mockBridge.searchWorkspace).toHaveBeenCalledWith(mockContext, 'test');
-    
+
     const parsed = JSON.parse(res.content);
     expect(parsed.success).toBe(true);
     expect(parsed.snapshotSequence).toBe(42);
@@ -76,7 +78,7 @@ describe('SearchWorkspaceTool', () => {
     vi.mocked(mockBridge.searchWorkspace).mockRejectedValueOnce(new Error('Bridge died'));
 
     const res = await tool.execute({ query: 'test' }, mockBridge, mockContext);
-    
+
     const parsed = JSON.parse(res.content);
     expect(parsed.success).toBe(false);
     expect(parsed.error.code).toBe('INTELLIGENCE_QUERY_FAILED');
@@ -89,28 +91,35 @@ describe('FindDefinitionTool', () => {
   const mockBridge = {
     findDefinition: vi.fn(),
   } as unknown as AgentProtocol.IAgentCapabilityBridge;
-  
+
   const mockContext = { workspaceId: 'trusted-ws-1' } as AgentProtocol.AgentCapabilityContext;
 
   it('has strict input schemas rejecting extraneous fields', () => {
     const registry = new ToolRegistry();
     registry.register(tool);
 
-    expect(() => registry.validateArguments(tool.definition.name, { symbolName: 'test' })).not.toThrow();
-    expect(() => registry.validateArguments(tool.definition.name, { symbolName: 'test', workspaceId: 'hacker-ws' })).toThrow();
+    expect(() =>
+      registry.validateArguments(tool.definition.name, { symbolName: 'test' })
+    ).not.toThrow();
+    expect(() =>
+      registry.validateArguments(tool.definition.name, {
+        symbolName: 'test',
+        workspaceId: 'hacker-ws',
+      })
+    ).toThrow();
   });
 
   it('calls bridge and preserves snapshot sequence', async () => {
     vi.mocked(mockBridge.findDefinition).mockResolvedValueOnce({
       workspaceId: 'trusted-ws-1',
       snapshotSequence: 99,
-      results: [{ symbolName: 'test', kind: 'var', filePath: '/a.ts', line: 1, column: 1 }]
+      results: [{ symbolName: 'test', kind: 'var', filePath: '/a.ts', line: 1, column: 1 }],
     });
 
     const res = await tool.execute({ symbolName: 'test' }, mockBridge, mockContext);
-    
+
     expect(mockBridge.findDefinition).toHaveBeenCalledWith(mockContext, 'test');
-    
+
     const parsed = JSON.parse(res.content);
     expect(parsed.success).toBe(true);
     expect(parsed.snapshotSequence).toBe(99);
@@ -122,28 +131,35 @@ describe('FindReferencesTool', () => {
   const mockBridge = {
     findReferences: vi.fn(),
   } as unknown as AgentProtocol.IAgentCapabilityBridge;
-  
+
   const mockContext = { workspaceId: 'trusted-ws-1' } as AgentProtocol.AgentCapabilityContext;
 
   it('has strict input schemas rejecting extraneous fields', () => {
     const registry = new ToolRegistry();
     registry.register(tool);
 
-    expect(() => registry.validateArguments(tool.definition.name, { symbolName: 'test' })).not.toThrow();
-    expect(() => registry.validateArguments(tool.definition.name, { symbolName: 'test', workspaceId: 'hacker-ws' })).toThrow();
+    expect(() =>
+      registry.validateArguments(tool.definition.name, { symbolName: 'test' })
+    ).not.toThrow();
+    expect(() =>
+      registry.validateArguments(tool.definition.name, {
+        symbolName: 'test',
+        workspaceId: 'hacker-ws',
+      })
+    ).toThrow();
   });
 
   it('calls bridge and preserves snapshot sequence', async () => {
     vi.mocked(mockBridge.findReferences).mockResolvedValueOnce({
       workspaceId: 'trusted-ws-1',
       snapshotSequence: 105,
-      results: [{ symbolName: 'test', filePath: '/b.ts', line: 5, column: 10 }]
+      results: [{ symbolName: 'test', filePath: '/b.ts', line: 5, column: 10 }],
     });
 
     const res = await tool.execute({ symbolName: 'test' }, mockBridge, mockContext);
-    
+
     expect(mockBridge.findReferences).toHaveBeenCalledWith(mockContext, 'test');
-    
+
     const parsed = JSON.parse(res.content);
     expect(parsed.success).toBe(true);
     expect(parsed.snapshotSequence).toBe(105);

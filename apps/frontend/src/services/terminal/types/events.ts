@@ -44,13 +44,13 @@ export interface TerminalResized {
 export interface TerminalInput {
   readonly terminalId: string;
   readonly timestamp: number;
-  readonly payloadLength: number; 
+  readonly payloadLength: number;
 }
 
 export interface TerminalOutput {
   readonly terminalId: string;
   readonly timestamp: number;
-  readonly payloadLength: number; 
+  readonly payloadLength: number;
 }
 
 export interface TerminalExit {

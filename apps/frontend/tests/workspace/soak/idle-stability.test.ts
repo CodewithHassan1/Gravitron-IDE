@@ -23,7 +23,18 @@ describe('Soak: Idle Stability', () => {
     mockDbStore.clear();
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
-    await manager.openWorkspace({ id: 'ws-idle', name: 'IdleWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
+    await manager.openWorkspace(
+      {
+        id: 'ws-idle',
+        name: 'IdleWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
   });
 
   afterEach(async () => {
@@ -50,19 +61,19 @@ describe('Soak: Idle Stability', () => {
 
     // Expect watcher polling interval to be the only timer
     expect(vi.getTimerCount()).toBe(1);
-    
+
     // Another burst
     const promises2 = [];
     for (let i = 50; i < 100; i++) {
       promises2.push(manager.createFile(`/idle_${i}.ts`));
     }
     await Promise.all(promises2);
-    
+
     await vi.advanceTimersByTimeAsync(10000);
     expect(syncEngine.queue.size).toBe(0);
-    
+
     await manager.closeWorkspace();
-    
+
     expect(syncEngine.queue.size).toBe(0);
   });
 });

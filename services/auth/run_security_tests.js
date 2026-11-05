@@ -30,10 +30,10 @@ async function request(path, headers = {}) {
 }
 
 async function runTests() {
-  console.log("Starting tests...");
+  console.log('Starting tests...');
   try {
     const key = await importPKCS8(privateKeyStr, 'ES256');
-    
+
     // 1. Valid JWT
     const validJwt = await new SignJWT({ sub: 'user-1', org_id: 'org-1' })
       .setProtectedHeader({ alg: 'ES256', kid: 'test-key-v1' })
@@ -42,8 +42,10 @@ async function runTests() {
       .setIssuer('https://auth.ag-ide.local')
       .setAudience('ag-ide-platform')
       .sign(key);
-      
-    let res = await request('/api/v1/organization/members', { authorization: `Bearer ${validJwt}` });
+
+    let res = await request('/api/v1/organization/members', {
+      authorization: `Bearer ${validJwt}`,
+    });
     console.log(`[TEST] Valid JWT -> Status: ${res.status}`);
 
     // 2. Expired JWT
@@ -56,7 +58,7 @@ async function runTests() {
       .sign(key);
     res = await request('/api/v1/organization/members', { authorization: `Bearer ${expiredJwt}` });
     console.log(`[TEST] Expired JWT -> Status: ${res.status}`);
-    
+
     // 3. Wrong Issuer
     const wrongIssuerJwt = await new SignJWT({ sub: 'user-1', org_id: 'org-1' })
       .setProtectedHeader({ alg: 'ES256', kid: 'test-key-v1' })
@@ -65,24 +67,25 @@ async function runTests() {
       .setIssuer('https://evil.local')
       .setAudience('ag-ide-platform')
       .sign(key);
-    res = await request('/api/v1/organization/members', { authorization: `Bearer ${wrongIssuerJwt}` });
+    res = await request('/api/v1/organization/members', {
+      authorization: `Bearer ${wrongIssuerJwt}`,
+    });
     console.log(`[TEST] Wrong Issuer -> Status: ${res.status}`);
 
     // 4. Client Cannot Forge Identity
     // Send a valid JWT but try to spoof x-user-id
-    res = await request('/api/v1/organization/members', { 
-        authorization: `Bearer ${validJwt}`,
-        'x-user-id': 'hacker',
-        'x-organization-id': 'hacker-org'
+    res = await request('/api/v1/organization/members', {
+      authorization: `Bearer ${validJwt}`,
+      'x-user-id': 'hacker',
+      'x-organization-id': 'hacker-org',
     });
     console.log(`[TEST] Spoofed Headers -> Status: ${res.status}`);
-    
+
     // 5. Auth JWKS Endpoint reachable via Gateway?
     res = await request('/api/v1/auth/.well-known/jwks.json');
     console.log(`[TEST] JWKS Reachable -> Status: ${res.status}`);
-    
   } catch (err) {
-    console.error("Test execution failed:", err);
+    console.error('Test execution failed:', err);
   }
 }
 

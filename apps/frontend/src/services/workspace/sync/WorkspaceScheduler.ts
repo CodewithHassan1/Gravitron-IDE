@@ -9,10 +9,10 @@ export interface SchedulerOptions {
 
 export class WorkspaceScheduler {
   private options: SchedulerOptions;
-  
+
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private maxBatchTimer: ReturnType<typeof setTimeout> | null = null;
-  
+
   private isProcessing: boolean = false;
 
   constructor(options: Partial<SchedulerOptions> = {}) {

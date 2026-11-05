@@ -1,9 +1,9 @@
-"use client"
-import dynamic from 'next/dynamic'
+'use client';
+import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-const IDE = dynamic(() => import('@/components/ide/IDE').then(m => m.IDE), { ssr: false })
+const IDE = dynamic(() => import('@/components/ide/IDE').then((m) => m.IDE), { ssr: false });
 
 function WorkspaceIDE() {
   const searchParams = useSearchParams();

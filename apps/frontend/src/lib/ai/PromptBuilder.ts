@@ -25,12 +25,12 @@ export class PromptBuilder {
   static async build(context: any): Promise<AIMessagePayload[]> {
     const messages: AIMessagePayload[] = [];
     const contributors = PromptContributorRegistry.getContributors();
-    
+
     for (const contributor of contributors) {
       const msgs = await contributor.contribute(context);
       messages.push(...msgs);
     }
-    
+
     return messages;
   }
 }

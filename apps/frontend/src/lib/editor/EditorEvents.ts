@@ -28,7 +28,7 @@ export class EditorEventBusImpl {
       handlers.forEach((handler) => handler(data));
     }
   }
-  
+
   dispose() {
     this.listeners.clear();
   }
@@ -45,7 +45,7 @@ export const EditorEvents = {
   GroupChanged: 'GroupChanged',
   SplitCreated: 'SplitCreated',
   SplitClosed: 'SplitClosed',
-  
+
   // Enterprise additions
   DiagnosticsUpdated: 'DiagnosticsUpdated',
   EditorSaved: 'EditorSaved',

@@ -1,4 +1,9 @@
-import { IFileWatcher, FileWatcherOptions, FileWatcherCallback, FileWatcherEvent } from './FileWatcher';
+import {
+  IFileWatcher,
+  FileWatcherOptions,
+  FileWatcherCallback,
+  FileWatcherEvent,
+} from './FileWatcher';
 
 export class BrowserFileWatcher implements IFileWatcher {
   private callbacks: Set<FileWatcherCallback> = new Set();
@@ -9,7 +14,7 @@ export class BrowserFileWatcher implements IFileWatcher {
   async start(): Promise<void> {
     if (this.isWatching) return;
     this.isWatching = true;
-    
+
     // Fallback polling mechanism if native FileSystemObserver is not available
     // For this enterprise implementation, we mock the polling interval
     this.pollInterval = setInterval(() => {
@@ -39,8 +44,8 @@ export class BrowserFileWatcher implements IFileWatcher {
   }
 
   private poll() {
-    // In a real browser fallback, this would recursively scan tracked directories 
-    // and compare last modified dates. 
+    // In a real browser fallback, this would recursively scan tracked directories
+    // and compare last modified dates.
     // We will leave this as a stub that the Scanner or mock can manually trigger for now.
   }
 

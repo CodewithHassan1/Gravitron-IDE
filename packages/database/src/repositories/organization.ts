@@ -11,7 +11,7 @@ export class OrganizationRepository {
       .where('organization_id', '=', organizationId)
       .where('user_id', '=', userId)
       .executeTakeFirst();
-    
+
     return member?.role || null;
   }
 }

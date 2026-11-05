@@ -5,7 +5,7 @@ export interface ThrottleConfig {
 
 export class ThrottleController {
   private activeWorkers = 0;
-  
+
   constructor(private config: ThrottleConfig) {}
 
   canAcquireWorker(): boolean {

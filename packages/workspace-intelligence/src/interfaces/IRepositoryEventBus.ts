@@ -3,7 +3,7 @@ import { RepositoryEvent } from '../events/RepositoryEvent';
 export enum EventDeliveryMode {
   LIVE = 'LIVE',
   REPLAY = 'REPLAY',
-  RECOVERY = 'RECOVERY'
+  RECOVERY = 'RECOVERY',
 }
 
 export interface IRepositoryEventBus {

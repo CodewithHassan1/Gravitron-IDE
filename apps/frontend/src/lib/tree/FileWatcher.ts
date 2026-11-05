@@ -1,10 +1,10 @@
 import { WorkspaceNode } from '../../types/ide';
 
-export type FileEvent = 
-  | { type: 'created', node: WorkspaceNode }
-  | { type: 'deleted', id: string }
-  | { type: 'renamed', id: string, newName: string, newPath: string }
-  | { type: 'moved', id: string, newParentId: string | null };
+export type FileEvent =
+  | { type: 'created'; node: WorkspaceNode }
+  | { type: 'deleted'; id: string }
+  | { type: 'renamed'; id: string; newName: string; newPath: string }
+  | { type: 'moved'; id: string; newParentId: string | null };
 
 type FileEventListener = (event: FileEvent) => void;
 
@@ -17,7 +17,7 @@ class FileWatcherImpl {
   }
 
   emit(event: FileEvent) {
-    this.listeners.forEach(listener => listener(event));
+    this.listeners.forEach((listener) => listener(event));
   }
 }
 

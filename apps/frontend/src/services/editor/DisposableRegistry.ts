@@ -22,7 +22,7 @@ export class DisposableRegistryImpl {
   disposeByOwner(ownerId: string) {
     const ownerDisposables = this.disposables.get(ownerId);
     if (ownerDisposables) {
-      ownerDisposables.forEach(d => {
+      ownerDisposables.forEach((d) => {
         try {
           d.dispose();
         } catch (e) {

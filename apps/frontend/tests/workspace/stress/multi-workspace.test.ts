@@ -31,9 +31,42 @@ describe('Multi-Workspace Test', () => {
     const managerC = new WorkspaceManagerImpl();
 
     await Promise.all([
-      managerA.openWorkspace({ id: 'ws-a', name: 'WS_A', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any }),
-      managerB.openWorkspace({ id: 'ws-b', name: 'WS_B', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any }),
-      managerC.openWorkspace({ id: 'ws-c', name: 'WS_C', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any }),
+      managerA.openWorkspace(
+        {
+          id: 'ws-a',
+          name: 'WS_A',
+          uri: 'file:///',
+          provider: 'memory' as any,
+          lastOpened: Date.now(),
+          type: 'directory' as any,
+          capabilities: {} as any,
+        },
+        { nativeHandle: {} as any }
+      ),
+      managerB.openWorkspace(
+        {
+          id: 'ws-b',
+          name: 'WS_B',
+          uri: 'file:///',
+          provider: 'memory' as any,
+          lastOpened: Date.now(),
+          type: 'directory' as any,
+          capabilities: {} as any,
+        },
+        { nativeHandle: {} as any }
+      ),
+      managerC.openWorkspace(
+        {
+          id: 'ws-c',
+          name: 'WS_C',
+          uri: 'file:///',
+          provider: 'memory' as any,
+          lastOpened: Date.now(),
+          type: 'directory' as any,
+          capabilities: {} as any,
+        },
+        { nativeHandle: {} as any }
+      ),
     ]);
 
     await Promise.all([
@@ -49,7 +82,7 @@ describe('Multi-Workspace Test', () => {
     // Validate no shared VFS state
     expect(vfsA.resolve('/file_a.ts')).toBeDefined();
     expect(vfsA.resolve('/file_b.ts')).toBeNull();
-    
+
     expect(vfsB.resolve('/file_b.ts')).toBeDefined();
     expect(vfsB.resolve('/file_c.ts')).toBeNull();
 
@@ -61,7 +94,7 @@ describe('Multi-Workspace Test', () => {
 
     const snapA = mockDbStore.get('snapshots:ws-a');
     const snapB = mockDbStore.get('snapshots:ws-b');
-    
+
     expect(snapA.nodes.find((n: any) => n.name === 'file_a.ts')).toBeDefined();
     expect(snapA.nodes.find((n: any) => n.name === 'file_b.ts')).toBeUndefined();
 
@@ -75,23 +108,34 @@ describe('Multi-Workspace Test', () => {
 
   it('Workspace Switching', async () => {
     let manager = new WorkspaceManagerImpl();
-    
+
     const RUNS = 100;
-    
+
     for (let i = 0; i < RUNS; i++) {
       const id = i % 2 === 0 ? 'ws-even' : 'ws-odd';
-      
-      await manager.openWorkspace({ id, name: id, uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
+
+      await manager.openWorkspace(
+        {
+          id,
+          name: id,
+          uri: 'file:///',
+          provider: 'memory' as any,
+          lastOpened: Date.now(),
+          type: 'directory' as any,
+          capabilities: {} as any,
+        },
+        { nativeHandle: {} as any }
+      );
       await manager.createFile(`/file_${i}.ts`);
-      
+
       // We manually clear the event listeners created inside `new WorkspaceSearch(...)` or similar internally
       // Wait, if it leaks listeners, then `closeWorkspace` should remove them.
       // So we just close it.
       await manager.closeWorkspace();
-      
+
       // Memory cleanup check:
       expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
-      
+
       if ((manager as any).syncEngine) {
         expect((manager as any).syncEngine.queue.size).toBe(0);
         expect((manager as any).syncEngine.state.status).toBe('Idle');
@@ -103,8 +147,30 @@ describe('Multi-Workspace Test', () => {
     const managerA = new WorkspaceManagerImpl();
     const managerB = new WorkspaceManagerImpl();
 
-    await managerA.openWorkspace({ id: 'ws-a', name: 'WS_A', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
-    await managerB.openWorkspace({ id: 'ws-b', name: 'WS_B', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
+    await managerA.openWorkspace(
+      {
+        id: 'ws-a',
+        name: 'WS_A',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
+    await managerB.openWorkspace(
+      {
+        id: 'ws-b',
+        name: 'WS_B',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
 
     await managerA.createFolder('/src');
     await managerA.createFile('/src/index.ts');

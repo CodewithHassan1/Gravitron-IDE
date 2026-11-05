@@ -10,7 +10,7 @@ export class DefaultShellResolver implements IShellResolver {
         executable: process.env.COMSPEC || 'cmd.exe',
         args: [],
         loginShell: false,
-        interactive: true
+        interactive: true,
       };
     } else {
       // macOS / Linux
@@ -19,7 +19,7 @@ export class DefaultShellResolver implements IShellResolver {
         executable: shell,
         args: ['-l'], // login shell by default on Unix
         loginShell: true,
-        interactive: true
+        interactive: true,
       };
     }
   }
@@ -29,7 +29,7 @@ export class DefaultShellResolver implements IShellResolver {
       executable: 'docker',
       args: ['exec', '-it', containerId, '/bin/sh'],
       loginShell: false,
-      interactive: true
+      interactive: true,
     };
   }
 
@@ -38,7 +38,7 @@ export class DefaultShellResolver implements IShellResolver {
       executable: 'ssh',
       args: [host],
       loginShell: true,
-      interactive: true
+      interactive: true,
     };
   }
 }

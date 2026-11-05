@@ -11,14 +11,17 @@ export class MenuService implements IIpcService {
   // We cache MenuItems by their menuItemId
   private menuItemCache: Map<string, MenuItem> = new Map();
 
-  constructor() { }
+  constructor() {}
 
   public registerHandlers(): IpcHandlerRegistration[] {
     return [
       {
         channel: Channels.Window.SetApplicationMenu,
         handler: async (menuTree: any[]) => {
-          console.log('[NativeMenuAudit] Received SetApplicationMenu IPC with top level items:', menuTree.length);
+          console.log(
+            '[NativeMenuAudit] Received SetApplicationMenu IPC with top level items:',
+            menuTree.length
+          );
           this.menuItemCache.clear();
           const webContents = BrowserWindow.getAllWindows()[0]?.webContents;
           if (!webContents) return { success: false, error: 'No webContents available' };
@@ -27,7 +30,7 @@ export class MenuService implements IIpcService {
           // Menu.setApplicationMenu(menu); // Removed to enforce React-only workbench menu
           this.populateCache(menu);
           return { success: true };
-        }
+        },
       },
       {
         channel: Channels.Window.UpdateMenuState,
@@ -41,13 +44,16 @@ export class MenuService implements IIpcService {
             }
           }
           return { success: true };
-        }
-      }
+        },
+      },
     ];
   }
 
-  private buildMenuTemplate(items: any[], webContents: Electron.WebContents): MenuItemConstructorOptions[] {
-    return items.map(item => {
+  private buildMenuTemplate(
+    items: any[],
+    webContents: Electron.WebContents
+  ): MenuItemConstructorOptions[] {
+    return items.map((item) => {
       if (item.type === 'separator') {
         return { type: 'separator' };
       }
@@ -57,7 +63,7 @@ export class MenuService implements IIpcService {
         label: item.label,
         enabled: item.enabled ?? true,
         visible: item.visible ?? true,
-        accelerator: item.accelerator
+        accelerator: item.accelerator,
       };
 
       if (item.checked !== undefined) {
@@ -69,7 +75,10 @@ export class MenuService implements IIpcService {
         options.submenu = this.buildMenuTemplate(item.submenu, webContents);
       } else if (item.command) {
         options.click = () => {
-          console.log('[NativeMenuAudit] Native menu clicked, sending OnMenuCommand:', item.command);
+          console.log(
+            '[NativeMenuAudit] Native menu clicked, sending OnMenuCommand:',
+            item.command
+          );
           webContents.send(Channels.Window.OnMenuCommand, item.command);
         };
       }

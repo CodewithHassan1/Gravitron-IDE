@@ -30,18 +30,20 @@ export class BrowserGitProvider implements IGitProvider {
     // Note: This is an expensive operation if done entirely recursively in browser FS.
     // isomorphic-git provides `statusMatrix` for detailed status.
     const matrix = await git.statusMatrix({ fs, dir: '/' });
-    
-    return matrix.map(row => {
-      const [filepath, head, workdir, stage] = row;
-      let status: GitStatusEntry['status'] = 'clean';
-      if (head === 1 && workdir === 2 && stage === 1) status = 'modified';
-      if (head === 0 && workdir === 2 && stage === 0) status = 'untracked';
-      if (head === 1 && workdir === 0 && stage === 1) status = 'deleted';
-      if (head === 0 && workdir === 2 && stage === 2) status = 'added'; // staged added
-      if (head === 1 && workdir === 2 && stage === 2) status = 'modified'; // staged modified
-      
-      return { path: filepath, status };
-    }).filter(e => e.status !== 'clean');
+
+    return matrix
+      .map((row) => {
+        const [filepath, head, workdir, stage] = row;
+        let status: GitStatusEntry['status'] = 'clean';
+        if (head === 1 && workdir === 2 && stage === 1) status = 'modified';
+        if (head === 0 && workdir === 2 && stage === 0) status = 'untracked';
+        if (head === 1 && workdir === 0 && stage === 1) status = 'deleted';
+        if (head === 0 && workdir === 2 && stage === 2) status = 'added'; // staged added
+        if (head === 1 && workdir === 2 && stage === 2) status = 'modified'; // staged modified
+
+        return { path: filepath, status };
+      })
+      .filter((e) => e.status !== 'clean');
   }
 
   async stage(workspaceId: string, paths: string[]): Promise<void> {
@@ -64,7 +66,7 @@ export class BrowserGitProvider implements IGitProvider {
       fs,
       dir: '/',
       message,
-      author: { name: 'Browser User', email: 'browser@example.com' }
+      author: { name: 'Browser User', email: 'browser@example.com' },
     });
   }
 
@@ -73,11 +75,15 @@ export class BrowserGitProvider implements IGitProvider {
     await git.checkout({ fs, dir: '/', ref });
   }
 
-  async branch(workspaceId: string, action: 'list' | 'create' | 'delete', name?: string): Promise<GitBranch[] | void> {
+  async branch(
+    workspaceId: string,
+    action: 'list' | 'create' | 'delete',
+    name?: string
+  ): Promise<GitBranch[] | void> {
     const fs = this.getFS(workspaceId);
     if (action === 'list') {
       const branches = await git.listBranches({ fs, dir: '/' });
-      return branches.map(b => ({ name: b, isRemote: false }));
+      return branches.map((b) => ({ name: b, isRemote: false }));
     } else if (action === 'create' && name) {
       await git.branch({ fs, dir: '/', ref: name });
     } else if (action === 'delete' && name) {
@@ -89,7 +95,7 @@ export class BrowserGitProvider implements IGitProvider {
     const fs = this.getFS(workspaceId);
     try {
       const commits = await git.log({ fs, dir: '/', depth: limit || 50, filepath });
-      return commits.map(c => ({
+      return commits.map((c) => ({
         oid: c.oid,
         message: c.commit.message,
         parent: c.commit.parent,
@@ -97,8 +103,8 @@ export class BrowserGitProvider implements IGitProvider {
           name: c.commit.author.name,
           email: c.commit.author.email,
           timestamp: c.commit.author.timestamp,
-          timezoneOffset: c.commit.author.timezoneOffset
-        }
+          timezoneOffset: c.commit.author.timezoneOffset,
+        },
       }));
     } catch {
       return [];
@@ -106,12 +112,32 @@ export class BrowserGitProvider implements IGitProvider {
   }
 
   // Mocked out methods that are less crucial for local browser tests or require complex setups
-  async fetch(workspaceId: string, remote?: string): Promise<void> { throw new Error('Not Supported Yet'); }
-  async pull(workspaceId: string, remote?: string, branch?: string): Promise<void> { throw new Error('Not Supported Yet'); }
-  async push(workspaceId: string, remote?: string, branch?: string): Promise<void> { throw new Error('Not Supported Yet'); }
-  async stash(workspaceId: string, action: 'save' | 'pop' | 'list', message?: string): Promise<any> { throw new Error('Not Supported Yet'); }
-  async merge(workspaceId: string, ref: string): Promise<void> { throw new Error('Not Supported Yet'); }
-  async rebase(workspaceId: string, ref: string): Promise<void> { throw new Error('Not Supported Yet'); }
-  async diff(workspaceId: string, path?: string): Promise<string> { throw new Error('Not Supported Yet'); }
-  async blame(workspaceId: string, path: string): Promise<any> { throw new Error('Not Supported Yet'); }
+  async fetch(workspaceId: string, remote?: string): Promise<void> {
+    throw new Error('Not Supported Yet');
+  }
+  async pull(workspaceId: string, remote?: string, branch?: string): Promise<void> {
+    throw new Error('Not Supported Yet');
+  }
+  async push(workspaceId: string, remote?: string, branch?: string): Promise<void> {
+    throw new Error('Not Supported Yet');
+  }
+  async stash(
+    workspaceId: string,
+    action: 'save' | 'pop' | 'list',
+    message?: string
+  ): Promise<any> {
+    throw new Error('Not Supported Yet');
+  }
+  async merge(workspaceId: string, ref: string): Promise<void> {
+    throw new Error('Not Supported Yet');
+  }
+  async rebase(workspaceId: string, ref: string): Promise<void> {
+    throw new Error('Not Supported Yet');
+  }
+  async diff(workspaceId: string, path?: string): Promise<string> {
+    throw new Error('Not Supported Yet');
+  }
+  async blame(workspaceId: string, path: string): Promise<any> {
+    throw new Error('Not Supported Yet');
+  }
 }

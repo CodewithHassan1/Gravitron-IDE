@@ -17,7 +17,9 @@ export class SettingsRegistry {
       if (this.isEqual(existing, node)) {
         return; // Safely ignore identical registrations
       }
-      throw new Error(`SettingsNode with id ${node.id} is already registered with a different schema.`);
+      throw new Error(
+        `SettingsNode with id ${node.id} is already registered with a different schema.`
+      );
     }
     this.nodes.set(node.id, node);
   }
@@ -39,17 +41,19 @@ export class SettingsRegistry {
   private static isEqual(a: IConfigurationNode, b: IConfigurationNode): boolean {
     if (a.id !== b.id || a.title !== b.title) return false;
     if (a.properties.length !== b.properties.length) return false;
-    
+
     // Check if all properties match
     for (let i = 0; i < a.properties.length; i++) {
       const propA = a.properties[i];
       const propB = b.properties[i];
-      
-      if (propA.id !== propB.id || 
-          propA.type !== propB.type || 
-          propA.category !== propB.category ||
-          propA.scope !== propB.scope ||
-          propA.defaultValue !== propB.defaultValue) {
+
+      if (
+        propA.id !== propB.id ||
+        propA.type !== propB.type ||
+        propA.category !== propB.category ||
+        propA.scope !== propB.scope ||
+        propA.defaultValue !== propB.defaultValue
+      ) {
         return false;
       }
     }

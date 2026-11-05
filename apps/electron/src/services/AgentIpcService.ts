@@ -2,7 +2,13 @@ import { IService, IIpcService } from './IService';
 import { ServiceIds } from './ServiceIds';
 import { AgentRuntime, verifyDelegationWithPublicKey } from '@ag/worker-ai';
 import type { DelegationContext } from '@ag/worker-ai';
-import { Channels, AgentProtocol, RequestEnvelope, ResponseEnvelope, ProtocolVersion } from '@ag/protocol';
+import {
+  Channels,
+  AgentProtocol,
+  RequestEnvelope,
+  ResponseEnvelope,
+  ProtocolVersion,
+} from '@ag/protocol';
 import { IpcContext } from '../ipc/IpcContext';
 import { WindowService } from './WindowService';
 import { IWorkspaceService } from './IWorkspaceService';
@@ -30,7 +36,12 @@ interface StartRequestPayload {
 
 export class AgentIpcService implements IService, IIpcService {
   public readonly id = ServiceIds.AgentIpc;
-  public readonly dependencies = [ServiceIds.Window, ServiceIds.Workspace, ServiceIds.WorkspaceExecution, ServiceIds.Intelligence];
+  public readonly dependencies = [
+    ServiceIds.Window,
+    ServiceIds.Workspace,
+    ServiceIds.WorkspaceExecution,
+    ServiceIds.Intelligence,
+  ];
   private runtime: AgentRuntime;
   private windowService: WindowService;
 
@@ -40,7 +51,11 @@ export class AgentIpcService implements IService, IIpcService {
     workspaceExecutionService: IWorkspaceExecutionService,
     intelligenceManager: IntelligenceManager
   ) {
-    const capabilityBridge = new AgentCapabilityBridgeImpl(workspaceService, workspaceExecutionService, intelligenceManager);
+    const capabilityBridge = new AgentCapabilityBridgeImpl(
+      workspaceService,
+      workspaceExecutionService,
+      intelligenceManager
+    );
     this.runtime = new AgentRuntime({ capabilityBridge });
     this.windowService = windowService;
   }
@@ -53,9 +68,15 @@ export class AgentIpcService implements IService, IIpcService {
    * session context. If the main process lacks the configured secrets, agent
    * execution fails closed rather than running unbound.
    */
-  private async authorizeAgentExecution(workspaceId: string, accessToken: string, orgId?: string): Promise<DelegationContext> {
+  private async authorizeAgentExecution(
+    workspaceId: string,
+    accessToken: string,
+    orgId?: string
+  ): Promise<DelegationContext> {
     if (!AGENT_HOST_SECRET) {
-      throw new Error('AGENT_HOST_SECRET is not configured; agent execution host cannot exchange a delegation');
+      throw new Error(
+        'AGENT_HOST_SECRET is not configured; agent execution host cannot exchange a delegation'
+      );
     }
     if (!INTERNAL_PUBLIC_KEY) {
       throw new Error('INTERNAL_PUBLIC_KEY is not configured; cannot verify the agent delegation');
@@ -65,7 +86,7 @@ export class AgentIpcService implements IService, IIpcService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'X-Agent-Host-Token': AGENT_HOST_SECRET,
       },
       body: JSON.stringify({ workspaceId, orgId }),
@@ -86,12 +107,24 @@ export class AgentIpcService implements IService, IIpcService {
     );
   }
 
-  public registerHandlers(): Array<{ channel: string; handler: (payload: any, ctx: IpcContext) => Promise<any> }> {
+  public registerHandlers(): Array<{
+    channel: string;
+    handler: (payload: any, ctx: IpcContext) => Promise<any>;
+  }> {
     return [
       {
         channel: Channels.Agent.StartRequest,
         handler: async (payload: StartRequestPayload, ctx: IpcContext) => {
-          const { workspaceId, conversationId, agentId, prompt, providerType, providerConfig, accessToken, orgId } = payload;
+          const {
+            workspaceId,
+            conversationId,
+            agentId,
+            prompt,
+            providerType,
+            providerConfig,
+            accessToken,
+            orgId,
+          } = payload;
 
           if (!workspaceId || !prompt) {
             throw new Error('workspaceId and prompt are required to start an agent');
@@ -121,10 +154,10 @@ export class AgentIpcService implements IService, IIpcService {
           const response: ResponseEnvelope<AgentProtocol.StartResponse> = {
             version: ProtocolVersion.V1,
             requestId: ctx.requestId,
-            payload: { agentId: createdAgentId }
+            payload: { agentId: createdAgentId },
           };
           return response;
-        }
+        },
       },
       {
         channel: Channels.Agent.CancelRequest,
@@ -134,14 +167,17 @@ export class AgentIpcService implements IService, IIpcService {
           const response: ResponseEnvelope<void> = {
             version: ProtocolVersion.V1,
             requestId: ctx.requestId,
-            payload: undefined
+            payload: undefined,
           };
           return response;
-        }
+        },
       },
       {
         channel: Channels.Agent.ApproveToolRequest,
-        handler: async (payload: { agentId: string; approvalId: string; toolCallId: string; approved: boolean }, ctx: IpcContext) => {
+        handler: async (
+          payload: { agentId: string; approvalId: string; toolCallId: string; approved: boolean },
+          ctx: IpcContext
+        ) => {
           this.runtime.approveTool(
             payload.agentId,
             payload.approvalId,
@@ -152,10 +188,10 @@ export class AgentIpcService implements IService, IIpcService {
           const response: ResponseEnvelope<void> = {
             version: ProtocolVersion.V1,
             requestId: ctx.requestId,
-            payload: undefined
+            payload: undefined,
           };
           return response;
-        }
+        },
       },
       {
         channel: Channels.Agent.SnapshotRequest,
@@ -165,11 +201,11 @@ export class AgentIpcService implements IService, IIpcService {
           const response: ResponseEnvelope<AgentProtocol.AgentSnapshot | null> = {
             version: ProtocolVersion.V1,
             requestId: ctx.requestId,
-            payload: snapshot
+            payload: snapshot,
           };
           return response;
-        }
-      }
+        },
+      },
     ];
   }
 }

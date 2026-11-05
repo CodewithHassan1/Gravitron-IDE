@@ -11,18 +11,27 @@ export interface IMailer {
 export class DevelopmentMailer implements IMailer {
   constructor() {
     if (process.env.NODE_ENV === 'production' && !process.env.SMTP_URL) {
-      logger.warn({ action: 'mailer_init' } as any, "Using DevelopmentMailer in production because SMTP_URL is missing!");
+      logger.warn(
+        { action: 'mailer_init' } as any,
+        'Using DevelopmentMailer in production because SMTP_URL is missing!'
+      );
     }
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '');
-    logger.info({ action: 'send_verification_email', email } as any, `[MOCK EMAIL] Verification Link: ${baseUrl}/verify-email?token=${token}`);
+    logger.info(
+      { action: 'send_verification_email', email } as any,
+      `[MOCK EMAIL] Verification Link: ${baseUrl}/verify-email?token=${token}`
+    );
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '');
-    logger.info({ action: 'send_password_reset', email } as any, `[MOCK EMAIL] Password Reset Link: ${baseUrl}/reset-password?token=${token}`);
+    logger.info(
+      { action: 'send_password_reset', email } as any,
+      `[MOCK EMAIL] Password Reset Link: ${baseUrl}/reset-password?token=${token}`
+    );
   }
 }
 
@@ -43,7 +52,7 @@ export class ProductionMailer implements IMailer {
       to: email,
       subject: 'Verify your email',
       text: `Click the link to verify your email: ${link}`,
-      html: `<p>Click the link below to verify your email:</p><a href="${link}">${link}</a>`
+      html: `<p>Click the link below to verify your email:</p><a href="${link}">${link}</a>`,
     });
     logger.info({ action: 'send_verification_email', email } as any, 'Verification email sent');
   }
@@ -56,7 +65,7 @@ export class ProductionMailer implements IMailer {
       to: email,
       subject: 'Reset your password',
       text: `Click the link to reset your password: ${link}`,
-      html: `<p>Click the link below to reset your password:</p><a href="${link}">${link}</a>`
+      html: `<p>Click the link below to reset your password:</p><a href="${link}">${link}</a>`,
     });
     logger.info({ action: 'send_password_reset', email } as any, 'Password reset email sent');
   }

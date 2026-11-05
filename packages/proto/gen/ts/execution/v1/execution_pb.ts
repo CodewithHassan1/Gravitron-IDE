@@ -3,8 +3,15 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
+import type {
+  BinaryReadOptions,
+  FieldList,
+  JsonReadOptions,
+  JsonValue,
+  PartialMessage,
+  PlainMessage,
+} from '@bufbuild/protobuf';
+import { Message, proto3, protoInt64 } from '@bufbuild/protobuf';
 
 /**
  * @generated from message execution.v1.ExecRequest
@@ -13,12 +20,12 @@ export class ExecRequest extends Message<ExecRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string command = 2;
    */
-  command = "";
+  command = '';
 
   /**
    * @generated from field: repeated string args = 3;
@@ -28,7 +35,7 @@ export class ExecRequest extends Message<ExecRequest> {
   /**
    * @generated from field: string working_directory = 4;
    */
-  workingDirectory = "";
+  workingDirectory = '';
 
   constructor(data?: PartialMessage<ExecRequest>) {
     super();
@@ -36,12 +43,12 @@ export class ExecRequest extends Message<ExecRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ExecRequest";
+  static readonly typeName = 'execution.v1.ExecRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "command", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "args", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-    { no: 4, name: "working_directory", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'command', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'args', kind: 'scalar', T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 4, name: 'working_directory', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecRequest {
@@ -56,7 +63,10 @@ export class ExecRequest extends Message<ExecRequest> {
     return new ExecRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ExecRequest | PlainMessage<ExecRequest> | undefined, b: ExecRequest | PlainMessage<ExecRequest> | undefined): boolean {
+  static equals(
+    a: ExecRequest | PlainMessage<ExecRequest> | undefined,
+    b: ExecRequest | PlainMessage<ExecRequest> | undefined
+  ): boolean {
     return proto3.util.equals(ExecRequest, a, b);
   }
 }
@@ -86,11 +96,11 @@ export class ExecResponse extends Message<ExecResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ExecResponse";
+  static readonly typeName = 'execution.v1.ExecResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "exit_code", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 2, name: "stdout", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
-    { no: 3, name: "stderr", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
+    { no: 1, name: 'exit_code', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: 'stdout', kind: 'scalar', T: 12 /* ScalarType.BYTES */ },
+    { no: 3, name: 'stderr', kind: 'scalar', T: 12 /* ScalarType.BYTES */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecResponse {
@@ -105,7 +115,10 @@ export class ExecResponse extends Message<ExecResponse> {
     return new ExecResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ExecResponse | PlainMessage<ExecResponse> | undefined, b: ExecResponse | PlainMessage<ExecResponse> | undefined): boolean {
+  static equals(
+    a: ExecResponse | PlainMessage<ExecResponse> | undefined,
+    b: ExecResponse | PlainMessage<ExecResponse> | undefined
+  ): boolean {
     return proto3.util.equals(ExecResponse, a, b);
   }
 }
@@ -117,17 +130,17 @@ export class CloneRepositoryRequest extends Message<CloneRepositoryRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string git_uri = 2;
    */
-  gitUri = "";
+  gitUri = '';
 
   /**
    * @generated from field: string branch = 3;
    */
-  branch = "";
+  branch = '';
 
   constructor(data?: PartialMessage<CloneRepositoryRequest>) {
     super();
@@ -135,26 +148,38 @@ export class CloneRepositoryRequest extends Message<CloneRepositoryRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.CloneRepositoryRequest";
+  static readonly typeName = 'execution.v1.CloneRepositoryRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "git_uri", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "branch", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'git_uri', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'branch', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CloneRepositoryRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): CloneRepositoryRequest {
     return new CloneRepositoryRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CloneRepositoryRequest {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): CloneRepositoryRequest {
     return new CloneRepositoryRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CloneRepositoryRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): CloneRepositoryRequest {
     return new CloneRepositoryRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: CloneRepositoryRequest | PlainMessage<CloneRepositoryRequest> | undefined, b: CloneRepositoryRequest | PlainMessage<CloneRepositoryRequest> | undefined): boolean {
+  static equals(
+    a: CloneRepositoryRequest | PlainMessage<CloneRepositoryRequest> | undefined,
+    b: CloneRepositoryRequest | PlainMessage<CloneRepositoryRequest> | undefined
+  ): boolean {
     return proto3.util.equals(CloneRepositoryRequest, a, b);
   }
 }
@@ -174,24 +199,36 @@ export class CloneRepositoryResponse extends Message<CloneRepositoryResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.CloneRepositoryResponse";
+  static readonly typeName = 'execution.v1.CloneRepositoryResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CloneRepositoryResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): CloneRepositoryResponse {
     return new CloneRepositoryResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CloneRepositoryResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): CloneRepositoryResponse {
     return new CloneRepositoryResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CloneRepositoryResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): CloneRepositoryResponse {
     return new CloneRepositoryResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: CloneRepositoryResponse | PlainMessage<CloneRepositoryResponse> | undefined, b: CloneRepositoryResponse | PlainMessage<CloneRepositoryResponse> | undefined): boolean {
+  static equals(
+    a: CloneRepositoryResponse | PlainMessage<CloneRepositoryResponse> | undefined,
+    b: CloneRepositoryResponse | PlainMessage<CloneRepositoryResponse> | undefined
+  ): boolean {
     return proto3.util.equals(CloneRepositoryResponse, a, b);
   }
 }
@@ -203,12 +240,12 @@ export class ReadFileRequest extends Message<ReadFileRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string path = 2;
    */
-  path = "";
+  path = '';
 
   constructor(data?: PartialMessage<ReadFileRequest>) {
     super();
@@ -216,10 +253,10 @@ export class ReadFileRequest extends Message<ReadFileRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ReadFileRequest";
+  static readonly typeName = 'execution.v1.ReadFileRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "path", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'path', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ReadFileRequest {
@@ -234,7 +271,10 @@ export class ReadFileRequest extends Message<ReadFileRequest> {
     return new ReadFileRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ReadFileRequest | PlainMessage<ReadFileRequest> | undefined, b: ReadFileRequest | PlainMessage<ReadFileRequest> | undefined): boolean {
+  static equals(
+    a: ReadFileRequest | PlainMessage<ReadFileRequest> | undefined,
+    b: ReadFileRequest | PlainMessage<ReadFileRequest> | undefined
+  ): boolean {
     return proto3.util.equals(ReadFileRequest, a, b);
   }
 }
@@ -254,9 +294,9 @@ export class ReadFileResponse extends Message<ReadFileResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ReadFileResponse";
+  static readonly typeName = 'execution.v1.ReadFileResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "content", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
+    { no: 1, name: 'content', kind: 'scalar', T: 12 /* ScalarType.BYTES */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ReadFileResponse {
@@ -271,7 +311,10 @@ export class ReadFileResponse extends Message<ReadFileResponse> {
     return new ReadFileResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ReadFileResponse | PlainMessage<ReadFileResponse> | undefined, b: ReadFileResponse | PlainMessage<ReadFileResponse> | undefined): boolean {
+  static equals(
+    a: ReadFileResponse | PlainMessage<ReadFileResponse> | undefined,
+    b: ReadFileResponse | PlainMessage<ReadFileResponse> | undefined
+  ): boolean {
     return proto3.util.equals(ReadFileResponse, a, b);
   }
 }
@@ -283,12 +326,12 @@ export class WriteFileRequest extends Message<WriteFileRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string path = 2;
    */
-  path = "";
+  path = '';
 
   /**
    * @generated from field: bytes content = 3;
@@ -301,11 +344,11 @@ export class WriteFileRequest extends Message<WriteFileRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.WriteFileRequest";
+  static readonly typeName = 'execution.v1.WriteFileRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "path", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "content", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'path', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'content', kind: 'scalar', T: 12 /* ScalarType.BYTES */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): WriteFileRequest {
@@ -320,7 +363,10 @@ export class WriteFileRequest extends Message<WriteFileRequest> {
     return new WriteFileRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: WriteFileRequest | PlainMessage<WriteFileRequest> | undefined, b: WriteFileRequest | PlainMessage<WriteFileRequest> | undefined): boolean {
+  static equals(
+    a: WriteFileRequest | PlainMessage<WriteFileRequest> | undefined,
+    b: WriteFileRequest | PlainMessage<WriteFileRequest> | undefined
+  ): boolean {
     return proto3.util.equals(WriteFileRequest, a, b);
   }
 }
@@ -340,9 +386,9 @@ export class WriteFileResponse extends Message<WriteFileResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.WriteFileResponse";
+  static readonly typeName = 'execution.v1.WriteFileResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): WriteFileResponse {
@@ -357,7 +403,10 @@ export class WriteFileResponse extends Message<WriteFileResponse> {
     return new WriteFileResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: WriteFileResponse | PlainMessage<WriteFileResponse> | undefined, b: WriteFileResponse | PlainMessage<WriteFileResponse> | undefined): boolean {
+  static equals(
+    a: WriteFileResponse | PlainMessage<WriteFileResponse> | undefined,
+    b: WriteFileResponse | PlainMessage<WriteFileResponse> | undefined
+  ): boolean {
     return proto3.util.equals(WriteFileResponse, a, b);
   }
 }
@@ -369,12 +418,12 @@ export class ListDirectoryRequest extends Message<ListDirectoryRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string path = 2;
    */
-  path = "";
+  path = '';
 
   constructor(data?: PartialMessage<ListDirectoryRequest>) {
     super();
@@ -382,10 +431,10 @@ export class ListDirectoryRequest extends Message<ListDirectoryRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ListDirectoryRequest";
+  static readonly typeName = 'execution.v1.ListDirectoryRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "path", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'path', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListDirectoryRequest {
@@ -396,11 +445,17 @@ export class ListDirectoryRequest extends Message<ListDirectoryRequest> {
     return new ListDirectoryRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListDirectoryRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ListDirectoryRequest {
     return new ListDirectoryRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ListDirectoryRequest | PlainMessage<ListDirectoryRequest> | undefined, b: ListDirectoryRequest | PlainMessage<ListDirectoryRequest> | undefined): boolean {
+  static equals(
+    a: ListDirectoryRequest | PlainMessage<ListDirectoryRequest> | undefined,
+    b: ListDirectoryRequest | PlainMessage<ListDirectoryRequest> | undefined
+  ): boolean {
     return proto3.util.equals(ListDirectoryRequest, a, b);
   }
 }
@@ -412,7 +467,7 @@ export class FileInfo extends Message<FileInfo> {
   /**
    * @generated from field: string name = 1;
    */
-  name = "";
+  name = '';
 
   /**
    * @generated from field: bool is_dir = 2;
@@ -430,11 +485,11 @@ export class FileInfo extends Message<FileInfo> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.FileInfo";
+  static readonly typeName = 'execution.v1.FileInfo';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "is_dir", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 3, name: "size", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 1, name: 'name', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'is_dir', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
+    { no: 3, name: 'size', kind: 'scalar', T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FileInfo {
@@ -449,7 +504,10 @@ export class FileInfo extends Message<FileInfo> {
     return new FileInfo().fromJsonString(jsonString, options);
   }
 
-  static equals(a: FileInfo | PlainMessage<FileInfo> | undefined, b: FileInfo | PlainMessage<FileInfo> | undefined): boolean {
+  static equals(
+    a: FileInfo | PlainMessage<FileInfo> | undefined,
+    b: FileInfo | PlainMessage<FileInfo> | undefined
+  ): boolean {
     return proto3.util.equals(FileInfo, a, b);
   }
 }
@@ -469,12 +527,15 @@ export class ListDirectoryResponse extends Message<ListDirectoryResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.ListDirectoryResponse";
+  static readonly typeName = 'execution.v1.ListDirectoryResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "files", kind: "message", T: FileInfo, repeated: true },
+    { no: 1, name: 'files', kind: 'message', T: FileInfo, repeated: true },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListDirectoryResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): ListDirectoryResponse {
     return new ListDirectoryResponse().fromBinary(bytes, options);
   }
 
@@ -482,11 +543,17 @@ export class ListDirectoryResponse extends Message<ListDirectoryResponse> {
     return new ListDirectoryResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListDirectoryResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ListDirectoryResponse {
     return new ListDirectoryResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ListDirectoryResponse | PlainMessage<ListDirectoryResponse> | undefined, b: ListDirectoryResponse | PlainMessage<ListDirectoryResponse> | undefined): boolean {
+  static equals(
+    a: ListDirectoryResponse | PlainMessage<ListDirectoryResponse> | undefined,
+    b: ListDirectoryResponse | PlainMessage<ListDirectoryResponse> | undefined
+  ): boolean {
     return proto3.util.equals(ListDirectoryResponse, a, b);
   }
 }
@@ -498,12 +565,12 @@ export class DeleteFileRequest extends Message<DeleteFileRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   /**
    * @generated from field: string path = 2;
    */
-  path = "";
+  path = '';
 
   constructor(data?: PartialMessage<DeleteFileRequest>) {
     super();
@@ -511,10 +578,10 @@ export class DeleteFileRequest extends Message<DeleteFileRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.DeleteFileRequest";
+  static readonly typeName = 'execution.v1.DeleteFileRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "path", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'path', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteFileRequest {
@@ -529,7 +596,10 @@ export class DeleteFileRequest extends Message<DeleteFileRequest> {
     return new DeleteFileRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DeleteFileRequest | PlainMessage<DeleteFileRequest> | undefined, b: DeleteFileRequest | PlainMessage<DeleteFileRequest> | undefined): boolean {
+  static equals(
+    a: DeleteFileRequest | PlainMessage<DeleteFileRequest> | undefined,
+    b: DeleteFileRequest | PlainMessage<DeleteFileRequest> | undefined
+  ): boolean {
     return proto3.util.equals(DeleteFileRequest, a, b);
   }
 }
@@ -549,9 +619,9 @@ export class DeleteFileResponse extends Message<DeleteFileResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.DeleteFileResponse";
+  static readonly typeName = 'execution.v1.DeleteFileResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteFileResponse {
@@ -562,11 +632,17 @@ export class DeleteFileResponse extends Message<DeleteFileResponse> {
     return new DeleteFileResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteFileResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): DeleteFileResponse {
     return new DeleteFileResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DeleteFileResponse | PlainMessage<DeleteFileResponse> | undefined, b: DeleteFileResponse | PlainMessage<DeleteFileResponse> | undefined): boolean {
+  static equals(
+    a: DeleteFileResponse | PlainMessage<DeleteFileResponse> | undefined,
+    b: DeleteFileResponse | PlainMessage<DeleteFileResponse> | undefined
+  ): boolean {
     return proto3.util.equals(DeleteFileResponse, a, b);
   }
 }
@@ -578,7 +654,7 @@ export class StartWorkspaceRequest extends Message<StartWorkspaceRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   constructor(data?: PartialMessage<StartWorkspaceRequest>) {
     super();
@@ -586,12 +662,15 @@ export class StartWorkspaceRequest extends Message<StartWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.StartWorkspaceRequest";
+  static readonly typeName = 'execution.v1.StartWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartWorkspaceRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): StartWorkspaceRequest {
     return new StartWorkspaceRequest().fromBinary(bytes, options);
   }
 
@@ -599,11 +678,17 @@ export class StartWorkspaceRequest extends Message<StartWorkspaceRequest> {
     return new StartWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): StartWorkspaceRequest {
     return new StartWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: StartWorkspaceRequest | PlainMessage<StartWorkspaceRequest> | undefined, b: StartWorkspaceRequest | PlainMessage<StartWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: StartWorkspaceRequest | PlainMessage<StartWorkspaceRequest> | undefined,
+    b: StartWorkspaceRequest | PlainMessage<StartWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(StartWorkspaceRequest, a, b);
   }
 }
@@ -623,24 +708,36 @@ export class StartWorkspaceResponse extends Message<StartWorkspaceResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.StartWorkspaceResponse";
+  static readonly typeName = 'execution.v1.StartWorkspaceResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartWorkspaceResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): StartWorkspaceResponse {
     return new StartWorkspaceResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartWorkspaceResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): StartWorkspaceResponse {
     return new StartWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): StartWorkspaceResponse {
     return new StartWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: StartWorkspaceResponse | PlainMessage<StartWorkspaceResponse> | undefined, b: StartWorkspaceResponse | PlainMessage<StartWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: StartWorkspaceResponse | PlainMessage<StartWorkspaceResponse> | undefined,
+    b: StartWorkspaceResponse | PlainMessage<StartWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(StartWorkspaceResponse, a, b);
   }
 }
@@ -652,7 +749,7 @@ export class StopWorkspaceRequest extends Message<StopWorkspaceRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   constructor(data?: PartialMessage<StopWorkspaceRequest>) {
     super();
@@ -660,9 +757,9 @@ export class StopWorkspaceRequest extends Message<StopWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.StopWorkspaceRequest";
+  static readonly typeName = 'execution.v1.StopWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StopWorkspaceRequest {
@@ -673,11 +770,17 @@ export class StopWorkspaceRequest extends Message<StopWorkspaceRequest> {
     return new StopWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StopWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): StopWorkspaceRequest {
     return new StopWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: StopWorkspaceRequest | PlainMessage<StopWorkspaceRequest> | undefined, b: StopWorkspaceRequest | PlainMessage<StopWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: StopWorkspaceRequest | PlainMessage<StopWorkspaceRequest> | undefined,
+    b: StopWorkspaceRequest | PlainMessage<StopWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(StopWorkspaceRequest, a, b);
   }
 }
@@ -697,12 +800,15 @@ export class StopWorkspaceResponse extends Message<StopWorkspaceResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.StopWorkspaceResponse";
+  static readonly typeName = 'execution.v1.StopWorkspaceResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StopWorkspaceResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): StopWorkspaceResponse {
     return new StopWorkspaceResponse().fromBinary(bytes, options);
   }
 
@@ -710,11 +816,17 @@ export class StopWorkspaceResponse extends Message<StopWorkspaceResponse> {
     return new StopWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StopWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): StopWorkspaceResponse {
     return new StopWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: StopWorkspaceResponse | PlainMessage<StopWorkspaceResponse> | undefined, b: StopWorkspaceResponse | PlainMessage<StopWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: StopWorkspaceResponse | PlainMessage<StopWorkspaceResponse> | undefined,
+    b: StopWorkspaceResponse | PlainMessage<StopWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(StopWorkspaceResponse, a, b);
   }
 }
@@ -726,7 +838,7 @@ export class DestroyWorkspaceRequest extends Message<DestroyWorkspaceRequest> {
   /**
    * @generated from field: string workspace_id = 1;
    */
-  workspaceId = "";
+  workspaceId = '';
 
   constructor(data?: PartialMessage<DestroyWorkspaceRequest>) {
     super();
@@ -734,24 +846,36 @@ export class DestroyWorkspaceRequest extends Message<DestroyWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.DestroyWorkspaceRequest";
+  static readonly typeName = 'execution.v1.DestroyWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspace_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DestroyWorkspaceRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): DestroyWorkspaceRequest {
     return new DestroyWorkspaceRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DestroyWorkspaceRequest {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): DestroyWorkspaceRequest {
     return new DestroyWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DestroyWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): DestroyWorkspaceRequest {
     return new DestroyWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DestroyWorkspaceRequest | PlainMessage<DestroyWorkspaceRequest> | undefined, b: DestroyWorkspaceRequest | PlainMessage<DestroyWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: DestroyWorkspaceRequest | PlainMessage<DestroyWorkspaceRequest> | undefined,
+    b: DestroyWorkspaceRequest | PlainMessage<DestroyWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(DestroyWorkspaceRequest, a, b);
   }
 }
@@ -771,25 +895,36 @@ export class DestroyWorkspaceResponse extends Message<DestroyWorkspaceResponse> 
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "execution.v1.DestroyWorkspaceResponse";
+  static readonly typeName = 'execution.v1.DestroyWorkspaceResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: 'success', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DestroyWorkspaceResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): DestroyWorkspaceResponse {
     return new DestroyWorkspaceResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DestroyWorkspaceResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): DestroyWorkspaceResponse {
     return new DestroyWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DestroyWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): DestroyWorkspaceResponse {
     return new DestroyWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DestroyWorkspaceResponse | PlainMessage<DestroyWorkspaceResponse> | undefined, b: DestroyWorkspaceResponse | PlainMessage<DestroyWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: DestroyWorkspaceResponse | PlainMessage<DestroyWorkspaceResponse> | undefined,
+    b: DestroyWorkspaceResponse | PlainMessage<DestroyWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(DestroyWorkspaceResponse, a, b);
   }
 }
-

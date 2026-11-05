@@ -26,10 +26,17 @@ export class MockPTYAdapter implements IPTYAdapter {
     '/workspace/src': ['index.ts', 'components'],
   };
 
-  async spawn(executable: string, args: string[], cwd: string, env: Record<string, string>): Promise<void> {
+  async spawn(
+    executable: string,
+    args: string[],
+    cwd: string,
+    env: Record<string, string>
+  ): Promise<void> {
     this.cwd = cwd || '/workspace';
     setTimeout(() => {
-      this.print(`Welcome to Gravitron IDE Mock Terminal.\r\nType 'help' to see available commands.\r\n\r\n`);
+      this.print(
+        `Welcome to Gravitron IDE Mock Terminal.\r\nType 'help' to see available commands.\r\n\r\n`
+      );
       this.prompt();
     }, 50);
   }
@@ -81,7 +88,7 @@ export class MockPTYAdapter implements IPTYAdapter {
   }
 
   kill(): void {
-    this.exitListeners.forEach(l => l(0));
+    this.exitListeners.forEach((l) => l(0));
   }
 
   onData(listener: (data: string) => void): () => void {
@@ -95,11 +102,16 @@ export class MockPTYAdapter implements IPTYAdapter {
   }
 
   private print(data: string) {
-    this.dataListeners.forEach(l => l(data));
+    this.dataListeners.forEach((l) => l(data));
   }
 
   private prompt() {
-    this.print(this.promptString.replace('${cwd}', this.cwd === '/workspace' ? '' : this.cwd.replace('/workspace', '')));
+    this.print(
+      this.promptString.replace(
+        '${cwd}',
+        this.cwd === '/workspace' ? '' : this.cwd.replace('/workspace', '')
+      )
+    );
   }
 
   private replaceBuffer(newBuffer: string) {
@@ -122,7 +134,9 @@ export class MockPTYAdapter implements IPTYAdapter {
       case '':
         break;
       case 'help':
-        this.print('Available commands: help, clear, pwd, cd, ls, mkdir, touch, cat, echo, exit\r\n');
+        this.print(
+          'Available commands: help, clear, pwd, cd, ls, mkdir, touch, cat, echo, exit\r\n'
+        );
         break;
       case 'clear':
         this.print('\x1b[2J\x1b[H'); // ANSI escape sequence to clear screen

@@ -1,13 +1,23 @@
 import sqlite3 from 'sqlite3';
 import { ISQLiteStore } from './ISQLiteStore';
-import { FileDTO, SymbolDTO, ReferenceDTO, ImportDTO, SnapshotDTO, EmbeddingDTO } from '../domain/IndexDTOs';
+import {
+  FileDTO,
+  SymbolDTO,
+  ReferenceDTO,
+  ImportDTO,
+  SnapshotDTO,
+  EmbeddingDTO,
+} from '../domain/IndexDTOs';
 import { randomUUID } from 'crypto';
 
 export class SQLiteStore implements ISQLiteStore {
   private db: sqlite3.Database;
   private isInitialized = false;
 
-  constructor(private readonly workspaceId: string, private readonly dbPath: string) {
+  constructor(
+    private readonly workspaceId: string,
+    private readonly dbPath: string
+  ) {
     this.db = new sqlite3.Database(dbPath);
   }
 
@@ -125,7 +135,7 @@ export class SQLiteStore implements ISQLiteStore {
       await this.run('INSERT INTO snapshots (workspaceId, sequence, createdAt) VALUES (?, ?, ?)', [
         this.workspaceId,
         0,
-        Date.now()
+        Date.now(),
       ]);
     }
 
@@ -134,7 +144,7 @@ export class SQLiteStore implements ISQLiteStore {
 
   public getDb(): sqlite3.Database {
     if (!this.isInitialized || !this.db) {
-      throw new Error("Database not initialized");
+      throw new Error('Database not initialized');
     }
     return this.db;
   }
@@ -153,12 +163,14 @@ export class SQLiteStore implements ISQLiteStore {
   }
 
   public async getLatestSnapshot(): Promise<SnapshotDTO | null> {
-    const row = await this.get<any>('SELECT * FROM snapshots WHERE workspaceId = ?', [this.workspaceId]);
+    const row = await this.get<any>('SELECT * FROM snapshots WHERE workspaceId = ?', [
+      this.workspaceId,
+    ]);
     if (!row) return null;
     return {
       workspaceId: row.workspaceId,
       sequence: row.sequence,
-      createdAt: row.createdAt
+      createdAt: row.createdAt,
     };
   }
 
@@ -178,59 +190,154 @@ export class SQLiteStore implements ISQLiteStore {
       };
 
       this.db.serialize(() => {
-        this.db.run('BEGIN EXCLUSIVE TRANSACTION', (err) => { if (err) handleError(err); });
+        this.db.run('BEGIN EXCLUSIVE TRANSACTION', (err) => {
+          if (err) handleError(err);
+        });
 
         const fileId = file.id || randomUUID();
 
-        this.db.run('DELETE FROM files WHERE workspaceId = ? AND filePath = ?', [this.workspaceId, file.filePath], (err) => { if (err) handleError(err); });
+        this.db.run(
+          'DELETE FROM files WHERE workspaceId = ? AND filePath = ?',
+          [this.workspaceId, file.filePath],
+          (err) => {
+            if (err) handleError(err);
+          }
+        );
 
-        this.db.run('INSERT INTO files (id, workspaceId, filePath, hash, updatedAt) VALUES (?, ?, ?, ?, ?)', [
-          fileId, this.workspaceId, file.filePath, file.hash, file.updatedAt
-        ], (err) => { if (err) handleError(err); });
+        this.db.run(
+          'INSERT INTO files (id, workspaceId, filePath, hash, updatedAt) VALUES (?, ?, ?, ?, ?)',
+          [fileId, this.workspaceId, file.filePath, file.hash, file.updatedAt],
+          (err) => {
+            if (err) handleError(err);
+          }
+        );
 
-        const insertSymbol = this.db.prepare('INSERT INTO symbols (id, workspaceId, fileId, name, kind, line, column, startOffset, endOffset, snippet) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        const insertSymbol = this.db.prepare(
+          'INSERT INTO symbols (id, workspaceId, fileId, name, kind, line, column, startOffset, endOffset, snippet) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
         for (const sym of symbols) {
-          insertSymbol.run([randomUUID(), this.workspaceId, fileId, sym.name, sym.kind, sym.line, sym.column, sym.startOffset || null, sym.endOffset || null, sym.snippet || null], (err) => { if (err) handleError(err); });
+          insertSymbol.run(
+            [
+              randomUUID(),
+              this.workspaceId,
+              fileId,
+              sym.name,
+              sym.kind,
+              sym.line,
+              sym.column,
+              sym.startOffset || null,
+              sym.endOffset || null,
+              sym.snippet || null,
+            ],
+            (err) => {
+              if (err) handleError(err);
+            }
+          );
         }
-        insertSymbol.finalize((err) => { if (err) handleError(err); });
+        insertSymbol.finalize((err) => {
+          if (err) handleError(err);
+        });
 
-        const insertRef = this.db.prepare('INSERT INTO references_t (id, workspaceId, fileId, symbolName, line, column, startOffset, endOffset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        const insertRef = this.db.prepare(
+          'INSERT INTO references_t (id, workspaceId, fileId, symbolName, line, column, startOffset, endOffset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        );
         for (const ref of references) {
-          insertRef.run([randomUUID(), this.workspaceId, fileId, ref.symbolName, ref.line, ref.column, ref.startOffset || null, ref.endOffset || null], (err) => { if (err) handleError(err); });
+          insertRef.run(
+            [
+              randomUUID(),
+              this.workspaceId,
+              fileId,
+              ref.symbolName,
+              ref.line,
+              ref.column,
+              ref.startOffset || null,
+              ref.endOffset || null,
+            ],
+            (err) => {
+              if (err) handleError(err);
+            }
+          );
         }
-        insertRef.finalize((err) => { if (err) handleError(err); });
+        insertRef.finalize((err) => {
+          if (err) handleError(err);
+        });
 
-        const insertImport = this.db.prepare('INSERT INTO imports (id, workspaceId, fileId, sourceId, moduleName, symbolName, startOffset, endOffset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        const insertImport = this.db.prepare(
+          'INSERT INTO imports (id, workspaceId, fileId, sourceId, moduleName, symbolName, startOffset, endOffset) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        );
         for (const imp of imports) {
-          insertImport.run([randomUUID(), this.workspaceId, fileId, imp.sourceId || null, imp.moduleName, imp.symbolName || null, imp.startOffset || null, imp.endOffset || null], (err) => { if (err) handleError(err); });
+          insertImport.run(
+            [
+              randomUUID(),
+              this.workspaceId,
+              fileId,
+              imp.sourceId || null,
+              imp.moduleName,
+              imp.symbolName || null,
+              imp.startOffset || null,
+              imp.endOffset || null,
+            ],
+            (err) => {
+              if (err) handleError(err);
+            }
+          );
         }
-        insertImport.finalize((err) => { if (err) handleError(err); });
+        insertImport.finalize((err) => {
+          if (err) handleError(err);
+        });
 
-        const insertEmbed = this.db.prepare('INSERT INTO embeddings (id, workspaceId, fileId, chunkId, content, vector, symbolName) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        const insertEmbed = this.db.prepare(
+          'INSERT INTO embeddings (id, workspaceId, fileId, chunkId, content, vector, symbolName) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        );
         for (const emb of embeddings) {
           // Convert vector to JSON string for BLOB storage, or Buffer if supported.
           // We will store as Buffer for compact size. Float32Array to Buffer.
           const f32 = new Float32Array(emb.vector);
           const buf = Buffer.from(f32.buffer);
-          insertEmbed.run([randomUUID(), this.workspaceId, fileId, emb.chunkId, emb.content, buf, emb.symbolName || null], (err) => { if (err) handleError(err); });
+          insertEmbed.run(
+            [
+              randomUUID(),
+              this.workspaceId,
+              fileId,
+              emb.chunkId,
+              emb.content,
+              buf,
+              emb.symbolName || null,
+            ],
+            (err) => {
+              if (err) handleError(err);
+            }
+          );
         }
-        insertEmbed.finalize((err) => { if (err) handleError(err); });
+        insertEmbed.finalize((err) => {
+          if (err) handleError(err);
+        });
 
         const now = Date.now();
-        this.db.run('UPDATE snapshots SET sequence = sequence + 1, createdAt = ? WHERE workspaceId = ?', [now, this.workspaceId], (err) => { if (err) handleError(err); });
+        this.db.run(
+          'UPDATE snapshots SET sequence = sequence + 1, createdAt = ? WHERE workspaceId = ?',
+          [now, this.workspaceId],
+          (err) => {
+            if (err) handleError(err);
+          }
+        );
 
-        this.db.get('SELECT * FROM snapshots WHERE workspaceId = ?', [this.workspaceId], (err, row: any) => {
-          if (err) return handleError(err);
-          if (hasError) return;
-          this.db.run('COMMIT', (commitErr) => {
-            if (commitErr) return handleError(commitErr);
-            resolve({
-              workspaceId: row.workspaceId,
-              sequence: row.sequence,
-              createdAt: row.createdAt
+        this.db.get(
+          'SELECT * FROM snapshots WHERE workspaceId = ?',
+          [this.workspaceId],
+          (err, row: any) => {
+            if (err) return handleError(err);
+            if (hasError) return;
+            this.db.run('COMMIT', (commitErr) => {
+              if (commitErr) return handleError(commitErr);
+              resolve({
+                workspaceId: row.workspaceId,
+                sequence: row.sequence,
+                createdAt: row.createdAt,
+              });
             });
-          });
-        });
+          }
+        );
       });
     });
   }
@@ -245,54 +352,84 @@ export class SQLiteStore implements ISQLiteStore {
       };
 
       this.db.serialize(() => {
-        this.db.run('BEGIN EXCLUSIVE TRANSACTION', (err) => { if (err) handleError(err); });
-        
-        this.db.run('DELETE FROM files WHERE workspaceId = ? AND filePath = ?', [this.workspaceId, filePath], (err) => { if (err) handleError(err); });
+        this.db.run('BEGIN EXCLUSIVE TRANSACTION', (err) => {
+          if (err) handleError(err);
+        });
+
+        this.db.run(
+          'DELETE FROM files WHERE workspaceId = ? AND filePath = ?',
+          [this.workspaceId, filePath],
+          (err) => {
+            if (err) handleError(err);
+          }
+        );
 
         const now = Date.now();
-        this.db.run('UPDATE snapshots SET sequence = sequence + 1, createdAt = ? WHERE workspaceId = ?', [now, this.workspaceId], (err) => { if (err) handleError(err); });
+        this.db.run(
+          'UPDATE snapshots SET sequence = sequence + 1, createdAt = ? WHERE workspaceId = ?',
+          [now, this.workspaceId],
+          (err) => {
+            if (err) handleError(err);
+          }
+        );
 
-        this.db.get('SELECT * FROM snapshots WHERE workspaceId = ?', [this.workspaceId], (err, row: any) => {
-          if (err) return handleError(err);
-          if (hasError) return;
-          this.db.run('COMMIT', (commitErr) => {
-            if (commitErr) return handleError(commitErr);
-            resolve({
-              workspaceId: row.workspaceId,
-              sequence: row.sequence,
-              createdAt: row.createdAt
+        this.db.get(
+          'SELECT * FROM snapshots WHERE workspaceId = ?',
+          [this.workspaceId],
+          (err, row: any) => {
+            if (err) return handleError(err);
+            if (hasError) return;
+            this.db.run('COMMIT', (commitErr) => {
+              if (commitErr) return handleError(commitErr);
+              resolve({
+                workspaceId: row.workspaceId,
+                sequence: row.sequence,
+                createdAt: row.createdAt,
+              });
             });
-          });
-        });
+          }
+        );
       });
     });
   }
 
   public async getFile(filePath: string): Promise<FileDTO | null> {
-    return this.get<FileDTO>('SELECT * FROM files WHERE workspaceId = ? AND filePath = ?', [this.workspaceId, filePath]);
+    return this.get<FileDTO>('SELECT * FROM files WHERE workspaceId = ? AND filePath = ?', [
+      this.workspaceId,
+      filePath,
+    ]);
   }
 
   public async getSymbols(filePath: string): Promise<SymbolDTO[]> {
-    return this.all<SymbolDTO>(`
+    return this.all<SymbolDTO>(
+      `
       SELECT s.* FROM symbols s
       JOIN files f ON f.id = s.fileId
       WHERE f.workspaceId = ? AND f.filePath = ?
-    `, [this.workspaceId, filePath]);
+    `,
+      [this.workspaceId, filePath]
+    );
   }
 
   public async getReferences(filePath: string): Promise<ReferenceDTO[]> {
-    return this.all<ReferenceDTO>(`
+    return this.all<ReferenceDTO>(
+      `
       SELECT r.* FROM references_t r
       JOIN files f ON f.id = r.fileId
       WHERE f.workspaceId = ? AND f.filePath = ?
-    `, [this.workspaceId, filePath]);
+    `,
+      [this.workspaceId, filePath]
+    );
   }
 
   public async getImports(filePath: string): Promise<ImportDTO[]> {
-    return this.all<ImportDTO>(`
+    return this.all<ImportDTO>(
+      `
       SELECT i.* FROM imports i
       JOIN files f ON f.id = i.fileId
       WHERE f.workspaceId = ? AND f.filePath = ?
-    `, [this.workspaceId, filePath]);
+    `,
+      [this.workspaceId, filePath]
+    );
   }
 }

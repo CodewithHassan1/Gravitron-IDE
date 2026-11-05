@@ -1,11 +1,11 @@
 // src/services/workspace/WorkspaceSession.ts
-import { 
-  WorkspaceState, 
-  WorkspaceMetadata, 
-  WorkspaceHandle, 
-  WorkspaceSnapshot, 
+import {
+  WorkspaceState,
+  WorkspaceMetadata,
+  WorkspaceHandle,
+  WorkspaceSnapshot,
   WorkspaceError,
-  WorkspaceLifecycleState
+  WorkspaceLifecycleState,
 } from './types';
 import { useWorkspaceStore } from '../../stores/ide/workspaceStore';
 

@@ -1,4 +1,4 @@
-import pino from "pino";
+import pino from 'pino';
 
 // Define the exact shape required for logs
 export interface LogContext {
@@ -17,7 +17,7 @@ export interface LogContext {
 
 export class AGLogger {
   private logger: pino.Logger;
-  
+
   constructor(serviceName: string, version: string) {
     this.logger = pino({
       base: { service: serviceName, version },

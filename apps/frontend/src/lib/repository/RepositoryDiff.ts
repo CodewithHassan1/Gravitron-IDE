@@ -4,8 +4,8 @@ export interface TreeDiffResult {
   added: RepositoryNode[];
   removed: RepositoryNode[];
   modified: RepositoryNode[];
-  moved: { oldNode: RepositoryNode, newNode: RepositoryNode }[];
-  renamed: { oldNode: RepositoryNode, newNode: RepositoryNode }[];
+  moved: { oldNode: RepositoryNode; newNode: RepositoryNode }[];
+  renamed: { oldNode: RepositoryNode; newNode: RepositoryNode }[];
 }
 
 export class RepositoryDiff {
@@ -15,7 +15,7 @@ export class RepositoryDiff {
       removed: [],
       modified: [],
       moved: [],
-      renamed: []
+      renamed: [],
     };
 
     const oldNodes = oldSnapshot.nodesById;

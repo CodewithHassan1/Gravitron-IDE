@@ -65,7 +65,7 @@ export class BrowserWorkspaceProvider implements IWorkspaceProvider {
 
   async verifyPermissions(root: IWorkspaceRoot): Promise<boolean> {
     if (root.provider !== 'browser' || !root.handle) return true;
-    
+
     try {
       const options = { mode: 'readwrite' };
       // @ts-ignore

@@ -9,7 +9,7 @@ export class RepositorySerializer {
       paths: Array.from(snapshot.pathToId.entries()),
       uris: Array.from(snapshot.uriToId.entries()),
       parents: Array.from(snapshot.parentById.entries()),
-      metadata: snapshot.metadata
+      metadata: snapshot.metadata,
     };
     return JSON.stringify(data);
   }

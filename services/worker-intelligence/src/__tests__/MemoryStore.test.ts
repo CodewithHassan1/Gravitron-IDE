@@ -19,13 +19,13 @@ describe('MemoryStore', () => {
     await memoryStore.addEpisodic(workspaceA, session1, {
       role: 'user',
       content: 'Hello A',
-      timestamp: 1000
+      timestamp: 1000,
     });
-    
+
     await memoryStore.addEpisodic(workspaceB, session1, {
       role: 'user',
       content: 'Hello B',
-      timestamp: 1000
+      timestamp: 1000,
     });
 
     const memoriesA = await memoryStore.getEpisodic(workspaceA, session1);
@@ -42,14 +42,14 @@ describe('MemoryStore', () => {
       content: 'Fact A',
       embedding: [0.1, 0.2, 0.3],
       confidence: 0.9,
-      timestamp: 1000
+      timestamp: 1000,
     });
-    
+
     await memoryStore.addLongTerm(workspaceB, {
       content: 'Fact B',
       embedding: [0.4, 0.5, 0.6],
       confidence: 0.9,
-      timestamp: 1000
+      timestamp: 1000,
     });
 
     const memoriesA = await memoryStore.getLongTerm(workspaceA);
@@ -66,14 +66,14 @@ describe('MemoryStore', () => {
       content: 'Fact A',
       embedding: [0.1, 0.2, 0.3],
       confidence: 0.9,
-      timestamp: 1000
+      timestamp: 1000,
     });
     // A highly similar fact should update or ignore based on deduplication
     await memoryStore.addLongTerm(workspaceA, {
       content: 'Fact A', // identical content
       embedding: [0.1, 0.2, 0.31],
       confidence: 0.95,
-      timestamp: 1001
+      timestamp: 1001,
     });
 
     const memories = await memoryStore.getLongTerm(workspaceA);

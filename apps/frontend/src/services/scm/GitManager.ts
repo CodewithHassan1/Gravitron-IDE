@@ -21,7 +21,7 @@ export class GitManagerImpl {
         await this.status(workspaceId);
       }
     });
-    
+
     WorkspaceManager.onEvent(WorkspaceEventType.WorkspaceUpdated, async (event: any) => {
       const state = WorkspaceManager.getState();
       if (state.metadata?.capabilities?.git === false) return;

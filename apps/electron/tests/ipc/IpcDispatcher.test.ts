@@ -47,7 +47,7 @@ describe('IpcDispatcher', () => {
     const validRequest = {
       version: ProtocolVersion.V1,
       requestId: '123',
-      payload: 'hello'
+      payload: 'hello',
     };
 
     const result = await handler(TRUSTED_SENDER_EVENT as any, validRequest);
@@ -64,7 +64,7 @@ describe('IpcDispatcher', () => {
     const result = await handler({ senderFrame: { url: 'http://evil.example.com/phish' } } as any, {
       version: ProtocolVersion.V1,
       requestId: '123',
-      payload: null
+      payload: null,
     });
 
     expect(result.errorName).toBe('IpcError');
@@ -92,11 +92,11 @@ describe('IpcDispatcher', () => {
       return 'ok';
     });
     const handler = vi.mocked(ipcMain.handle).mock.calls[0][1] as Function;
-    
+
     await handler(TRUSTED_SENDER_EVENT as any, {
       version: ProtocolVersion.V1,
       requestId: '123',
-      payload: null
+      payload: null,
     });
 
     expect(log).toEqual(['mw1 start', 'mw2 start', 'handler', 'mw2 end', 'mw1 end']);

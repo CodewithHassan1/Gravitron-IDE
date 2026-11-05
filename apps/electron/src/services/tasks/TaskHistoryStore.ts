@@ -3,7 +3,7 @@ import { TaskExecutionSnapshot } from '@ag/protocol';
 export class TaskHistoryStore {
   private history = new Map<string, TaskExecutionSnapshot>();
   private ordering: string[] = [];
-  
+
   // Maximum number of snapshots to keep in memory to prevent leaks
   private readonly MAX_HISTORY = 1000;
 
@@ -11,7 +11,7 @@ export class TaskHistoryStore {
     if (!this.history.has(snapshot.executionId)) {
       this.ordering.push(snapshot.executionId);
     }
-    
+
     this.history.set(snapshot.executionId, snapshot);
 
     if (this.ordering.length > this.MAX_HISTORY) {
@@ -27,11 +27,11 @@ export class TaskHistoryStore {
   }
 
   public getByWorkspace(workspaceId: string): TaskExecutionSnapshot[] {
-    return Array.from(this.history.values()).filter(s => s.workspaceId === workspaceId);
+    return Array.from(this.history.values()).filter((s) => s.workspaceId === workspaceId);
   }
 
   public getByTask(taskId: string): TaskExecutionSnapshot[] {
-    return Array.from(this.history.values()).filter(s => s.taskId === taskId);
+    return Array.from(this.history.values()).filter((s) => s.taskId === taskId);
   }
 
   public getAll(): TaskExecutionSnapshot[] {

@@ -5,8 +5,8 @@ export class ToolManager {
   getTools() {
     return ToolRegistry.getAll();
   }
-  
+
   getToolSchemas() {
-    return this.getTools().map(t => t.schema());
+    return this.getTools().map((t) => t.schema());
   }
 }

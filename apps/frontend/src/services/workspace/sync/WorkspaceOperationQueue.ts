@@ -45,7 +45,7 @@ export class WorkspaceOperationQueue {
    */
   public cancel(operationId: string): boolean {
     const initialLength = this.queue.length;
-    this.queue = this.queue.filter(op => op.id !== operationId);
+    this.queue = this.queue.filter((op) => op.id !== operationId);
     return this.queue.length < initialLength;
   }
 

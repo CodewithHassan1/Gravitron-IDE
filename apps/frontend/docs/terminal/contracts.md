@@ -5,7 +5,9 @@ This document centralizes all immutable DTOs and Data Structures utilized within
 ## Core Models
 
 ### `TerminalMetadata`
+
 Immutable parameters driving the creation of a terminal session.
+
 ```typescript
 interface TerminalMetadata {
   readonly id: string;
@@ -18,7 +20,9 @@ interface TerminalMetadata {
 ```
 
 ### `TerminalDescriptor`
+
 A resolved footprint of the terminal environment constraints to execute.
+
 ```typescript
 interface TerminalDescriptor {
   readonly metadata: TerminalMetadata;
@@ -29,7 +33,9 @@ interface TerminalDescriptor {
 ```
 
 ### `TerminalSessionState`
+
 The exact point within the `state-machine` for a given terminal.
+
 ```typescript
 enum TerminalSessionState {
   Created = 'Created',
@@ -44,7 +50,9 @@ enum TerminalSessionState {
 ```
 
 ### `RuntimeStatus`
+
 The operational health of the isolated execution environment.
+
 ```typescript
 interface RuntimeStatus {
   readonly isConnected: boolean;
@@ -54,7 +62,9 @@ interface RuntimeStatus {
 ```
 
 ### `ResourceUsage`
+
 Hardware telemetry collected by `ResourceMonitor`.
+
 ```typescript
 interface ResourceUsage {
   readonly cpuPercent: number;
@@ -65,7 +75,9 @@ interface ResourceUsage {
 ```
 
 ### `ResourceLimits`
+
 Maximum quotas allowable before halting or pausing the execution stream.
+
 ```typescript
 interface ResourceLimits {
   readonly maxMemoryBytes: number;
@@ -75,7 +87,9 @@ interface ResourceLimits {
 ```
 
 ### `TerminalCapabilities`
+
 The confirmed abilities of a given terminal or provider.
+
 ```typescript
 interface TerminalCapabilities {
   readonly supportsResize: boolean;
@@ -86,6 +100,7 @@ interface TerminalCapabilities {
 ```
 
 ### `ResizeRequest`
+
 ```typescript
 interface ResizeRequest {
   readonly cols: number;
@@ -94,7 +109,9 @@ interface ResizeRequest {
 ```
 
 ### `TerminalSnapshot`
+
 The serializable footprint necessary to restore the session upon next load. Optional state (like scrollback) is segregated.
+
 ```typescript
 interface TerminalSnapshot {
   readonly version: number;

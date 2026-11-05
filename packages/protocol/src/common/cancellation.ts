@@ -22,9 +22,9 @@ export class CancellationTokenSource {
             if (index > -1) {
               this._listeners.splice(index, 1);
             }
-          }
+          },
         };
-      }
+      },
     };
   }
 

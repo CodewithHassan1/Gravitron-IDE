@@ -16,7 +16,16 @@ let forwardedBody: any = null;
 
 async function signDelegation(
   privateKey: CryptoKey,
-  opts: { purpose: string; execId: string; org: string; user: string; scope: string; exp: string | number; iss?: string; aud?: string }
+  opts: {
+    purpose: string;
+    execId: string;
+    org: string;
+    user: string;
+    scope: string;
+    exp: string | number;
+    iss?: string;
+    aud?: string;
+  }
 ): Promise<string> {
   return new SignJWT({
     purpose: opts.purpose,
@@ -78,7 +87,14 @@ function post(token: string | undefined, body: Record<string, unknown>) {
 
 describe('PHASE 8.3 Worker-AI HTTP Delegation Boundary', () => {
   it('accepts a valid, execution-bound delegation and forwards it unchanged', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: EXEC, workspaceId: 'ws-1', prompt: 'hello' });
 
     expect(res.statusCode).toBe(200);
@@ -102,55 +118,120 @@ describe('PHASE 8.3 Worker-AI HTTP Delegation Boundary', () => {
 
   it('rejects a token signed by an untrusted key', async () => {
     const roguePair = await generateKeyPair('ES256');
-    const token = await signDelegation(roguePair.privateKey, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(roguePair.privateKey, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: EXEC });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects an expired delegation', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '-10m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '-10m',
+    });
     const res = await post(token, { executionId: EXEC });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects a purpose=s2s token presented as a delegation', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 's2s', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 's2s',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: EXEC });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects a wrong issuer', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m', iss: 'evil-issuer' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+      iss: 'evil-issuer',
+    });
     const res = await post(token, { executionId: EXEC });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects the wrong audience', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m', aud: 'other-service' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+      aud: 'other-service',
+    });
     const res = await post(token, { executionId: EXEC });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects an execution-binding mismatch', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: 'exec-DIFFERENT' });
     expect(res.statusCode).toBe(401);
   });
 
   it('rejects a missing executionId in the request body', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, {});
     expect(res.statusCode).toBe(400);
   });
 
   it('rejects a cross-tenant orgId supplied in the body', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: EXEC, orgId: 'org_OTHER' });
     expect(res.statusCode).toBe(403);
   });
 
   it('rejects a userId that does not match the delegation', async () => {
-    const token = await signDelegation(gatewayPrivate, { purpose: 'agent_delegation', execId: EXEC, org: ORG, user: USER, scope: 'agent:execute', exp: '15m' });
+    const token = await signDelegation(gatewayPrivate, {
+      purpose: 'agent_delegation',
+      execId: EXEC,
+      org: ORG,
+      user: USER,
+      scope: 'agent:execute',
+      exp: '15m',
+    });
     const res = await post(token, { executionId: EXEC, userId: 'user-evil' });
     expect(res.statusCode).toBe(403);
   });

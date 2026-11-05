@@ -1,15 +1,10 @@
 import { GraphNodeId, DocumentId, DirectoryId, SymbolId, ReferenceId } from './EntityIds';
 
-export type PatchOperationType = 
-  | 'AddNode'
-  | 'RemoveNode'
-  | 'UpdateNode'
-  | 'AddEdge'
-  | 'RemoveEdge';
+export type PatchOperationType = 'AddNode' | 'RemoveNode' | 'UpdateNode' | 'AddEdge' | 'RemoveEdge';
 
 // We define strongly-typed operations per graph
 
-export type FileGraphPatch = 
+export type FileGraphPatch =
   | { op: 'AddNode'; nodeId: DocumentId; payload: any }
   | { op: 'RemoveNode'; nodeId: DocumentId }
   | { op: 'UpdateNode'; nodeId: DocumentId; payload: any }
@@ -23,28 +18,28 @@ export type DirectoryGraphPatch =
   | { op: 'AddEdge'; sourceId: DirectoryId; targetId: DirectoryId; relationType: string }
   | { op: 'RemoveEdge'; sourceId: DirectoryId; targetId: DirectoryId; relationType: string };
 
-export type SymbolGraphPatch = 
+export type SymbolGraphPatch =
   | { op: 'AddNode'; nodeId: SymbolId; payload: any }
   | { op: 'RemoveNode'; nodeId: SymbolId }
   | { op: 'UpdateNode'; nodeId: SymbolId; payload: any }
   | { op: 'AddEdge'; sourceId: SymbolId; targetId: SymbolId; relationType: string }
   | { op: 'RemoveEdge'; sourceId: SymbolId; targetId: SymbolId; relationType: string };
 
-export type ReferenceGraphPatch = 
+export type ReferenceGraphPatch =
   | { op: 'AddNode'; nodeId: ReferenceId; payload: any }
   | { op: 'RemoveNode'; nodeId: ReferenceId }
   | { op: 'UpdateNode'; nodeId: ReferenceId; payload: any }
   | { op: 'AddEdge'; sourceId: ReferenceId; targetId: ReferenceId; relationType: string }
   | { op: 'RemoveEdge'; sourceId: ReferenceId; targetId: ReferenceId; relationType: string };
 
-export type ImportGraphPatch = 
+export type ImportGraphPatch =
   | { op: 'AddNode'; nodeId: DocumentId; payload: any }
   | { op: 'RemoveNode'; nodeId: DocumentId }
   | { op: 'UpdateNode'; nodeId: DocumentId; payload: any }
   | { op: 'AddEdge'; sourceId: DocumentId; targetId: DocumentId; relationType: string }
   | { op: 'RemoveEdge'; sourceId: DocumentId; targetId: DocumentId; relationType: string };
 
-export type DependencyGraphPatch = 
+export type DependencyGraphPatch =
   | { op: 'AddNode'; nodeId: DocumentId; payload: any }
   | { op: 'RemoveNode'; nodeId: DocumentId }
   | { op: 'UpdateNode'; nodeId: DocumentId; payload: any }

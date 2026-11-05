@@ -15,7 +15,7 @@ export class MutationTracker {
       id,
       path,
       operation,
-      expires: Date.now() + this.MUTATION_TIMEOUT_MS
+      expires: Date.now() + this.MUTATION_TIMEOUT_MS,
     });
     this.cleanup();
     return id;

@@ -13,8 +13,8 @@ export function SearchPanel() {
       NavigationEngine.searchText(query, {
         isCaseSensitive: caseSensitive,
         isWordMatch: wholeWord,
-        isRegex: regex
-      }).then(results => {
+        isRegex: regex,
+      }).then((results) => {
         if (active) {
           setResults(results);
         }
@@ -22,7 +22,9 @@ export function SearchPanel() {
     } else {
       setResults([]);
     }
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [query, caseSensitive, wholeWord, regex, setResults]);
 
   return (

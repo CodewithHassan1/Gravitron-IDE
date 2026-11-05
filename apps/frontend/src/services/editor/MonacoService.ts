@@ -25,13 +25,13 @@ export class MonacoService {
   }
 
   getMonaco() {
-    if (!this.isLoaded) throw new Error("Monaco is not yet loaded. Call loadMonaco() first.");
+    if (!this.isLoaded) throw new Error('Monaco is not yet loaded. Call loadMonaco() first.');
     return this.monaco;
   }
 
   private setupGlobals() {
     if (!this.monaco) return;
-    
+
     // Setup global semantic highlighting configuration or any global overrides
     // e.g. bracket pair colorization defaults if not handled by editor options
   }

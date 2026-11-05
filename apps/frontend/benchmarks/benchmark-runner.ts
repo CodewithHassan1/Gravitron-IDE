@@ -14,18 +14,25 @@ vi.mock('idb', () => ({
       const actualKey = key || val.workspaceId || val.id;
       mockDbStore.set(`${storeName}:${actualKey}`, val);
     }),
-    delete: vi.fn(async (storeName: string, key: string) => mockDbStore.delete(`${storeName}:${key}`)),
+    delete: vi.fn(async (storeName: string, key: string) =>
+      mockDbStore.delete(`${storeName}:${key}`)
+    ),
   }),
 }));
 
-async function measure(name: string, fn: () => Promise<void> | void, iterations: number = 100, warmups: number = 10): Promise<{ name: string, stats: BenchmarkStats }> {
+async function measure(
+  name: string,
+  fn: () => Promise<void> | void,
+  iterations: number = 100,
+  warmups: number = 10
+): Promise<{ name: string; stats: BenchmarkStats }> {
   // Warmup
   for (let i = 0; i < warmups; i++) {
     await fn();
   }
 
   const durations: number[] = [];
-  
+
   // Measure
   for (let i = 0; i < iterations; i++) {
     const start = performance.now();
@@ -36,13 +43,13 @@ async function measure(name: string, fn: () => Promise<void> | void, iterations:
 
   return {
     name,
-    stats: calculateStatistics(durations)
+    stats: calculateStatistics(durations),
   };
 }
 
 async function runBenchmarks() {
   console.log('🚀 Starting Workspace Engine Benchmarks...\n');
-  const results: { name: string, stats: BenchmarkStats }[] = [];
+  const results: { name: string; stats: BenchmarkStats }[] = [];
   let manager = new WorkspaceManagerImpl();
   const wsMeta: any = {
     id: 'test-bench',
@@ -58,69 +65,133 @@ async function runBenchmarks() {
       terminal: false,
       multipleRoots: false,
       writable: true,
-    }
+    },
   };
 
-  results.push(await measure('Warm Startup (Manager Instantiation)', () => {
-    new WorkspaceManagerImpl();
-  }, 1000, 100));
+  results.push(
+    await measure(
+      'Warm Startup (Manager Instantiation)',
+      () => {
+        new WorkspaceManagerImpl();
+      },
+      1000,
+      100
+    )
+  );
 
-  results.push(await measure('Workspace Open', async () => {
-    await manager.openWorkspace(wsMeta, { nativeHandle: {} as any });
-    await manager.closeWorkspace();
-  }, 100, 10));
+  results.push(
+    await measure(
+      'Workspace Open',
+      async () => {
+        await manager.openWorkspace(wsMeta, { nativeHandle: {} as any });
+        await manager.closeWorkspace();
+      },
+      100,
+      10
+    )
+  );
 
   await manager.openWorkspace(wsMeta, { nativeHandle: {} as any });
 
   // 10k file creation & indexing
-  results.push(await measure('10k File Creation & Indexing', async () => {
-    for (let i = 0; i < 10000; i++) {
-      await manager.createFile(`/bench_file_${i}.ts`);
-    }
-  }, 1, 0)); // Only run once due to time constraints
+  results.push(
+    await measure(
+      '10k File Creation & Indexing',
+      async () => {
+        for (let i = 0; i < 10000; i++) {
+          await manager.createFile(`/bench_file_${i}.ts`);
+        }
+      },
+      1,
+      0
+    )
+  ); // Only run once due to time constraints
 
   // Search Latency
   const searchEngine = manager.getSearchEngine();
   if (searchEngine) {
-    results.push(await measure('Search Latency', async () => {
-      await searchEngine.search(new SearchQuery('bench_file_5000'));
-    }, 1000, 100));
+    results.push(
+      await measure(
+        'Search Latency',
+        async () => {
+          await searchEngine.search(new SearchQuery('bench_file_5000'));
+        },
+        1000,
+        100
+      )
+    );
   }
 
   // Rename Latency
   let renameCounter = 0;
-  results.push(await measure('Rename Latency', async () => {
-    await manager.rename(`/bench_file_${renameCounter}.ts`, `renamed_file_${renameCounter}.ts`);
-    renameCounter++;
-  }, 1000, 10));
+  results.push(
+    await measure(
+      'Rename Latency',
+      async () => {
+        await manager.rename(`/bench_file_${renameCounter}.ts`, `renamed_file_${renameCounter}.ts`);
+        renameCounter++;
+      },
+      1000,
+      10
+    )
+  );
 
   // Move Latency
   await manager.createFolder('/moved_dir');
   let moveCounter = 0;
-  results.push(await measure('Move Latency', async () => {
-    await manager.move(`/bench_file_${1000 + moveCounter}.ts`, `/moved_dir/bench_file_${1000 + moveCounter}.ts`);
-    moveCounter++;
-  }, 1000, 10));
+  results.push(
+    await measure(
+      'Move Latency',
+      async () => {
+        await manager.move(
+          `/bench_file_${1000 + moveCounter}.ts`,
+          `/moved_dir/bench_file_${1000 + moveCounter}.ts`
+        );
+        moveCounter++;
+      },
+      1000,
+      10
+    )
+  );
 
   // Delete Latency
   let deleteCounter = 0;
-  results.push(await measure('Delete Latency', async () => {
-    await manager.delete(`/bench_file_${2000 + deleteCounter}.ts`);
-    deleteCounter++;
-  }, 1000, 10));
+  results.push(
+    await measure(
+      'Delete Latency',
+      async () => {
+        await manager.delete(`/bench_file_${2000 + deleteCounter}.ts`);
+        deleteCounter++;
+      },
+      1000,
+      10
+    )
+  );
 
   // Sync Queue Throughput (Simulate adding 1000 items and waiting for empty)
-  results.push(await measure('Sync Queue Throughput (1000 items)', async () => {
-    const syncEngine = (manager as any).syncEngine;
-    for (let i = 0; i < 1000; i++) {
-      syncEngine.enqueueOperation({ id: `op_${i}`, type: 'CreateFile', path: `/sync_file_${i}.ts`, timestamp: Date.now() });
-    }
-    // force cycle
-    await syncEngine.executeSyncCycle();
-    while (syncEngine.queue.size > 0) {
-      await syncEngine.executeSyncCycle();
-    }
-  }, 5, 1));
+  results.push(
+    await measure(
+      'Sync Queue Throughput (1000 items)',
+      async () => {
+        const syncEngine = (manager as any).syncEngine;
+        for (let i = 0; i < 1000; i++) {
+          syncEngine.enqueueOperation({
+            id: `op_${i}`,
+            type: 'CreateFile',
+            path: `/sync_file_${i}.ts`,
+            timestamp: Date.now(),
+          });
+        }
+        // force cycle
+        await syncEngine.executeSyncCycle();
+        while (syncEngine.queue.size > 0) {
+          await syncEngine.executeSyncCycle();
+        }
+      },
+      5,
+      1
+    )
+  );
 
   await manager.closeWorkspace();
 

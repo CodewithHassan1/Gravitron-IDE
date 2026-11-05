@@ -28,17 +28,20 @@ export class TaskScheduler {
       // Basic fairness: pop from front
       const runner = this.queue.shift()!;
       this.activeCount++;
-      
+
       this.runtime.register(runner);
 
       // Run detached
-      runner.run().finally(() => {
-        this.runtime.unregister(runner.executionId);
-        this.activeCount--;
-        this.tryRunNext();
-      }).catch(err => {
-        console.error(`Task ${runner.executionId} failed unexpectedly:`, err);
-      });
+      runner
+        .run()
+        .finally(() => {
+          this.runtime.unregister(runner.executionId);
+          this.activeCount--;
+          this.tryRunNext();
+        })
+        .catch((err) => {
+          console.error(`Task ${runner.executionId} failed unexpectedly:`, err);
+        });
     }
   }
 

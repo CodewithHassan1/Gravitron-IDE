@@ -23,7 +23,18 @@ describe('Soak: Persistence Endurance', () => {
     mockDbStore.clear();
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
-    await manager.openWorkspace({ id: 'ws-persist', name: 'PersistWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
+    await manager.openWorkspace(
+      {
+        id: 'ws-persist',
+        name: 'PersistWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
   });
 
   afterEach(async () => {
@@ -40,10 +51,10 @@ describe('Soak: Persistence Endurance', () => {
     // Simulate 20 rapid snapshot generations and restores
     for (let cycle = 0; cycle < 20; cycle++) {
       await manager.createFile(`/persist_cycle_${cycle}.ts`);
-      
+
       // Force snapshot
       await (manager as any).syncEngine.executeSyncCycle();
-      
+
       const currentSessionId = WorkspaceSession.getWorkspaceId();
       expect(currentSessionId).toBe('ws-persist');
 
@@ -53,10 +64,21 @@ describe('Soak: Persistence Endurance', () => {
 
       // Close and restore
       await manager.closeWorkspace();
-      
+
       manager = new WorkspaceManagerImpl();
-      await manager.openWorkspace({ id: 'ws-persist', name: 'PersistWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
-      
+      await manager.openWorkspace(
+        {
+          id: 'ws-persist',
+          name: 'PersistWS',
+          uri: 'file:///',
+          provider: 'memory' as any,
+          lastOpened: Date.now(),
+          type: 'directory' as any,
+          capabilities: {} as any,
+        },
+        { nativeHandle: {} as any }
+      );
+
       // Verification after restore
       const newSyncEngine = (manager as any).syncEngine;
       expect(newSyncEngine.queue.size).toBe(0); // Queue should be drained

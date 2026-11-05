@@ -9,12 +9,13 @@ describe('RegexProblemMatcher', () => {
       id: 'tsc',
       name: 'TypeScript Compiler',
       // (file)(line,col): (severity) (code): (message)
-      pattern: /^([^\s].*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+([A-Za-z0-9]+):\s+(.*)$/,
+      pattern:
+        /^([^\s].*)\((\d+|\d+,\d+|\d+,\d+,\d+,\d+)\):\s+(error|warning|info)\s+([A-Za-z0-9]+):\s+(.*)$/,
       fileGroup: 1,
       lineGroup: 2, // We'll simplify and just take the first part of the line/col pair for the test
       severityGroup: 3,
       codeGroup: 4,
-      messageGroup: 5
+      messageGroup: 5,
     });
 
     // Mocking the match to simulate how standard regex matches line/col
@@ -28,7 +29,7 @@ describe('RegexProblemMatcher', () => {
       severityGroup: 4,
       codeGroup: 5,
       messageGroup: 6,
-      source: 'tsc'
+      source: 'tsc',
     });
 
     const result = simpleMatcher.match("src/main.ts(10,15): error TS1005: ';' expected.");
@@ -50,7 +51,7 @@ describe('RegexProblemMatcher', () => {
       fileGroup: 1,
       lineGroup: 2,
       severityGroup: 3,
-      messageGroup: 4
+      messageGroup: 4,
     });
 
     expect(matcher.match('Compiling successfully...')).toBeUndefined();
@@ -64,7 +65,7 @@ describe('RegexProblemMatcher', () => {
       fileGroup: 1,
       lineGroup: 2,
       messageGroup: 3,
-      defaultSeverity: 'warning'
+      defaultSeverity: 'warning',
     });
 
     const result = matcher.match('src/app.ts:25 unused variable');
@@ -81,14 +82,14 @@ describe('ProblemMatcherRegistry', () => {
       pattern: /(.*):(\d+) (.*)/,
       fileGroup: 1,
       lineGroup: 2,
-      messageGroup: 3
+      messageGroup: 3,
     });
 
     registry.register(matcher);
-    
+
     expect(registry.get('test')).toBe(matcher);
     expect(registry.getAll()).toHaveLength(1);
-    
+
     expect(() => registry.register(matcher)).toThrow('Problem matcher test is already registered.');
   });
 });

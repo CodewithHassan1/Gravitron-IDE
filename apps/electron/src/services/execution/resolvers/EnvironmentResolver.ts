@@ -2,7 +2,10 @@ import { ExecutionRequest, ExecutionProfile } from '@ag/protocol';
 import { IEnvironmentResolver } from '../IResolvers';
 
 export class DefaultEnvironmentResolver implements IEnvironmentResolver {
-  public async resolve(request: ExecutionRequest, profile: ExecutionProfile): Promise<Readonly<Record<string, string>>> {
+  public async resolve(
+    request: ExecutionRequest,
+    profile: ExecutionProfile
+  ): Promise<Readonly<Record<string, string>>> {
     const env: Record<string, string> = { ...process.env } as Record<string, string>;
 
     // Merge Precedence:

@@ -1,6 +1,10 @@
 // src/services/workspace/sync/WorkspaceWatcher.ts
 
-import { WorkspaceOperation, WorkspaceOperationType, createOperationId } from './WorkspaceOperation';
+import {
+  WorkspaceOperation,
+  WorkspaceOperationType,
+  createOperationId,
+} from './WorkspaceOperation';
 
 export interface WatcherOptions {
   pollingIntervalMs?: number;
@@ -25,7 +29,7 @@ export class WorkspaceWatcher {
    */
   public watch(handle: any, onEvent: (operation: WorkspaceOperation) => void): void {
     if (this.pollingTimer) this.stop();
-    
+
     this.nativeHandle = handle;
     this.onEvent = onEvent;
 
@@ -58,33 +62,71 @@ export class WorkspaceWatcher {
   }
 
   // --- Helpers to simulate events for internal mutations ---
-  
+
   public emitLocalCreateFile(path: string) {
-    this.emit({ type: WorkspaceOperationType.CreateFile, id: createOperationId(), timestamp: Date.now(), path });
+    this.emit({
+      type: WorkspaceOperationType.CreateFile,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      path,
+    });
   }
 
   public emitLocalWriteFile(path: string, content?: string | Uint8Array) {
-    this.emit({ type: WorkspaceOperationType.WriteFile, id: createOperationId(), timestamp: Date.now(), path, content });
+    this.emit({
+      type: WorkspaceOperationType.WriteFile,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      path,
+      content,
+    });
   }
 
   public emitLocalDeleteFile(path: string) {
-    this.emit({ type: WorkspaceOperationType.DeleteFile, id: createOperationId(), timestamp: Date.now(), path });
+    this.emit({
+      type: WorkspaceOperationType.DeleteFile,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      path,
+    });
   }
 
   public emitLocalCreateFolder(path: string) {
-    this.emit({ type: WorkspaceOperationType.CreateFolder, id: createOperationId(), timestamp: Date.now(), path });
+    this.emit({
+      type: WorkspaceOperationType.CreateFolder,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      path,
+    });
   }
 
   public emitLocalDeleteFolder(path: string) {
-    this.emit({ type: WorkspaceOperationType.DeleteFolder, id: createOperationId(), timestamp: Date.now(), path });
+    this.emit({
+      type: WorkspaceOperationType.DeleteFolder,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      path,
+    });
   }
 
   public emitLocalRename(sourcePath: string, newName: string) {
-    this.emit({ type: WorkspaceOperationType.Rename, id: createOperationId(), timestamp: Date.now(), sourcePath, newName });
+    this.emit({
+      type: WorkspaceOperationType.Rename,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      sourcePath,
+      newName,
+    });
   }
 
   public emitLocalMove(sourcePath: string, destinationPath: string) {
-    this.emit({ type: WorkspaceOperationType.Move, id: createOperationId(), timestamp: Date.now(), sourcePath, destinationPath });
+    this.emit({
+      type: WorkspaceOperationType.Move,
+      id: createOperationId(),
+      timestamp: Date.now(),
+      sourcePath,
+      destinationPath,
+    });
   }
 
   private emit(operation: WorkspaceOperation) {

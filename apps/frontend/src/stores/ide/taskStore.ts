@@ -22,11 +22,13 @@ interface TaskStoreActions {
 export const useTaskStore = create<TaskStoreState & TaskStoreActions>((set) => ({
   tasks: [],
 
-  addTask: (task) => set((state) => ({
-    tasks: [...state.tasks, task]
-  })),
+  addTask: (task) =>
+    set((state) => ({
+      tasks: [...state.tasks, task],
+    })),
 
-  updateTask: (id, updates) => set((state) => ({
-    tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
-  })),
+  updateTask: (id, updates) =>
+    set((state) => ({
+      tasks: state.tasks.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+    })),
 }));

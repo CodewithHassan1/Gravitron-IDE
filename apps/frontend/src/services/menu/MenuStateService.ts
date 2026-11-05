@@ -9,7 +9,6 @@ class MenuStateServiceImpl {
   private eventBus = new EventBus();
 
   constructor() {
-
     systemEventBus.on(SystemEvents.ContextChanged, () => {
       this.eventBus.emit('change');
     });
@@ -25,7 +24,6 @@ class MenuStateServiceImpl {
     systemEventBus.on(SystemEvents.MenuRegistered, () => {
       this.eventBus.emit('change');
     });
-
   }
 
   public onChange(callback: () => void): () => void {
@@ -68,7 +66,8 @@ class MenuStateServiceImpl {
       if (item.command) {
         const keybindings = ShortcutRegistry.getKeybindingsForCommand(item.command);
         if (keybindings && keybindings.length > 0) {
-          const isMac = typeof navigator !== 'undefined' ? navigator.userAgent.includes('Mac') : false;
+          const isMac =
+            typeof navigator !== 'undefined' ? navigator.userAgent.includes('Mac') : false;
           shortcutStr = ShortcutFormatter.toHumanReadable(keybindings[0].shortcut, isMac);
         }
       }
@@ -81,7 +80,7 @@ class MenuStateServiceImpl {
           icon: item.icon,
           enabled: isEnabled,
           visible: true,
-          children: this.getMenuTree(item.submenu) // Recursive building!
+          children: this.getMenuTree(item.submenu), // Recursive building!
         });
       } else {
         result.push({
@@ -93,7 +92,7 @@ class MenuStateServiceImpl {
           shortcut: shortcutStr,
           enabled: isEnabled,
           visible: true,
-          checked: isChecked
+          checked: isChecked,
         });
       }
     }

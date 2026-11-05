@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { bootstrapCore, bootstrapWorkbench } from '../runtime/IDEBootstrap';
 import { ShortcutManager } from '../services/keyboard/ShortcutManager';
 
-console.log("[BOOT TRACE] AppBootstrapProvider module loaded");
+console.log('[BOOT TRACE] AppBootstrapProvider module loaded');
 
 export function AppBootstrapProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);

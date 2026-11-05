@@ -14,7 +14,9 @@ export class IndexedDBAdapter implements IStorageAdapter {
     this.db = new IndexedDBDatabase(this.dbName, this.version, IndexedDBMigration.run);
   }
 
-  private async getTransaction(mode: IDBTransactionMode = 'readonly'): Promise<IndexedDBTransaction> {
+  private async getTransaction(
+    mode: IDBTransactionMode = 'readonly'
+  ): Promise<IndexedDBTransaction> {
     const dbInstance = await this.db.connect();
     return new IndexedDBTransaction(dbInstance, this.storeName, mode);
   }

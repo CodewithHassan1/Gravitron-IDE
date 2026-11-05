@@ -5,7 +5,7 @@ import { workspaceRoutes } from './server';
 const logger = new AGLogger('workspace-service', '1.0.0');
 
 const server = Fastify({
-  logger: true
+  logger: true,
 });
 
 server.register(workspaceRoutes);

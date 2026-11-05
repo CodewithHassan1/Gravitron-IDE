@@ -17,20 +17,28 @@ describe('Workspace Lifecycle', () => {
 
   it('openWorkspace() should emit workspace_opened and workspace_updated', async () => {
     const manager = new WorkspaceManagerImpl();
-    
+
     const emitSpy = vi.spyOn(WorkspaceEvents, 'emit');
 
     await manager.openWorkspace(
-      { id: 'ws-test', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-test',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
-    const emittedEvents = emitSpy.mock.calls.map(call => call[0]);
+    const emittedEvents = emitSpy.mock.calls.map((call) => call[0]);
     expect(emittedEvents).toContain(WorkspaceEventType.WorkspaceOpened);
     expect(emittedEvents).toContain(WorkspaceEventType.WorkspaceUpdated);
-    
+
     emitSpy.mockRestore();
-    
+
     const state = manager.getState();
     expect(state.metadata?.id).toBe('ws-test');
     expect(state.isLoading).toBe(false);
@@ -39,7 +47,15 @@ describe('Workspace Lifecycle', () => {
   it('closeWorkspace() should emit workspace_closed and workspace_updated', async () => {
     const manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-test', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-test',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
@@ -47,7 +63,7 @@ describe('Workspace Lifecycle', () => {
 
     await manager.closeWorkspace();
 
-    const emittedEvents = emitSpy.mock.calls.map(call => call[0]);
+    const emittedEvents = emitSpy.mock.calls.map((call) => call[0]);
     expect(emittedEvents).toContain(WorkspaceEventType.WorkspaceClosed);
     expect(emittedEvents).toContain(WorkspaceEventType.WorkspaceUpdated);
     emitSpy.mockRestore();
@@ -59,7 +75,15 @@ describe('Workspace Lifecycle', () => {
   it('reloadWorkspace() should emit workspace_updated', async () => {
     const manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-test', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-test',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
@@ -67,7 +91,7 @@ describe('Workspace Lifecycle', () => {
 
     await manager.reloadWorkspace();
 
-    const emittedEvents = emitSpy.mock.calls.map(call => call[0]);
+    const emittedEvents = emitSpy.mock.calls.map((call) => call[0]);
     expect(emittedEvents).toContain(WorkspaceEventType.WorkspaceUpdated);
     emitSpy.mockRestore();
   });

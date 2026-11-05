@@ -18,7 +18,7 @@ describe('Organization Service Layer 2 RBAC', () => {
   it('VIEWER cannot update organization', () => {
     expect(authorize({ id: 'u1', roles: ['VIEWER'] }, 'organization:update')).toBe(false);
   });
-  
+
   it('OWNER can delete organization', () => {
     expect(authorize({ id: 'u1', roles: ['OWNER'] }, 'organization:delete')).toBe(true);
   });
@@ -153,28 +153,32 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
 
   describe('listMembers', () => {
     it('throws Unauthenticated if x-trusted-user-id is missing', async () => {
-      await expect(handlers.listMembers({ organizationId: 'org-1' }, makeContext()))
-        .rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
+      await expect(
+        handlers.listMembers({ organizationId: 'org-1' }, makeContext())
+      ).rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
     });
 
     it('throws InvalidArgument if organizationId is missing', async () => {
-      await expect(handlers.listMembers({}, makeContext('user-1')))
-        .rejects.toThrowError(new ConnectError('Organization ID required', Code.InvalidArgument));
+      await expect(handlers.listMembers({}, makeContext('user-1'))).rejects.toThrowError(
+        new ConnectError('Organization ID required', Code.InvalidArgument)
+      );
     });
 
     it('throws NotFound if caller is not a member of the organization (probing protection)', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce(null);
 
-      await expect(handlers.listMembers({ organizationId: 'org-foreign' }, makeContext('user-1')))
-        .rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
+      await expect(
+        handlers.listMembers({ organizationId: 'org-foreign' }, makeContext('user-1'))
+      ).rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
     });
 
     it('throws NotFound if organization does not exist or is deleted', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce('MEMBER');
       (db as any).executeTakeFirst.mockResolvedValueOnce(undefined); // org not found
 
-      await expect(handlers.listMembers({ organizationId: 'org-deleted' }, makeContext('user-1')))
-        .rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
+      await expect(
+        handlers.listMembers({ organizationId: 'org-deleted' }, makeContext('user-1'))
+      ).rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
     });
 
     it('returns member list for valid organization member', async () => {
@@ -204,40 +208,72 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
 
   describe('inviteMember', () => {
     it('throws Unauthenticated if caller is unauthenticated', async () => {
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'a@b.com', role: 'MEMBER' }, makeContext()))
-        .rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'a@b.com', role: 'MEMBER' },
+          makeContext()
+        )
+      ).rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
     });
 
     it('throws InvalidArgument for missing organizationId, email, or role', async () => {
-      await expect(handlers.inviteMember({ email: 'a@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Organization ID required', Code.InvalidArgument));
+      await expect(
+        handlers.inviteMember({ email: 'a@b.com', role: 'MEMBER' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Organization ID required', Code.InvalidArgument));
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'invalid-email', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Valid email required', Code.InvalidArgument));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'invalid-email', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(new ConnectError('Valid email required', Code.InvalidArgument));
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'a@b.com', role: 'SUPERUSER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Invalid role', Code.InvalidArgument));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'a@b.com', role: 'SUPERUSER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(new ConnectError('Invalid role', Code.InvalidArgument));
     });
 
     it('throws NotFound if caller is not in organization (cross-tenant probing protection)', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce(null);
 
-      await expect(handlers.inviteMember({ organizationId: 'org-other', email: 'a@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-other', email: 'a@b.com', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
     });
 
     it('throws PermissionDenied if MEMBER or VIEWER attempts to invite', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce('MEMBER');
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'a@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Permission denied: member:invite', Code.PermissionDenied));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'a@b.com', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(
+        new ConnectError('Permission denied: member:invite', Code.PermissionDenied)
+      );
     });
 
     it('throws PermissionDenied if ADMIN attempts to invite an OWNER', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce('ADMIN');
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'a@b.com', role: 'OWNER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Only an OWNER can invite members with the OWNER role', Code.PermissionDenied));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'a@b.com', role: 'OWNER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(
+        new ConnectError(
+          'Only an OWNER can invite members with the OWNER role',
+          Code.PermissionDenied
+        )
+      );
     });
 
     it('throws AlreadyExists if target user is already a member', async () => {
@@ -246,8 +282,14 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ id: 'org-1' }) // org exists
         .mockResolvedValueOnce({ user_id: 'existing-u' }); // existing member
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'existing@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('User is already a member of this organization', Code.AlreadyExists));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'existing@b.com', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(
+        new ConnectError('User is already a member of this organization', Code.AlreadyExists)
+      );
     });
 
     it('throws AlreadyExists if active pending invitation already exists for target email', async () => {
@@ -257,8 +299,14 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce(undefined) // not existing member
         .mockResolvedValueOnce({ id: 'invite-1' }); // existing active invite
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'pending@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('An active invitation for this email already exists', Code.AlreadyExists));
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'pending@b.com', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError(
+        new ConnectError('An active invitation for this email already exists', Code.AlreadyExists)
+      );
     });
 
     it('succeeds for valid OWNER invitation: stores SHA-256 hash in DB and emits outbox event', async () => {
@@ -310,27 +358,34 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
 
       (mockTx.execute as any).mockRejectedValueOnce(new Error('DB failure'));
 
-      await expect(handlers.inviteMember({ organizationId: 'org-1', email: 'new@b.com', role: 'MEMBER' }, makeContext('u1')))
-        .rejects.toThrowError('DB failure');
+      await expect(
+        handlers.inviteMember(
+          { organizationId: 'org-1', email: 'new@b.com', role: 'MEMBER' },
+          makeContext('u1')
+        )
+      ).rejects.toThrowError('DB failure');
     });
   });
 
   describe('acceptInvitation', () => {
     it('throws Unauthenticated if caller is unauthenticated', async () => {
-      await expect(handlers.acceptInvitation({ token: 'tok' }, makeContext()))
-        .rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
+      await expect(handlers.acceptInvitation({ token: 'tok' }, makeContext())).rejects.toThrowError(
+        new ConnectError('Unauthenticated', Code.Unauthenticated)
+      );
     });
 
     it('throws InvalidArgument if token is missing', async () => {
-      await expect(handlers.acceptInvitation({}, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Invitation token required', Code.InvalidArgument));
+      await expect(handlers.acceptInvitation({}, makeContext('u1'))).rejects.toThrowError(
+        new ConnectError('Invitation token required', Code.InvalidArgument)
+      );
     });
 
     it('throws NotFound if invitation token hash is not found', async () => {
       (mockTx.executeTakeFirst as any).mockResolvedValueOnce(undefined); // invite not found
 
-      await expect(handlers.acceptInvitation({ token: 'unknown-token' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Invitation not found', Code.NotFound));
+      await expect(
+        handlers.acceptInvitation({ token: 'unknown-token' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Invitation not found', Code.NotFound));
     });
 
     it('throws FailedPrecondition if invitation is not PENDING (replay rejection)', async () => {
@@ -340,8 +395,11 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         expires_at: new Date(Date.now() + 100000),
       });
 
-      await expect(handlers.acceptInvitation({ token: 'already-used-token' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Invitation has already been accepted or revoked', Code.FailedPrecondition));
+      await expect(
+        handlers.acceptInvitation({ token: 'already-used-token' }, makeContext('u1'))
+      ).rejects.toThrowError(
+        new ConnectError('Invitation has already been accepted or revoked', Code.FailedPrecondition)
+      );
     });
 
     it('throws FailedPrecondition if invitation has expired', async () => {
@@ -351,8 +409,9 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         expires_at: new Date(Date.now() - 100000), // expired
       });
 
-      await expect(handlers.acceptInvitation({ token: 'expired-token' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Invitation has expired', Code.FailedPrecondition));
+      await expect(
+        handlers.acceptInvitation({ token: 'expired-token' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Invitation has expired', Code.FailedPrecondition));
     });
 
     it('throws PermissionDenied if user account is DISABLED', async () => {
@@ -369,8 +428,9 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
           status: 'DISABLED',
         });
 
-      await expect(handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Account is disabled', Code.PermissionDenied));
+      await expect(
+        handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Account is disabled', Code.PermissionDenied));
     });
 
     it('throws PermissionDenied if authenticated user email does not match invitation recipient', async () => {
@@ -387,8 +447,14 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
           status: 'ACTIVE',
         });
 
-      await expect(handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('This invitation was issued for a different email address', Code.PermissionDenied));
+      await expect(
+        handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1'))
+      ).rejects.toThrowError(
+        new ConnectError(
+          'This invitation was issued for a different email address',
+          Code.PermissionDenied
+        )
+      );
     });
 
     it('throws AlreadyExists if user is already a member of the organization', async () => {
@@ -408,8 +474,11 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         })
         .mockResolvedValueOnce({ role: 'MEMBER' }); // already in org
 
-      await expect(handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('User is already a member of this organization', Code.AlreadyExists));
+      await expect(
+        handlers.acceptInvitation({ token: 'valid-tok' }, makeContext('u1'))
+      ).rejects.toThrowError(
+        new ConnectError('User is already a member of this organization', Code.AlreadyExists)
+      );
     });
 
     it('atomically marks invitation accepted and inserts organization member', async () => {
@@ -470,27 +539,33 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
 
   describe('removeMember', () => {
     it('throws Unauthenticated if caller is unauthenticated', async () => {
-      await expect(handlers.removeMember({ organizationId: 'org-1', userId: 'u2' }, makeContext()))
-        .rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
+      await expect(
+        handlers.removeMember({ organizationId: 'org-1', userId: 'u2' }, makeContext())
+      ).rejects.toThrowError(new ConnectError('Unauthenticated', Code.Unauthenticated));
     });
 
     it('throws InvalidArgument if organizationId or userId missing', async () => {
-      await expect(handlers.removeMember({ userId: 'u2' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Organization ID and User ID required', Code.InvalidArgument));
+      await expect(handlers.removeMember({ userId: 'u2' }, makeContext('u1'))).rejects.toThrowError(
+        new ConnectError('Organization ID and User ID required', Code.InvalidArgument)
+      );
     });
 
     it('throws NotFound if caller is not in organization (cross-tenant probing protection)', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce(null);
 
-      await expect(handlers.removeMember({ organizationId: 'org-foreign', userId: 'u2' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
+      await expect(
+        handlers.removeMember({ organizationId: 'org-foreign', userId: 'u2' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Organization not found', Code.NotFound));
     });
 
     it('throws PermissionDenied if MEMBER or VIEWER attempts to remove another member', async () => {
       orgRepoInstance.getMemberRole.mockResolvedValueOnce('MEMBER');
 
-      await expect(handlers.removeMember({ organizationId: 'org-1', userId: 'u2' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Permission denied: member:remove', Code.PermissionDenied));
+      await expect(
+        handlers.removeMember({ organizationId: 'org-1', userId: 'u2' }, makeContext('u1'))
+      ).rejects.toThrowError(
+        new ConnectError('Permission denied: member:remove', Code.PermissionDenied)
+      );
     });
 
     it('throws NotFound if target member is not in the organization', async () => {
@@ -499,8 +574,9 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ id: 'org-1' }) // org exists and locked
         .mockResolvedValueOnce(undefined); // target member not found
 
-      await expect(handlers.removeMember({ organizationId: 'org-1', userId: 'unknown-u' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Member not found in organization', Code.NotFound));
+      await expect(
+        handlers.removeMember({ organizationId: 'org-1', userId: 'unknown-u' }, makeContext('u1'))
+      ).rejects.toThrowError(new ConnectError('Member not found in organization', Code.NotFound));
     });
 
     it('throws PermissionDenied if ADMIN attempts to remove an OWNER', async () => {
@@ -509,8 +585,14 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ id: 'org-1' })
         .mockResolvedValueOnce({ role: 'OWNER' }); // target is OWNER
 
-      await expect(handlers.removeMember({ organizationId: 'org-1', userId: 'owner-u' }, makeContext('admin-u')))
-        .rejects.toThrowError(new ConnectError('ADMIN cannot remove an OWNER', Code.PermissionDenied));
+      await expect(
+        handlers.removeMember(
+          { organizationId: 'org-1', userId: 'owner-u' },
+          makeContext('admin-u')
+        )
+      ).rejects.toThrowError(
+        new ConnectError('ADMIN cannot remove an OWNER', Code.PermissionDenied)
+      );
     });
 
     it('throws FailedPrecondition when removing the last OWNER of an organization (Last-OWNER Invariant)', async () => {
@@ -520,8 +602,11 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ role: 'OWNER' }); // target is OWNER
       (mockTx.execute as any).mockResolvedValueOnce([{ user_id: 'u1' }]); // only 1 owner in org
 
-      await expect(handlers.removeMember({ organizationId: 'org-1', userId: 'u1' }, makeContext('u1')))
-        .rejects.toThrowError(new ConnectError('Cannot remove the last OWNER of an organization', Code.FailedPrecondition));
+      await expect(
+        handlers.removeMember({ organizationId: 'org-1', userId: 'u1' }, makeContext('u1'))
+      ).rejects.toThrowError(
+        new ConnectError('Cannot remove the last OWNER of an organization', Code.FailedPrecondition)
+      );
     });
 
     it('serializes removal with organization row lock and succeeds when multiple owners exist', async () => {
@@ -531,7 +616,10 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ role: 'OWNER' }); // target is OWNER
       (mockTx.execute as any).mockResolvedValueOnce([{ user_id: 'u1' }, { user_id: 'u2' }]); // 2 owners
 
-      const res = await handlers.removeMember({ organizationId: 'org-1', userId: 'u2' }, makeContext('u1'));
+      const res = await handlers.removeMember(
+        { organizationId: 'org-1', userId: 'u2' },
+        makeContext('u1')
+      );
       expect(res).toEqual({});
 
       // Verify organization was locked FOR UPDATE to serialize concurrent owner changes
@@ -564,7 +652,10 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ id: 'org-1' })
         .mockResolvedValueOnce({ role: 'MEMBER' }); // target is MEMBER
 
-      const res = await handlers.removeMember({ organizationId: 'org-1', userId: 'u-member' }, makeContext('u-member'));
+      const res = await handlers.removeMember(
+        { organizationId: 'org-1', userId: 'u-member' },
+        makeContext('u-member')
+      );
       expect(res).toEqual({});
       expect(mockTx.deleteFrom).toHaveBeenCalledWith('organization_members');
     });
@@ -575,7 +666,10 @@ describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => 
         .mockResolvedValueOnce({ id: 'org-1' })
         .mockResolvedValueOnce({ role: 'MEMBER' });
 
-      const res = await handlers.removeMember({ organizationId: 'org-1', userId: 'u-member' }, makeContext('u-admin'));
+      const res = await handlers.removeMember(
+        { organizationId: 'org-1', userId: 'u-member' },
+        makeContext('u-admin')
+      );
       expect(res).toEqual({});
       expect(mockTx.deleteFrom).toHaveBeenCalledWith('organization_members');
     });

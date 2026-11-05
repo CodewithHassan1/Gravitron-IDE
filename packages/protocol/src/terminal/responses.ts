@@ -49,4 +49,3 @@ export interface TerminalDiagnosticMetrics {
   readonly cancelCount: number;
   readonly spawnFailures: number;
 }
-

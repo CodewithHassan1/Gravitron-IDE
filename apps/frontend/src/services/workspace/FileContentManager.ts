@@ -21,7 +21,7 @@ export class FileContentManager {
   private saveQueue: Set<string> = new Set();
   private isSaving: boolean = false;
   private conflictManager: FileConflictManager;
-  
+
   constructor(private workspaceManager: WorkspaceManagerImpl) {
     this.conflictManager = new FileConflictManager(workspaceManager);
     this.setupEventListeners();
@@ -77,7 +77,7 @@ export class FileContentManager {
     }
 
     const hash = await this.conflictManager.hashString(content);
-    
+
     const buffer: OpenFileBuffer = {
       nodeId,
       path,
@@ -85,7 +85,7 @@ export class FileContentManager {
       dirty: false,
       lastSaved: Date.now(),
       lastSavedHash: hash,
-      lastDiskHash: hash
+      lastDiskHash: hash,
     };
 
     this.buffers.set(nodeId, buffer);
@@ -109,8 +109,8 @@ export class FileContentManager {
   public silentReload(nodeId: string, newContent: string): void {
     const buffer = this.buffers.get(nodeId);
     if (!buffer) return;
-    
-    this.conflictManager.hashString(newContent).then(hash => {
+
+    this.conflictManager.hashString(newContent).then((hash) => {
       buffer.content = newContent;
       buffer.dirty = false;
       buffer.lastSavedHash = hash;
@@ -177,7 +177,7 @@ export class FileContentManager {
         // Get the first item from the Set
         const nodeId = this.saveQueue.values().next().value as string;
         this.saveQueue.delete(nodeId);
-        
+
         const buffer = this.buffers.get(nodeId);
         if (!buffer || !buffer.dirty) {
           continue;
@@ -199,7 +199,7 @@ export class FileContentManager {
       }
     } finally {
       this.isSaving = false;
-      
+
       // Check if more items were added while saving
       if (this.saveQueue.size > 0) {
         setTimeout(() => this.processSaveQueue(), 0);

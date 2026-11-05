@@ -23,7 +23,9 @@ describe('IndexedDBSessionPersistence', () => {
     // If fake-indexeddb is present, this runs against it.
     // Otherwise we mock.
     if (!globalThis.indexedDB) {
-      console.warn('Skipping IDB save/load test because globalThis.indexedDB is missing (fake-indexeddb not loaded).');
+      console.warn(
+        'Skipping IDB save/load test because globalThis.indexedDB is missing (fake-indexeddb not loaded).'
+      );
       return;
     }
 
@@ -37,7 +39,7 @@ describe('IndexedDBSessionPersistence', () => {
       version: 1,
       sessions: [{ id: 'a', name: 'A', cwd: '/', executable: 'sh', args: [], env: {} }],
       activeSessionId: 'a',
-      layout: {}
+      layout: {},
     };
 
     await persistence.save('test-workspace', snapshot);

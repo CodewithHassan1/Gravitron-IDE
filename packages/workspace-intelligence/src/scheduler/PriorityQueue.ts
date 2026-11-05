@@ -17,7 +17,7 @@ export class PriorityQueue {
       const merged: DocumentWorkItem = {
         ...existing,
         priority: Math.min(existing.priority, item.priority),
-        reason: existing.priority <= item.priority ? existing.reason : item.reason
+        reason: existing.priority <= item.priority ? existing.reason : item.reason,
       };
       this.items.set(item.documentId, merged);
     } else {

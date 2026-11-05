@@ -12,13 +12,13 @@ class ElectronTerminalStream implements ITerminalStream {
   constructor(private channel: IMessageChannel<Uint8Array, TerminalEvent>) {
     this.channelSubscription = this.channel.subscribe((event) => {
       if (event.category === 'data' && event.kind === 'output') {
-        this.dataListeners.forEach(cb => cb(event.data));
+        this.dataListeners.forEach((cb) => cb(event.data));
       } else if (event.category === 'lifecycle' && event.kind === 'exit') {
-        this.closeListeners.forEach(cb => cb());
+        this.closeListeners.forEach((cb) => cb());
       } else if (event.category === 'diagnostic' && event.kind === 'error') {
         const err = new Error(event.error);
-        this.errorListeners.forEach(cb => cb(err));
-        this.closeListeners.forEach(cb => cb());
+        this.errorListeners.forEach((cb) => cb(err));
+        this.closeListeners.forEach((cb) => cb());
       } else if (event.category === 'diagnostic' && event.kind === 'warning') {
         console.warn(`[Terminal ${event.sessionId}] ${event.warning}`);
       }
@@ -28,7 +28,7 @@ class ElectronTerminalStream implements ITerminalStream {
   public onData(callback: (data: Uint8Array) => void): { dispose: () => void } {
     this.dataListeners.add(callback);
     return {
-      dispose: () => this.dataListeners.delete(callback)
+      dispose: () => this.dataListeners.delete(callback),
     };
   }
 
@@ -44,7 +44,7 @@ class ElectronTerminalStream implements ITerminalStream {
   public onClose(callback: () => void): { dispose: () => void } {
     this.closeListeners.add(callback);
     return {
-      dispose: () => this.closeListeners.delete(callback)
+      dispose: () => this.closeListeners.delete(callback),
     };
   }
 
@@ -52,7 +52,7 @@ class ElectronTerminalStream implements ITerminalStream {
     this.channelSubscription.dispose();
     this.channel.dispose();
     this.dataListeners.clear();
-    this.closeListeners.forEach(cb => cb());
+    this.closeListeners.forEach((cb) => cb());
     this.closeListeners.clear();
   }
 }
@@ -62,9 +62,9 @@ export class ElectronTerminalTransport implements ITerminalTransport {
   private sessionMap = new Map<string, string>(); // maps terminalId -> sessionId
 
   // Injected window.agApi.terminal
-  constructor(private api: any) { }
+  constructor(private api: any) {}
 
-  public async connect(): Promise<void> { }
+  public async connect(): Promise<void> {}
 
   public async createStream(config: TerminalDescriptor): Promise<ITerminalStream> {
     const sessionId = await this.api.create({
@@ -73,14 +73,14 @@ export class ElectronTerminalTransport implements ITerminalTransport {
       executable: config.metadata.executable,
       args: config.metadata.args ? [...config.metadata.args] : undefined,
       env: config.metadata.env,
-      workspaceId: config.metadata.workspaceId
+      workspaceId: config.metadata.workspaceId,
     });
 
     this.sessionMap.set(config.metadata.id, sessionId);
 
     // FIX: use attach instead of non-existent connect
     const result = await this.api.attach(sessionId);
-    
+
     // Explicitly construct IMessageChannel to avoid dangerous casts and map detach semantics
     const channel: IMessageChannel<Uint8Array, TerminalEvent> = {
       send: result.send,
@@ -91,17 +91,20 @@ export class ElectronTerminalTransport implements ITerminalTransport {
         if (result.detach) {
           result.detach();
         }
-      }
+      },
     };
 
     return new ElectronTerminalStream(channel);
   }
 
-  public async attachStream(terminalId: string, backendSessionId: string): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
+  public async attachStream(
+    terminalId: string,
+    backendSessionId: string
+  ): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
     this.sessionMap.set(terminalId, backendSessionId);
-    
+
     const result = await this.api.attach(backendSessionId);
-    
+
     const channel: IMessageChannel<Uint8Array, TerminalEvent> = {
       send: result.send,
       subscribe: result.subscribe,
@@ -109,12 +112,12 @@ export class ElectronTerminalTransport implements ITerminalTransport {
         if (result.detach) {
           result.detach();
         }
-      }
+      },
     };
 
     return {
       stream: new ElectronTerminalStream(channel),
-      history: result.history
+      history: result.history,
     };
   }
 
@@ -145,7 +148,9 @@ export class ElectronTerminalTransport implements ITerminalTransport {
     return this.api.list();
   }
 
-  public async createTerminal(options: TerminalProtocol.TerminalCreateRequestOptions): Promise<TerminalProtocol.TerminalCreateResponse> {
+  public async createTerminal(
+    options: TerminalProtocol.TerminalCreateRequestOptions
+  ): Promise<TerminalProtocol.TerminalCreateResponse> {
     return this.api.createTerminal(options);
   }
 

@@ -15,7 +15,7 @@ describe('VirtualFileSystem', () => {
       expect(root.name).toBe('workspace');
       expect(root.type).toBe('directory');
       expect(root.parentId).toBeNull();
-      
+
       const foundRoot = vfs.find(root.id);
       expect(foundRoot).toBeDefined();
       expect(foundRoot?.name).toBe('workspace');
@@ -37,7 +37,7 @@ describe('VirtualFileSystem', () => {
       const file = vfs.createFile('/test.txt');
       expect(file.name).toBe('test.txt');
       expect(file.type).toBe('file');
-      
+
       const resolvedId = vfs.resolve('/test.txt');
       expect(resolvedId).toBe(file.id);
     });
@@ -54,7 +54,7 @@ describe('VirtualFileSystem', () => {
     it('should support nested file creation', () => {
       vfs.createFolder('/src');
       const file = vfs.createFile('/src/index.ts');
-      
+
       expect(file.name).toBe('index.ts');
       const resolvedId = vfs.resolve('/src/index.ts');
       expect(resolvedId).toBe(file.id);
@@ -98,7 +98,7 @@ describe('VirtualFileSystem', () => {
     it('should move a file to another directory', () => {
       vfs.createFolder('/lib');
       vfs.move('/src/index.ts', '/lib');
-      
+
       expect(vfs.resolve('/src/index.ts')).toBeNull();
       expect(vfs.resolve('/lib/index.ts')).toBeDefined();
     });
@@ -133,7 +133,7 @@ describe('VirtualFileSystem', () => {
       expect(id1).toBe(id2);
       expect(id1).not.toBeNull();
     });
-    
+
     it('should handle empty directory creation gracefully', () => {
       const folder = vfs.createFolder('/empty');
       expect(folder.children).toBeDefined();

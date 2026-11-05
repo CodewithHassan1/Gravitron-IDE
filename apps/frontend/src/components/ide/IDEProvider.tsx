@@ -13,7 +13,13 @@ import { useRouter } from 'next/navigation';
 import { WorkspaceEvents } from '../../services/workspace/WorkspaceEvents';
 import { WorkspaceEventType } from '../../services/workspace/types';
 
-export function IDEProvider({ children, workspaceId }: { children: React.ReactNode; workspaceId?: string }) {
+export function IDEProvider({
+  children,
+  workspaceId,
+}: {
+  children: React.ReactNode;
+  workspaceId?: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const setBootstrapStage = useBootstrapStore((state) => state.setBootstrapStage);
   const setIsBootstrapped = useBootstrapStore((state) => state.setBootstrapped);
@@ -29,7 +35,7 @@ export function IDEProvider({ children, workspaceId }: { children: React.ReactNo
     let mounted = true;
     setIsBootstrapped(false);
     setBootstrapStage('Initializing IDE...');
-    
+
     bootstrapWorkspace((stage) => {
       if (mounted) setBootstrapStage(stage);
     }).then(() => {
@@ -37,18 +43,18 @@ export function IDEProvider({ children, workspaceId }: { children: React.ReactNo
     });
 
     CommandRegistry.registerCommand({
-      id: "workbench.action.toggleTheme",
-      title: "Toggle Theme",
-      category: "Preferences",
+      id: 'workbench.action.toggleTheme',
+      title: 'Toggle Theme',
+      category: 'Preferences',
       handler: () => {
-        setTheme(theme === "dark" ? "light" : "dark");
+        setTheme(theme === 'dark' ? 'light' : 'dark');
       },
     });
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [setTheme, theme, setBootstrapStage, setIsBootstrapped]);
-
-
 
   useEffect(() => {
     const onNavigate = (event: any) => {

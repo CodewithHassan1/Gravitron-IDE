@@ -97,6 +97,8 @@ services:
       AUTH_ISSUER: ${AUTH_ISSUER:-https://auth.ag-ide.local}
       AUTH_AUDIENCE: ${AUTH_AUDIENCE:-ag-ide-platform}
       AGENT_HOST_SECRET: ${AGENT_HOST_SECRET}
+      RATE_LIMIT_HMAC_SECRET: ${RATE_LIMIT_HMAC_SECRET}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.1,::1}
     depends_on:
       auth:
         condition: service_healthy

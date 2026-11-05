@@ -1,5 +1,9 @@
 // src/services/quickInput/providers/HelpProvider.ts
-import { QuickInputProvider, QuickInputItem, QuickInputProviderMetadata } from '../../../types/quickInput';
+import {
+  QuickInputProvider,
+  QuickInputItem,
+  QuickInputProviderMetadata,
+} from '../../../types/quickInput';
 import { QuickInputRegistry } from '../QuickInputRegistry';
 import { QuickInputSession } from '../QuickInputSession';
 import { HelpCircleIcon } from 'lucide-react';
@@ -22,16 +26,18 @@ export class HelpProvider implements QuickInputProvider {
   async refresh() {}
 
   async search(query: string, signal: AbortSignal): Promise<QuickInputItem[]> {
-    const providers = QuickInputRegistry.getAllProviders().filter(p => p.metadata.prefixes.length > 0 && p.metadata.prefixes[0] !== '');
-    
-    return providers.map(p => {
+    const providers = QuickInputRegistry.getAllProviders().filter(
+      (p) => p.metadata.prefixes.length > 0 && p.metadata.prefixes[0] !== ''
+    );
+
+    return providers.map((p) => {
       const prefix = p.metadata.prefixes[0];
       return {
         id: p.metadata.id,
         label: `${prefix} ${p.metadata.title}`,
         description: `Search via ${p.metadata.id} provider`,
         icon: React.createElement(HelpCircleIcon, { size: 16 }),
-        metadata: { prefix }
+        metadata: { prefix },
       };
     });
   }

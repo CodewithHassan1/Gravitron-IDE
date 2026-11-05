@@ -9,7 +9,7 @@ export class CspPolicy {
         "img-src 'self' data:;",
         "font-src 'self' data:;",
         "object-src 'none';",
-        "base-uri 'none';"
+        "base-uri 'none';",
       ].join(' ');
     } else {
       // In production, we are highly locked down.
@@ -20,7 +20,7 @@ export class CspPolicy {
         "img-src 'self' data:;",
         "font-src 'self' data:;",
         "object-src 'none';",
-        "base-uri 'none';"
+        "base-uri 'none';",
       ].join(' ');
     }
   }

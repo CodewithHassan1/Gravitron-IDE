@@ -14,7 +14,7 @@ class TimelineProviderRegistryImpl {
   }
 
   getProvidersFor(uri: string): TimelineProvider[] {
-    return Array.from(this.providers.values()).filter(p => p.canProvide(uri));
+    return Array.from(this.providers.values()).filter((p) => p.canProvide(uri));
   }
 }
 

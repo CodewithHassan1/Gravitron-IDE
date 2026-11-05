@@ -33,7 +33,7 @@ export class QueryEngineImpl {
 
       if (match.matched) {
         // Here we'd integrate RankContext (recent access, frequency)
-        const score = Ranking.rank(match, {}); 
+        const score = Ranking.rank(match, {});
         results.push({ item, match, score });
       }
     }

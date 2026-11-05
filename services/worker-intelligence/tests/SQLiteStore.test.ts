@@ -31,7 +31,13 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
   it('Workspace isolation — A cannot read B records', async () => {
     // Add file to A
     await storeA.commitFileIndex(
-      { id: 'file-1', workspaceId: workspaceA, filePath: 'src/main.ts', hash: 'hash1', updatedAt: Date.now() },
+      {
+        id: 'file-1',
+        workspaceId: workspaceA,
+        filePath: 'src/main.ts',
+        hash: 'hash1',
+        updatedAt: Date.now(),
+      },
       [{ name: 'MainClass', kind: SymbolKind.Class, line: 1, column: 1 }],
       [],
       []
@@ -39,7 +45,13 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
 
     // Add file to B
     await storeB.commitFileIndex(
-      { id: 'file-2', workspaceId: workspaceB, filePath: 'src/main.ts', hash: 'hash2', updatedAt: Date.now() },
+      {
+        id: 'file-2',
+        workspaceId: workspaceB,
+        filePath: 'src/main.ts',
+        hash: 'hash2',
+        updatedAt: Date.now(),
+      },
       [{ name: 'OtherClass', kind: SymbolKind.Class, line: 1, column: 1 }],
       [],
       []
@@ -66,7 +78,9 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
 
     const snap2 = await storeA.commitFileIndex(
       { id: 'f1', workspaceId: workspaceA, filePath: '1.ts', hash: 'h', updatedAt: 1 },
-      [], [], []
+      [],
+      [],
+      []
     );
     expect(snap2.sequence).toBe(1);
 
@@ -100,7 +114,7 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
 
     symbols = await storeA.getSymbols('test.ts');
     imports = await storeA.getImports('test.ts');
-    
+
     // Should still have length 1, but with new names
     expect(symbols).toHaveLength(1);
     expect(symbols[0].name).toBe('Sym2');
@@ -135,7 +149,8 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
     await storeA.commitFileIndex(
       { id: 'f1', workspaceId: workspaceA, filePath: 'persisted.ts', hash: 'h1', updatedAt: 1 },
       [{ name: 'PersistedSym', kind: SymbolKind.Class, line: 1, column: 1 }],
-      [], []
+      [],
+      []
     );
 
     await storeA.close(); // simulate kill/restart
@@ -154,18 +169,19 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
   it('Atomic snapshot commit — partial indexing cannot become the authoritative generation', async () => {
     // SQLiteStore uses EXCLUSIVE TRANSACTION, so it's guaranteed atomic at the SQLite level.
     // If we throw an error midway, the sequence shouldn't increment.
-    
+
     // We can simulate an error by violating a constraint (e.g., duplicate IDs)
     const initialSnap = await storeA.getLatestSnapshot();
-    
+
     try {
       await storeA.commitFileIndex(
         { id: 'f1', workspaceId: workspaceA, filePath: 'test.ts', hash: 'h1', updatedAt: 1 },
-        // Two symbols with the same explicit ID would violate PRIMARY KEY constraint if we exposed ID, 
+        // Two symbols with the same explicit ID would violate PRIMARY KEY constraint if we exposed ID,
         // but we omit ID in the API. Wait, file is uniquely constrained on (workspaceId, filePath), but we explicitly delete first.
         // What if we pass invalid constraint data? e.g. null for a NOT NULL field.
         [{ name: null as any, kind: SymbolKind.Class, line: 1, column: 1 }],
-        [], []
+        [],
+        []
       );
       expect.unreachable('Should have failed constraint');
     } catch (err) {
@@ -174,9 +190,8 @@ describe('SQLiteStore Invariants (Gate 4A.2)', () => {
 
     const currentSnap = await storeA.getLatestSnapshot();
     expect(currentSnap?.sequence).toBe(initialSnap?.sequence); // Sequence did not increment
-    
+
     const symbols = await storeA.getSymbols('test.ts');
     expect(symbols).toHaveLength(0); // No partial commit
   });
-
 });

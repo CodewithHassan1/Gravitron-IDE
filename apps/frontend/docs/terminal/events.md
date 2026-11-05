@@ -5,7 +5,9 @@ The Terminal Subsystem utilizes strict, immutable, DTO-based event contracts. No
 ## System Events Catalog
 
 ### `TerminalCreated`
+
 Dispatched when `TerminalManager` successfully mints a new `TerminalSession`.
+
 ```typescript
 interface TerminalCreated {
   readonly terminalId: string;
@@ -15,7 +17,9 @@ interface TerminalCreated {
 ```
 
 ### `TerminalClosed`
+
 Dispatched when a session is fully destroyed and resource cleanup concludes.
+
 ```typescript
 interface TerminalClosed {
   readonly terminalId: string;
@@ -24,7 +28,9 @@ interface TerminalClosed {
 ```
 
 ### `TerminalFocused`
+
 Dispatched when a specific terminal becomes the active viewport.
+
 ```typescript
 interface TerminalFocused {
   readonly terminalId: string;
@@ -33,7 +39,9 @@ interface TerminalFocused {
 ```
 
 ### `TerminalResized`
+
 Dispatched when a terminal footprint changes dimensions.
+
 ```typescript
 interface TerminalResized {
   readonly terminalId: string;
@@ -44,7 +52,9 @@ interface TerminalResized {
 ```
 
 ### `TerminalInput`
+
 Dispatched for tracking keystrokes/data piped into the `TerminalSession` input buffer.
+
 ```typescript
 interface TerminalInput {
   readonly terminalId: string;
@@ -54,17 +64,21 @@ interface TerminalInput {
 ```
 
 ### `TerminalOutput`
+
 Dispatched when standard output or standard error data is yielded by the PTY.
+
 ```typescript
 interface TerminalOutput {
   readonly terminalId: string;
   readonly timestamp: number;
-  readonly payloadLength: number; 
+  readonly payloadLength: number;
 }
 ```
 
 ### `TerminalExit`
+
 Dispatched when the underlying shell or execution environment exits.
+
 ```typescript
 interface TerminalExit {
   readonly terminalId: string;
@@ -75,7 +89,9 @@ interface TerminalExit {
 ```
 
 ### `TerminalError`
+
 Dispatched on critical subsystem crashes or irrecoverable failures.
+
 ```typescript
 interface TerminalError {
   readonly terminalId: string;
@@ -86,7 +102,9 @@ interface TerminalError {
 ```
 
 ### `ProcessStarted`
+
 Dispatched when the isolated `ProcessManager` successfully secures the PID.
+
 ```typescript
 interface ProcessStarted {
   readonly terminalId: string;
@@ -96,7 +114,9 @@ interface ProcessStarted {
 ```
 
 ### `ProcessExited`
+
 Dispatched when the tracked PID drops from the process table.
+
 ```typescript
 interface ProcessExited {
   readonly terminalId: string;
@@ -107,7 +127,9 @@ interface ProcessExited {
 ```
 
 ### `RuntimeConnected`
+
 Dispatched when the bridge to Docker/Remote Runtime is successfully established.
+
 ```typescript
 interface RuntimeConnected {
   readonly runtimeType: string;
@@ -116,7 +138,9 @@ interface RuntimeConnected {
 ```
 
 ### `RuntimeDisconnected`
+
 Dispatched when the bridge to Docker/Remote Runtime drops.
+
 ```typescript
 interface RuntimeDisconnected {
   readonly runtimeType: string;
@@ -126,7 +150,9 @@ interface RuntimeDisconnected {
 ```
 
 ### `ResourceLimitExceeded`
+
 Dispatched when the container or process hits maximum predefined allocations.
+
 ```typescript
 interface ResourceLimitExceeded {
   readonly terminalId: string;

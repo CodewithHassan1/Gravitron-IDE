@@ -6,12 +6,13 @@ import { VirtualFileSystem } from '../vfs/VirtualFileSystem';
 import { WorkspaceEvents } from '../WorkspaceEvents';
 import { WorkspaceEventType, WorkspaceEvent } from '../types';
 
-
-
 export class WorkspaceSearchService {
   private vfs: VirtualFileSystem;
   private worker: Worker | null = null;
-  private pendingSearches = new Map<string, { resolve: (results: SearchResult[]) => void, reject: (err: any) => void }>();
+  private pendingSearches = new Map<
+    string,
+    { resolve: (results: SearchResult[]) => void; reject: (err: any) => void }
+  >();
   private messageIdCounter = 0;
 
   constructor(vfs: VirtualFileSystem) {
@@ -38,7 +39,7 @@ export class WorkspaceSearchService {
       this.worker.terminate();
       this.worker = null;
     }
-    
+
     this.pendingSearches.forEach(({ reject }) => reject(new Error('Search service disposed')));
     this.pendingSearches.clear();
 
@@ -63,7 +64,9 @@ export class WorkspaceSearchService {
       }
     });
 
-    const caps = await import('../WorkspaceSession').then(m => m.WorkspaceSession.getState().metadata?.capabilities);
+    const caps = await import('../WorkspaceSession').then(
+      (m) => m.WorkspaceSession.getState().metadata?.capabilities
+    );
     if (caps && caps.recursiveSearch === false) {
       // Just filter against the VFS root manually
       const lowerQuery = query.query.toLowerCase();
@@ -76,7 +79,7 @@ export class WorkspaceSearchService {
             path: node.path,
             name: node.name,
             type: node.type === 'directory' ? 'folder' : 'file',
-            score: 1
+            score: 1,
           });
         }
       }
@@ -84,7 +87,7 @@ export class WorkspaceSearchService {
     }
 
     const id = (this.messageIdCounter++).toString();
-    
+
     return new Promise((resolve, reject) => {
       this.pendingSearches.set(id, { resolve, reject });
 
@@ -95,8 +98,8 @@ export class WorkspaceSearchService {
           query: query.query,
           fileTypes: query.fileTypes,
           includeHidden: query.includeHidden,
-          maxResults: query.maxResults
-        }
+          maxResults: query.maxResults,
+        },
       };
 
       this.worker!.postMessage(message);
@@ -141,10 +144,10 @@ export class WorkspaceSearchService {
   private handleFolderLoaded = (event: WorkspaceEvent<WorkspaceEventType.FolderLoaded>) => {
     const payload = event.payload;
     if (!payload?.folderId) {
-       this.indexAllNodes();
-       return;
+      this.indexAllNodes();
+      return;
     }
-    
+
     const childrenIds = (this.vfs as any).index?.getChildren(payload.folderId) || [];
     for (const childId of childrenIds) {
       this.indexNodeById(childId);
@@ -187,7 +190,7 @@ export class WorkspaceSearchService {
       path: node.path,
       name: node.name,
       type: node.type,
-      extension: node.extension
+      extension: node.extension,
     };
     this.postToWorker({ id: `index_${node.id}`, type: 'INDEX_NODE', payload });
   }

@@ -12,7 +12,7 @@ describe('WorkspaceManager - getNativeAbsolutePath', () => {
 
   it('normalizes Windows path representations correctly', () => {
     const expected = 'D:\\Techmire Solutions\\05_OJT\\02_OJT_02\\Project_08(Tawakkal)';
-    
+
     const representations = [
       'D:\\Techmire Solutions\\05_OJT\\02_OJT_02\\Project_08(Tawakkal)',
       'D:/Techmire Solutions/05_OJT/02_OJT_02/Project_08(Tawakkal)',
@@ -20,7 +20,7 @@ describe('WorkspaceManager - getNativeAbsolutePath', () => {
       '/D:/Techmire Solutions/05_OJT/02_OJT_02/Project_08(Tawakkal)',
       'file:///D:/Techmire Solutions/05_OJT/02_OJT_02/Project_08(Tawakkal)',
       'file:///D:\\Techmire Solutions\\05_OJT\\02_OJT_02\\Project_08(Tawakkal)',
-      'file://localhost/D:\\Techmire Solutions\\05_OJT\\02_OJT_02\\Project_08(Tawakkal)'
+      'file://localhost/D:\\Techmire Solutions\\05_OJT\\02_OJT_02\\Project_08(Tawakkal)',
     ];
 
     for (const uri of representations) {
@@ -34,7 +34,7 @@ describe('WorkspaceManager - getNativeAbsolutePath', () => {
     const representations = [
       '/home/user/project',
       'file:///home/user/project',
-      'file://localhost/home/user/project'
+      'file://localhost/home/user/project',
     ];
 
     for (const uri of representations) {

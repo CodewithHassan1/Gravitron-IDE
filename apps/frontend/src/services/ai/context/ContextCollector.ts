@@ -1,6 +1,7 @@
 export interface ContextItem {
   id: string;
-  type: 'selection' | 'file' | 'editor' | 'diff' | 'diagnostic' | 'search' | 'reference' | 'summary';
+  type:
+    'selection' | 'file' | 'editor' | 'diff' | 'diagnostic' | 'search' | 'reference' | 'summary';
   content: string;
   metadata?: any;
 }

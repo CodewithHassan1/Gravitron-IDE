@@ -10,13 +10,13 @@ export interface RepositoryMetadata {
 export interface GitProvider {
   /** Retrieves all repositories accessible by the user */
   listRepositories(userId: string): Promise<RepositoryMetadata[]>;
-  
+
   /** Retrieves metadata for a single repository */
   getRepositoryMetadata(repoId: string): Promise<RepositoryMetadata>;
-  
+
   /** Creates a deploy key for a repository to allow sandboxes to pull code */
   createDeployKey(repoId: string, publicKey: string, title?: string): Promise<void>;
-  
+
   /** Registers a webhook for synchronization events */
   registerWebhook(repoId: string, events: string[], callbackUrl: string): Promise<void>;
 
