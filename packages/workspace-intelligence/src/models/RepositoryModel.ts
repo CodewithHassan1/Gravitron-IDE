@@ -2,7 +2,14 @@ import { IRepositoryModel } from '../interfaces/IRepositoryModel';
 import { DocumentId, DirectoryId, SymbolId, ReferenceId } from './EntityIds';
 import { DocumentSnapshot } from './DocumentSnapshot';
 import { RepositorySnapshot, RepositoryStatistics } from './RepositorySnapshot';
-import { FileGraph, DirectoryGraph, ImportGraph, DependencyGraph, SymbolGraph, ReferenceGraph } from '../graphs/GraphSkeletons';
+import {
+  FileGraph,
+  DirectoryGraph,
+  ImportGraph,
+  DependencyGraph,
+  SymbolGraph,
+  ReferenceGraph,
+} from '../graphs/GraphSkeletons';
 
 export class RepositoryModel implements IRepositoryModel {
   // Underlying graphs
@@ -12,7 +19,7 @@ export class RepositoryModel implements IRepositoryModel {
   private readonly dependencyGraph: DependencyGraph;
   private readonly symbolGraph: SymbolGraph;
   private readonly referenceGraph: ReferenceGraph;
-  
+
   private readonly snapshot: RepositorySnapshot;
 
   constructor(
@@ -39,22 +46,22 @@ export class RepositoryModel implements IRepositoryModel {
 
   getChildren(id: DirectoryId): ReadonlyArray<DocumentId | DirectoryId> {
     const edges = this.directoryGraph.getOutgoingEdges(id);
-    return edges.map(e => e.targetId as DocumentId | DirectoryId);
+    return edges.map((e) => e.targetId as DocumentId | DirectoryId);
   }
 
   getImports(id: DocumentId): ReadonlyArray<DocumentId> {
     const edges = this.importGraph.getOutgoingEdges(id);
-    return edges.map(e => e.targetId as DocumentId);
+    return edges.map((e) => e.targetId as DocumentId);
   }
 
   getDependents(id: DocumentId): ReadonlyArray<DocumentId> {
     const edges = this.importGraph.getIncomingEdges(id);
-    return edges.map(e => e.sourceId as DocumentId);
+    return edges.map((e) => e.sourceId as DocumentId);
   }
 
   getReferences(id: SymbolId): ReadonlyArray<ReferenceId> {
     const edges = this.referenceGraph.getIncomingEdges(id as any);
-    return edges.map(e => e.sourceId as ReferenceId);
+    return edges.map((e) => e.sourceId as ReferenceId);
   }
 
   async search(query: string, options?: any): Promise<any[]> {

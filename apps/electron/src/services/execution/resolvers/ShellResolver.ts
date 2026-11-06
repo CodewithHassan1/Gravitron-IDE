@@ -1,4 +1,9 @@
-import { ExecutionRequest, ExecutionProfile, ShellDescriptor, TerminalProtocol } from '@ag/protocol';
+import {
+  ExecutionRequest,
+  ExecutionProfile,
+  ShellDescriptor,
+  TerminalProtocol,
+} from '@ag/protocol';
 import { IShellResolver } from '../IResolvers';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -34,7 +39,9 @@ export class DefaultShellResolver implements IShellResolver {
     if (platform === 'win32') {
       // 1. Windows PowerShell
       const sysroot = process.env.SystemRoot || 'C:\\Windows';
-      const powershellPath = findExecutable('powershell.exe') || path.join(sysroot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+      const powershellPath =
+        findExecutable('powershell.exe') ||
+        path.join(sysroot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
       if (fs.existsSync(powershellPath)) {
         profiles.push({
           id: 'powershell',
@@ -42,7 +49,7 @@ export class DefaultShellResolver implements IShellResolver {
           executable: powershellPath,
           args: [],
           platform,
-          isDefault: true
+          isDefault: true,
         });
       }
 
@@ -51,8 +58,13 @@ export class DefaultShellResolver implements IShellResolver {
       if (!pwshPath) {
         const pwshPaths = [
           path.join(process.env.ProgramW6432 || 'C:\\Program Files', 'PowerShell', '7', 'pwsh.exe'),
-          path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'PowerShell', '7', 'pwsh.exe'),
-          path.join(process.env.LOCALAPPDATA || '', 'Microsoft', 'WindowsApps', 'pwsh.exe')
+          path.join(
+            process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
+            'PowerShell',
+            '7',
+            'pwsh.exe'
+          ),
+          path.join(process.env.LOCALAPPDATA || '', 'Microsoft', 'WindowsApps', 'pwsh.exe'),
         ];
         for (const p of pwshPaths) {
           if (p && fs.existsSync(p)) {
@@ -68,7 +80,7 @@ export class DefaultShellResolver implements IShellResolver {
           executable: pwshPath,
           args: [],
           platform,
-          isDefault: false
+          isDefault: false,
         });
       }
 
@@ -81,7 +93,7 @@ export class DefaultShellResolver implements IShellResolver {
           executable: cmdPath,
           args: [],
           platform,
-          isDefault: profiles.length === 0
+          isDefault: profiles.length === 0,
         });
       }
 
@@ -90,9 +102,20 @@ export class DefaultShellResolver implements IShellResolver {
       if (!gitBashPath || !gitBashPath.toLowerCase().includes('git')) {
         const gitBashPaths = [
           path.join(process.env.ProgramW6432 || 'C:\\Program Files', 'Git', 'bin', 'bash.exe'),
-          path.join(process.env.ProgramW6432 || 'C:\\Program Files', 'Git', 'usr', 'bin', 'bash.exe'),
-          path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Git', 'bin', 'bash.exe'),
-          path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Git', 'bin', 'bash.exe')
+          path.join(
+            process.env.ProgramW6432 || 'C:\\Program Files',
+            'Git',
+            'usr',
+            'bin',
+            'bash.exe'
+          ),
+          path.join(
+            process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
+            'Git',
+            'bin',
+            'bash.exe'
+          ),
+          path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Git', 'bin', 'bash.exe'),
         ];
         for (const p of gitBashPaths) {
           if (p && fs.existsSync(p)) {
@@ -108,7 +131,7 @@ export class DefaultShellResolver implements IShellResolver {
           executable: gitBashPath,
           args: ['-l'],
           platform,
-          isDefault: false
+          isDefault: false,
         });
       }
     } else {
@@ -117,9 +140,9 @@ export class DefaultShellResolver implements IShellResolver {
         { id: 'bash', name: 'Bash', cmd: 'bash' },
         { id: 'zsh', name: 'Zsh', cmd: 'zsh' },
         { id: 'sh', name: 'sh', cmd: 'sh' },
-        { id: 'fish', name: 'Fish', cmd: 'fish' }
+        { id: 'fish', name: 'Fish', cmd: 'fish' },
       ];
-      
+
       let hasDefault = false;
       const userShell = process.env.SHELL;
 
@@ -128,18 +151,18 @@ export class DefaultShellResolver implements IShellResolver {
         if (fs.existsSync(executable)) {
           const isUserShell = userShell === executable;
           if (isUserShell) hasDefault = true;
-          
+
           profiles.push({
             id: shell.id,
             name: shell.name,
             executable,
             args: ['-l'],
             platform,
-            isDefault: isUserShell
+            isDefault: isUserShell,
           });
         }
       }
-      
+
       // If none marked default, mark the first one
       if (!hasDefault && profiles.length > 0) {
         profiles[0].isDefault = true;
@@ -150,7 +173,10 @@ export class DefaultShellResolver implements IShellResolver {
     return profiles;
   }
 
-  public async resolve(request: ExecutionRequest, profile: ExecutionProfile): Promise<ShellDescriptor> {
+  public async resolve(
+    request: ExecutionRequest,
+    profile: ExecutionProfile
+  ): Promise<ShellDescriptor> {
     if (request.shellOverride) {
       return request.shellOverride;
     }
@@ -158,7 +184,7 @@ export class DefaultShellResolver implements IShellResolver {
     const profiles = await this.discoverProfiles();
 
     if (request.profileId) {
-      const selected = profiles.find(p => p.id === request.profileId);
+      const selected = profiles.find((p) => p.id === request.profileId);
       if (selected) {
         return { executable: selected.executable, args: selected.args };
       }
@@ -172,7 +198,7 @@ export class DefaultShellResolver implements IShellResolver {
       return { executable: request.target.execCommand || 'sh', args: [] };
     }
 
-    const defaultProfile = profiles.find(p => p.isDefault) || profiles[0];
+    const defaultProfile = profiles.find((p) => p.isDefault) || profiles[0];
     if (defaultProfile) {
       return { executable: defaultProfile.executable, args: defaultProfile.args };
     }

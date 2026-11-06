@@ -10,7 +10,7 @@ export class TerminalSessionImpl implements TerminalSession {
   private _state: TerminalSessionState = TerminalSessionState.Created;
   private stream: ITerminalStream | null = null;
   private disposables: Set<IDisposable> = new Set();
-  
+
   private dataListeners: Set<(data: Uint8Array) => void> = new Set();
   private stateListeners: Set<(state: TerminalSessionState) => void> = new Set();
   private stateQueue: TerminalSessionState[] = [];
@@ -62,11 +62,27 @@ export class TerminalSessionImpl implements TerminalSession {
 
   private isValidTransition(from: TerminalSessionState, to: TerminalSessionState): boolean {
     const map: Record<TerminalSessionState, Set<TerminalSessionState>> = {
-      [TerminalSessionState.Created]: new Set([TerminalSessionState.Initializing, TerminalSessionState.Closing, TerminalSessionState.Disposed]),
-      [TerminalSessionState.Initializing]: new Set([TerminalSessionState.Connecting, TerminalSessionState.Closing]),
-      [TerminalSessionState.Connecting]: new Set([TerminalSessionState.Running, TerminalSessionState.Closing]),
-      [TerminalSessionState.Running]: new Set([TerminalSessionState.Suspended, TerminalSessionState.Closing]),
-      [TerminalSessionState.Suspended]: new Set([TerminalSessionState.Connecting, TerminalSessionState.Closing]),
+      [TerminalSessionState.Created]: new Set([
+        TerminalSessionState.Initializing,
+        TerminalSessionState.Closing,
+        TerminalSessionState.Disposed,
+      ]),
+      [TerminalSessionState.Initializing]: new Set([
+        TerminalSessionState.Connecting,
+        TerminalSessionState.Closing,
+      ]),
+      [TerminalSessionState.Connecting]: new Set([
+        TerminalSessionState.Running,
+        TerminalSessionState.Closing,
+      ]),
+      [TerminalSessionState.Running]: new Set([
+        TerminalSessionState.Suspended,
+        TerminalSessionState.Closing,
+      ]),
+      [TerminalSessionState.Suspended]: new Set([
+        TerminalSessionState.Connecting,
+        TerminalSessionState.Closing,
+      ]),
       [TerminalSessionState.Closing]: new Set([TerminalSessionState.Closed]),
       [TerminalSessionState.Closed]: new Set([TerminalSessionState.Disposed]),
       [TerminalSessionState.Disposed]: new Set(),
@@ -75,7 +91,10 @@ export class TerminalSessionImpl implements TerminalSession {
   }
 
   public async attach(backendSessionId: string): Promise<void> {
-    if (this._state === TerminalSessionState.Created || this._state === TerminalSessionState.Suspended) {
+    if (
+      this._state === TerminalSessionState.Created ||
+      this._state === TerminalSessionState.Suspended
+    ) {
       try {
         if (this._state === TerminalSessionState.Created) {
           this.transitionTo(TerminalSessionState.Initializing);
@@ -89,29 +108,35 @@ export class TerminalSessionImpl implements TerminalSession {
         const { stream, history } = await this.provider.attachStream(this.id, backendSessionId);
         this.stream = stream;
 
-        this.disposables.add(this.stream.onData((data) => {
-          for (const listener of Array.from(this.dataListeners)) {
-            listener(data);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onData((data) => {
+            for (const listener of Array.from(this.dataListeners)) {
+              listener(data);
+            }
+          })
+        );
 
-        this.disposables.add(this.stream.onClose(() => {
-          if (this._state === TerminalSessionState.Running) {
-            this.suspend().catch(console.error);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onClose(() => {
+            if (this._state === TerminalSessionState.Running) {
+              this.suspend().catch(console.error);
+            }
+          })
+        );
 
-        this.disposables.add(this.stream.onError((err) => {
-          TerminalEvents.emit(TerminalEventType.TerminalError, {
-            terminalId: this.id,
-            timestamp: Date.now(),
-            errorType: 'StreamError',
-            message: err.message
-          });
-          if (this._state === TerminalSessionState.Running) {
-            this.suspend().catch(console.error);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onError((err) => {
+            TerminalEvents.emit(TerminalEventType.TerminalError, {
+              terminalId: this.id,
+              timestamp: Date.now(),
+              errorType: 'StreamError',
+              message: err.message,
+            });
+            if (this._state === TerminalSessionState.Running) {
+              this.suspend().catch(console.error);
+            }
+          })
+        );
 
         this.transitionTo(TerminalSessionState.Running);
 
@@ -121,7 +146,6 @@ export class TerminalSessionImpl implements TerminalSession {
             listener(history);
           }
         }
-
       } catch (e) {
         this.transitionTo(TerminalSessionState.Closing);
         this.transitionTo(TerminalSessionState.Closed);
@@ -133,7 +157,10 @@ export class TerminalSessionImpl implements TerminalSession {
   }
 
   public async connect(): Promise<void> {
-    if (this._state === TerminalSessionState.Created || this._state === TerminalSessionState.Suspended) {
+    if (
+      this._state === TerminalSessionState.Created ||
+      this._state === TerminalSessionState.Suspended
+    ) {
       try {
         if (this._state === TerminalSessionState.Created) {
           this.transitionTo(TerminalSessionState.Initializing);
@@ -152,35 +179,40 @@ export class TerminalSessionImpl implements TerminalSession {
         });
 
         let firstDataEvent = false;
-        this.disposables.add(this.stream.onData((data) => {
-          if (!firstDataEvent) {
-            firstDataEvent = true;
-          }
-          for (const listener of Array.from(this.dataListeners)) {
-            listener(data);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onData((data) => {
+            if (!firstDataEvent) {
+              firstDataEvent = true;
+            }
+            for (const listener of Array.from(this.dataListeners)) {
+              listener(data);
+            }
+          })
+        );
 
-        this.disposables.add(this.stream.onClose(() => {
-          if (this._state === TerminalSessionState.Running) {
-            this.suspend().catch(console.error);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onClose(() => {
+            if (this._state === TerminalSessionState.Running) {
+              this.suspend().catch(console.error);
+            }
+          })
+        );
 
-        this.disposables.add(this.stream.onError((err) => {
-          TerminalEvents.emit(TerminalEventType.TerminalError, {
-            terminalId: this.id,
-            timestamp: Date.now(),
-            errorType: 'StreamError',
-            message: err.message
-          });
-          if (this._state === TerminalSessionState.Running) {
-            this.suspend().catch(console.error);
-          }
-        }));
+        this.disposables.add(
+          this.stream.onError((err) => {
+            TerminalEvents.emit(TerminalEventType.TerminalError, {
+              terminalId: this.id,
+              timestamp: Date.now(),
+              errorType: 'StreamError',
+              message: err.message,
+            });
+            if (this._state === TerminalSessionState.Running) {
+              this.suspend().catch(console.error);
+            }
+          })
+        );
 
         this.transitionTo(TerminalSessionState.Running);
-
       } catch (e) {
         this.transitionTo(TerminalSessionState.Closing);
         this.transitionTo(TerminalSessionState.Closed);
@@ -197,11 +229,11 @@ export class TerminalSessionImpl implements TerminalSession {
     }
     const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data;
     await this.stream.write(bytes);
-    
+
     TerminalEvents.emit(TerminalEventType.TerminalInput, {
       terminalId: this.id,
       timestamp: Date.now(),
-      payloadLength: bytes.byteLength
+      payloadLength: bytes.byteLength,
     });
   }
 
@@ -217,14 +249,14 @@ export class TerminalSessionImpl implements TerminalSession {
       terminalId: this.id,
       timestamp: Date.now(),
       cols,
-      rows
+      rows,
     });
   }
 
   public focus(): void {
     TerminalEvents.emit(TerminalEventType.TerminalFocused, {
       terminalId: this.id,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -242,17 +274,21 @@ export class TerminalSessionImpl implements TerminalSession {
   }
 
   public async close(): Promise<void> {
-    if (this._state === TerminalSessionState.Disposed || this._state === TerminalSessionState.Closed || this._state === TerminalSessionState.Closing) {
+    if (
+      this._state === TerminalSessionState.Disposed ||
+      this._state === TerminalSessionState.Closed ||
+      this._state === TerminalSessionState.Closing
+    ) {
       return;
     }
-    
+
     this.transitionTo(TerminalSessionState.Closing);
     this.clearStream();
     this.transitionTo(TerminalSessionState.Closed);
 
     TerminalEvents.emit(TerminalEventType.TerminalClosed, {
       terminalId: this.id,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -271,28 +307,35 @@ export class TerminalSessionImpl implements TerminalSession {
   public onData(listener: (data: Uint8Array) => void): IDisposable {
     this.dataListeners.add(listener);
     return {
-      dispose: () => this.dataListeners.delete(listener)
+      dispose: () => this.dataListeners.delete(listener),
     };
   }
 
   public onStateChanged(listener: (state: TerminalSessionState) => void): IDisposable {
     this.stateListeners.add(listener);
     return {
-      dispose: () => this.stateListeners.delete(listener)
+      dispose: () => this.stateListeners.delete(listener),
     };
   }
 
   public dispose(): void {
-    if (this._state !== TerminalSessionState.Closed && this._state !== TerminalSessionState.Created && this._state !== TerminalSessionState.Closing) {
+    if (
+      this._state !== TerminalSessionState.Closed &&
+      this._state !== TerminalSessionState.Created &&
+      this._state !== TerminalSessionState.Closing
+    ) {
       // Attempt clean close if not already closed
       this.transitionTo(TerminalSessionState.Closing);
       this.clearStream();
-      this.transitionTo(TerminalSessionState.Closed); 
+      this.transitionTo(TerminalSessionState.Closed);
     }
-    if ((this._state as TerminalSessionState) !== TerminalSessionState.Disposed && (this._state as TerminalSessionState) !== TerminalSessionState.Closing) {
+    if (
+      (this._state as TerminalSessionState) !== TerminalSessionState.Disposed &&
+      (this._state as TerminalSessionState) !== TerminalSessionState.Closing
+    ) {
       this.transitionTo(TerminalSessionState.Disposed);
     }
-    
+
     this.dataListeners.clear();
     this.stateListeners.clear();
     this.clearStream();

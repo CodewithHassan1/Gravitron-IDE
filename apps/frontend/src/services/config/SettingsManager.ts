@@ -18,7 +18,7 @@ export class SettingsManager {
   async getRecord(scope: ConfigurationScope): Promise<IConfigurationRecord> {
     const key = this.getStorageKey(scope);
     const serialized = await this.provider.read<string>(key);
-    
+
     if (serialized) {
       let record = ConfigurationSerializer.deserialize(serialized);
       if (record) {
@@ -34,7 +34,7 @@ export class SettingsManager {
       updatedAt: Date.now(),
       updatedBy: 'system',
       scope,
-      values: {}
+      values: {},
     };
   }
 
@@ -47,7 +47,7 @@ export class SettingsManager {
 
   async setValue(key: string, value: any, scope: ConfigurationScope): Promise<void> {
     systemEventBus.emit(ConfigurationEvents.BeforeConfigurationChanged, { key, value, scope });
-    
+
     const schema = SettingsRegistry.getProperty(key);
     if (schema) {
       const validation = ConfigurationValidator.validate(schema, value);
@@ -70,7 +70,11 @@ export class SettingsManager {
     if (key in record.values) {
       delete record.values[key];
       await this.saveRecord(record);
-      systemEventBus.emit(ConfigurationEvents.ConfigurationChanged, { key, value: undefined, scope });
+      systemEventBus.emit(ConfigurationEvents.ConfigurationChanged, {
+        key,
+        value: undefined,
+        scope,
+      });
     }
   }
 }

@@ -21,7 +21,7 @@ export interface WorkspaceNode {
   children: string[];
   childrenLoaded: boolean;
   permissions: NodePermissions;
-  
+
   /**
    * Additional metadata for arbitrary editor/agent data
    */

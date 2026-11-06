@@ -15,9 +15,9 @@ interface TerminalInstanceProps {
 export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [terminal, setTerminal] = useState<Terminal | null>(null);
-  
-  const fontSize = useTerminalStore(state => state.fontSize);
-  const cursorStyle = useTerminalStore(state => state.cursorStyle);
+
+  const fontSize = useTerminalStore((state) => state.fontSize);
+  const cursorStyle = useTerminalStore((state) => state.cursorStyle);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -44,10 +44,10 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
       let cwd = data;
       if (cwd.startsWith('file://localhost/')) cwd = cwd.substring(17);
       else if (cwd.startsWith('file://')) cwd = cwd.substring(cwd.indexOf('/', 7));
-      
+
       const groups = useTerminalStore.getState().groups;
       for (const g of groups) {
-        if (g.tabs.some(t => t.id === sessionId)) {
+        if (g.tabs.some((t) => t.id === sessionId)) {
           useTerminalStore.getState().updateTabCwd(g.id, sessionId, cwd);
           break;
         }
@@ -59,7 +59,7 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
     term.onTitleChange((title) => {
       const groups = useTerminalStore.getState().groups;
       for (const g of groups) {
-        if (g.tabs.some(t => t.id === sessionId)) {
+        if (g.tabs.some((t) => t.id === sessionId)) {
           useTerminalStore.getState().updateTabTitle(g.id, sessionId, title);
           break;
         }
@@ -88,7 +88,7 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
       resizeDisposable = term.onResize((size) => {
         session.resize(size.cols, size.rows).catch(console.error);
       });
-      
+
       const stateDisposable = session.onStateChanged((state) => {
         if (state === TerminalSessionState.Running) {
           term.options.disableStdin = false;
@@ -96,7 +96,7 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
           term.options.disableStdin = true;
         }
       });
-      
+
       // Monkey patch cleanup
       const originalDispose = sessionDisposable.dispose;
       sessionDisposable.dispose = () => {
@@ -119,7 +119,9 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
           const cw = containerRef.current.clientWidth;
           const ch = containerRef.current.clientHeight;
           if (cw > 0 && ch > 0) {
-            try { fitAddon.fit(); } catch (e) {}
+            try {
+              fitAddon.fit();
+            } catch (e) {}
           }
         }
       });
@@ -132,7 +134,7 @@ export function TerminalInstance({ sessionId }: TerminalInstanceProps) {
     const unsubStore = useTerminalStore.subscribe((state) => {
       doFit();
     });
-    
+
     // Initial fit
     setTimeout(doFit, 50);
 

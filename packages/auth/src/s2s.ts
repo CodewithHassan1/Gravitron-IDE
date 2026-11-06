@@ -54,14 +54,14 @@ export interface JWTPayload {
 
 /**
  * Validates a JWT against an external JWKS or trusted verification key.
- * 
+ *
  * @param token The raw JWT token
  * @param key The KeyLike verification key (from JWKS)
  * @param expectedIssuer Expected issuer (e.g. Auth Service)
  * @param expectedAudience Expected audience
  */
 export async function verifyExternalToken(
-  token: string, 
+  token: string,
   key: KeyLike | Uint8Array,
   expectedIssuer: string,
   expectedAudience: string
@@ -73,7 +73,10 @@ export async function verifyExternalToken(
     });
     return payload as JWTPayload;
   } catch (err: any) {
-    throw new ConnectError(`External token verification failed: ${err.message}`, Code.Unauthenticated);
+    throw new ConnectError(
+      `External token verification failed: ${err.message}`,
+      Code.Unauthenticated
+    );
   }
 }
 
@@ -100,11 +103,15 @@ export class S2SIssuer {
    * Mints a normal S2S token for trusted internal operations.
    * Accepts a trusted context, not arbitrary identity claims.
    */
-  async mintS2S(context: S2SContext, audience: string, expiresIn: string | number = '5m'): Promise<string> {
+  async mintS2S(
+    context: S2SContext,
+    audience: string,
+    expiresIn: string | number = '5m'
+  ): Promise<string> {
     return new SignJWT({
       purpose: 's2s',
       user_id: context.userId,
-      org_id: context.orgId
+      org_id: context.orgId,
     })
       .setProtectedHeader({ alg: 'ES256' })
       .setIssuedAt()
@@ -118,9 +125,16 @@ export class S2SIssuer {
    * Mints an execution-bound Agent Delegation token.
    * The token is bound to a single execution and expires.
    */
-  async mintDelegation(context: DelegationContext, audience: string, expiresIn: string | number = '1h'): Promise<string> {
+  async mintDelegation(
+    context: DelegationContext,
+    audience: string,
+    expiresIn: string | number = '1h'
+  ): Promise<string> {
     if (!context.userId || !context.orgId || !context.executionId || !context.scope) {
-      throw new ConnectError('Delegation context is incomplete. All identity and execution bindings are required.', Code.InvalidArgument);
+      throw new ConnectError(
+        'Delegation context is incomplete. All identity and execution bindings are required.',
+        Code.InvalidArgument
+      );
     }
     const jti = context.delegationId || randomUUID();
     return new SignJWT({
@@ -128,7 +142,7 @@ export class S2SIssuer {
       user_id: context.userId,
       org_id: context.orgId,
       execution_id: context.executionId,
-      scope: context.scope
+      scope: context.scope,
     })
       .setProtectedHeader({ alg: 'ES256' })
       .setIssuedAt()
@@ -143,11 +157,15 @@ export class S2SIssuer {
 /**
  * Validates an internal credential ensuring it has the 's2s' purpose.
  */
-export async function requireS2S(token: string, key: KeyLike | Uint8Array, expectedAudience: string): Promise<JWTPayload> {
+export async function requireS2S(
+  token: string,
+  key: KeyLike | Uint8Array,
+  expectedAudience: string
+): Promise<JWTPayload> {
   try {
     const { payload } = await jwtVerify(token, key, {
       issuer: TRUSTED_INTERNAL_ISSUER,
-      audience: expectedAudience
+      audience: expectedAudience,
     });
 
     if (payload.purpose !== 's2s') {
@@ -175,7 +193,10 @@ export function parseDelegationClaims(payload: JWTPayload): DelegationClaims {
   const jti = payload.jti;
 
   if (purpose !== 'agent_delegation') {
-    throw new ConnectError('Invalid credential purpose. Expected agent_delegation.', Code.PermissionDenied);
+    throw new ConnectError(
+      'Invalid credential purpose. Expected agent_delegation.',
+      Code.PermissionDenied
+    );
   }
   if (typeof userId !== 'string' || userId.length === 0) {
     throw new ConnectError('Delegation is missing a valid user_id claim.', Code.PermissionDenied);
@@ -184,7 +205,10 @@ export function parseDelegationClaims(payload: JWTPayload): DelegationClaims {
     throw new ConnectError('Delegation is missing a valid org_id claim.', Code.PermissionDenied);
   }
   if (typeof executionId !== 'string' || executionId.length === 0) {
-    throw new ConnectError('Delegation is missing a valid execution_id claim.', Code.PermissionDenied);
+    throw new ConnectError(
+      'Delegation is missing a valid execution_id claim.',
+      Code.PermissionDenied
+    );
   }
   if (typeof scope !== 'string' || scope.length === 0) {
     throw new ConnectError('Delegation is missing a valid scope claim.', Code.PermissionDenied);
@@ -218,7 +242,11 @@ export function parseDelegationClaims(payload: JWTPayload): DelegationClaims {
  * execution. Returns the validated claims. Handlers that require a runtime
  * execution binding MUST use `requireAgentDelegation` instead.
  */
-export async function verifyAgentDelegation(token: string, key: KeyLike | Uint8Array, expectedAudience: string): Promise<DelegationClaims> {
+export async function verifyAgentDelegation(
+  token: string,
+  key: KeyLike | Uint8Array,
+  expectedAudience: string
+): Promise<DelegationClaims> {
   try {
     const { payload } = await jwtVerify(token, key, {
       issuer: TRUSTED_INTERNAL_ISSUER,
@@ -227,7 +255,10 @@ export async function verifyAgentDelegation(token: string, key: KeyLike | Uint8A
     return parseDelegationClaims(payload as JWTPayload);
   } catch (err: any) {
     if (err instanceof ConnectError) throw err;
-    throw new ConnectError(`Delegation token verification failed: ${err.message}`, Code.Unauthenticated);
+    throw new ConnectError(
+      `Delegation token verification failed: ${err.message}`,
+      Code.Unauthenticated
+    );
   }
 }
 
@@ -247,7 +278,10 @@ export async function requireAgentDelegation(
   expectedExecutionId: string
 ): Promise<DelegationClaims> {
   if (!expectedExecutionId || typeof expectedExecutionId !== 'string') {
-    throw new ConnectError('An expectedExecutionId is required to enforce execution binding.', Code.InvalidArgument);
+    throw new ConnectError(
+      'An expectedExecutionId is required to enforce execution binding.',
+      Code.InvalidArgument
+    );
   }
   const claims = await verifyAgentDelegation(token, key, expectedAudience);
 

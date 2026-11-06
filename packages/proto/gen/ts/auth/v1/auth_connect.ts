@@ -3,15 +3,30 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { AuthResponse, ForgotPasswordRequest, IntrospectTokenRequest, IntrospectTokenResponse, LoginRequest, LogoutRequest, PasswordLoginRequest, RefreshRequest, RegisterRequest, RegisterResponse, ResendVerificationRequest, ResetPasswordRequest, RevokeSessionRequest, VerifyEmailRequest } from "./auth_pb.js";
-import { MethodKind } from "@bufbuild/protobuf";
-import { Empty } from "../../common/v1/common_pb.js";
+import {
+  AuthResponse,
+  ForgotPasswordRequest,
+  IntrospectTokenRequest,
+  IntrospectTokenResponse,
+  LoginRequest,
+  LogoutRequest,
+  PasswordLoginRequest,
+  RefreshRequest,
+  RegisterRequest,
+  RegisterResponse,
+  ResendVerificationRequest,
+  ResetPasswordRequest,
+  RevokeSessionRequest,
+  VerifyEmailRequest,
+} from './auth_pb.js';
+import { MethodKind } from '@bufbuild/protobuf';
+import { Empty } from '../../common/v1/common_pb.js';
 
 /**
  * @generated from service auth.v1.AuthService
  */
 export const AuthService = {
-  typeName: "auth.v1.AuthService",
+  typeName: 'auth.v1.AuthService',
   methods: {
     /**
      * Initiates or handles the OIDC callback
@@ -21,7 +36,7 @@ export const AuthService = {
      * @deprecated
      */
     login: {
-      name: "Login",
+      name: 'Login',
       I: LoginRequest,
       O: AuthResponse,
       kind: MethodKind.Unary,
@@ -32,7 +47,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.Register
      */
     register: {
-      name: "Register",
+      name: 'Register',
       I: RegisterRequest,
       O: RegisterResponse,
       kind: MethodKind.Unary,
@@ -43,7 +58,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.PasswordLogin
      */
     passwordLogin: {
-      name: "PasswordLogin",
+      name: 'PasswordLogin',
       I: PasswordLoginRequest,
       O: AuthResponse,
       kind: MethodKind.Unary,
@@ -54,7 +69,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.Refresh
      */
     refresh: {
-      name: "Refresh",
+      name: 'Refresh',
       I: RefreshRequest,
       O: AuthResponse,
       kind: MethodKind.Unary,
@@ -65,7 +80,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.Logout
      */
     logout: {
-      name: "Logout",
+      name: 'Logout',
       I: LogoutRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -76,7 +91,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.RevokeSession
      */
     revokeSession: {
-      name: "RevokeSession",
+      name: 'RevokeSession',
       I: RevokeSessionRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -87,7 +102,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.IntrospectToken
      */
     introspectToken: {
-      name: "IntrospectToken",
+      name: 'IntrospectToken',
       I: IntrospectTokenRequest,
       O: IntrospectTokenResponse,
       kind: MethodKind.Unary,
@@ -98,7 +113,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.ForgotPassword
      */
     forgotPassword: {
-      name: "ForgotPassword",
+      name: 'ForgotPassword',
       I: ForgotPasswordRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -109,7 +124,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.ResetPassword
      */
     resetPassword: {
-      name: "ResetPassword",
+      name: 'ResetPassword',
       I: ResetPasswordRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -120,7 +135,7 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.VerifyEmail
      */
     verifyEmail: {
-      name: "VerifyEmail",
+      name: 'VerifyEmail',
       I: VerifyEmailRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -131,11 +146,10 @@ export const AuthService = {
      * @generated from rpc auth.v1.AuthService.ResendVerification
      */
     resendVerification: {
-      name: "ResendVerification",
+      name: 'ResendVerification',
       I: ResendVerificationRequest,
       O: Empty,
       kind: MethodKind.Unary,
     },
-  }
+  },
 } as const;
-

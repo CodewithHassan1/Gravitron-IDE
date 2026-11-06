@@ -12,5 +12,5 @@ export const PlatformFactory = {
       throw new Error('No platform has been registered');
     }
     return activePlatform;
-  }
+  },
 };

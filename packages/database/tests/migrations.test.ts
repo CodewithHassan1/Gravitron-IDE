@@ -22,14 +22,18 @@ describe('Database Migration Runner Safety and Correctness', () => {
   });
 
   it('proves sanitize redacts database credentials from connection strings and errors', () => {
-    const rawUrl = 'postgres://admin_user:super_secret_password_123@postgres.internal.net:5432/production_db';
+    const rawUrl =
+      'postgres://admin_user:super_secret_password_123@postgres.internal.net:5432/production_db';
     const sanitized = sanitize(rawUrl);
     expect(sanitized).toBe('postgres://admin_user:***@postgres.internal.net:5432/production_db');
     expect(sanitized).not.toContain('super_secret_password_123');
 
-    const errorMsg = 'Failed to connect to postgres://app_user:p@ssw0rd!@10.0.0.5:5432/mydb: connection refused';
+    const errorMsg =
+      'Failed to connect to postgres://app_user:p@ssw0rd!@10.0.0.5:5432/mydb: connection refused';
     const sanitizedErr = sanitize(errorMsg);
-    expect(sanitizedErr).toBe('Failed to connect to postgres://app_user:***@10.0.0.5:5432/mydb: connection refused');
+    expect(sanitizedErr).toBe(
+      'Failed to connect to postgres://app_user:***@10.0.0.5:5432/mydb: connection refused'
+    );
     expect(sanitizedErr).not.toContain('p@ssw0rd!');
   });
 
@@ -37,15 +41,21 @@ describe('Database Migration Runner Safety and Correctness', () => {
     const files = fs.readdirSync(migrationsDir);
     const versionMap = new Map<number, string>();
 
-    const sqlFiles = files.filter(f => !f.startsWith('.') && !f.endsWith('.md'));
+    const sqlFiles = files.filter((f) => !f.startsWith('.') && !f.endsWith('.md'));
     expect(sqlFiles.length).toBeGreaterThan(0);
 
     for (const file of sqlFiles) {
       const match = file.match(/^V(\d{4})__(.+)\.sql$/);
-      expect(match, `File ${file} does not match strict V<0000>__<description>.sql pattern`).not.toBeNull();
+      expect(
+        match,
+        `File ${file} does not match strict V<0000>__<description>.sql pattern`
+      ).not.toBeNull();
 
       const versionNum = parseInt(match![1], 10);
-      expect(versionMap.has(versionNum), `Duplicate version ${versionNum} in ${file} and ${versionMap.get(versionNum)}`).toBe(false);
+      expect(
+        versionMap.has(versionNum),
+        `Duplicate version ${versionNum} in ${file} and ${versionMap.get(versionNum)}`
+      ).toBe(false);
       versionMap.set(versionNum, file);
     }
 
@@ -57,7 +67,7 @@ describe('Database Migration Runner Safety and Correctness', () => {
 
   it('proves non-transactional statement detection identifies CONCURRENTLY and -- @no-transaction', () => {
     const nonTxSql1 = 'CREATE INDEX CONCURRENTLY idx_users_email ON users(email);';
-    const nonTxSql2 = '-- @no-transaction\nALTER TYPE status_enum ADD VALUE \'ARCHIVED\';';
+    const nonTxSql2 = "-- @no-transaction\nALTER TYPE status_enum ADD VALUE 'ARCHIVED';";
     const txSql = 'CREATE TABLE test (id INT PRIMARY KEY);';
 
     const isNonTx = (sql: string) =>

@@ -30,8 +30,12 @@ export class DefaultWorkingDirectoryResolver implements IWorkingDirectoryResolve
       if (fs.existsSync(resolvedCwd) && fs.statSync(resolvedCwd).isDirectory()) {
         return resolvedCwd;
       }
-      console.warn(`[WorkingDirectoryResolver] Provided cwd '${resolvedCwd}' does not exist or is not a directory. Resolution failed.`);
-      throw new Error(`Invalid working directory: '${resolvedCwd}'. Directory does not exist or is invalid.`);
+      console.warn(
+        `[WorkingDirectoryResolver] Provided cwd '${resolvedCwd}' does not exist or is not a directory. Resolution failed.`
+      );
+      throw new Error(
+        `Invalid working directory: '${resolvedCwd}'. Directory does not exist or is invalid.`
+      );
     }
 
     // Default to homedir or some workspace root ideally provided by workspace service

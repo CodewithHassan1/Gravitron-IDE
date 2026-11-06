@@ -25,7 +25,7 @@ describe('Immutable Boundaries', () => {
     vfs.initializeRoot('test');
     vfs.createFolder('/src');
     const nodeId = vfs.resolve('/src');
-    
+
     const node = manager.getNode(nodeId);
     expect(node).toBeDefined();
 
@@ -35,7 +35,7 @@ describe('Immutable Boundaries', () => {
       // @ts-ignore: testing runtime protection
       node!.name = 'modified';
     }).toThrow(TypeError); // Object.freeze should throw in strict mode
-    
+
     // Verify internal state remains unchanged
     const pristineNode = manager.getNode(nodeId);
     expect(pristineNode?.name).toBe('src');
@@ -47,7 +47,7 @@ describe('Immutable Boundaries', () => {
     vfs.initializeRoot('test');
     vfs.createFolder('/src');
     vfs.createFile('/src/index.ts');
-    
+
     const srcId = vfs.resolve('/src');
     const children = manager.getChildren(srcId);
     expect(children.length).toBe(1);
@@ -56,7 +56,7 @@ describe('Immutable Boundaries', () => {
       // @ts-ignore
       children.push({ id: 'fake', name: 'fake', type: 'file', children: [], parentId: srcId });
     }).toThrow(TypeError); // Array should be frozen
-    
+
     expect(() => {
       // @ts-ignore
       children[0].name = 'changed';
@@ -76,7 +76,7 @@ describe('Immutable Boundaries', () => {
     // Create the DTO
     const eventDto: FileCreatedEventDTO = Object.freeze({
       type: 'created',
-      node: Object.freeze({ ...node, children: Object.freeze([]) })
+      node: Object.freeze({ ...node, children: Object.freeze([]) }),
     });
 
     expect(() => {

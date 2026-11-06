@@ -1,6 +1,11 @@
 // src/services/terminal/providers/runtime/AbstractRuntimeProvider.ts
 
-import { RuntimeProvider, RuntimeCapabilities, ProcessManager, ResourceMonitor } from './RuntimeProvider';
+import {
+  RuntimeProvider,
+  RuntimeCapabilities,
+  ProcessManager,
+  ResourceMonitor,
+} from './RuntimeProvider';
 import { RuntimeStatus } from '../../types';
 
 export abstract class AbstractRuntimeProvider implements RuntimeProvider {

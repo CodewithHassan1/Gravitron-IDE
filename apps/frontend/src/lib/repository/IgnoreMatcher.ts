@@ -7,7 +7,7 @@ export class IgnoreMatcher {
     this.addPattern('.next');
     this.addPattern('node_modules');
     // Hide standard IDE internals if needed
-    // this.addPattern('.gravitron'); 
+    // this.addPattern('.gravitron');
   }
 
   addPattern(pattern: string) {
@@ -38,7 +38,10 @@ export class IgnoreMatcher {
       regexStr = regexStr.slice(0, -1) + '(/.*)?$';
     } else {
       // If there's no slash in the pattern (except maybe at start), it can match anywhere
-      if (!regexStr.includes('/') || (regexStr.startsWith('/') && regexStr.lastIndexOf('/') === 0)) {
+      if (
+        !regexStr.includes('/') ||
+        (regexStr.startsWith('/') && regexStr.lastIndexOf('/') === 0)
+      ) {
         regexStr = '(^|/)' + regexStr + '(/.*)?$';
       } else {
         regexStr = '^' + regexStr + '(/.*)?$';
@@ -52,7 +55,7 @@ export class IgnoreMatcher {
     try {
       this.patterns.push({
         regex: new RegExp(regexStr),
-        isNegative
+        isNegative,
       });
     } catch (e) {
       console.warn('Invalid ignore pattern:', pattern);

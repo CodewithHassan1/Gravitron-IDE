@@ -23,7 +23,18 @@ describe('Soak: Search Under Load', () => {
     mockDbStore.clear();
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
-    await manager.openWorkspace({ id: 'ws-search', name: 'SearchWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
+    await manager.openWorkspace(
+      {
+        id: 'ws-search',
+        name: 'SearchWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
   });
 
   afterEach(async () => {
@@ -50,14 +61,16 @@ describe('Soak: Search Under Load', () => {
     for (let i = 0; i < 50; i++) {
       const result = await searchEngine.search(new SearchQuery('search_soak'));
       queryHits += result.length;
-      await new Promise(r => setTimeout(r, 10)); // small delay to interleave
+      await new Promise((r) => setTimeout(r, 10)); // small delay to interleave
     }
 
     await mutationPromise;
 
     // Final consistent search
-    const finalResult = await searchEngine.search(new SearchQuery('search_soak', { maxResults: 1000 }));
-    
+    const finalResult = await searchEngine.search(
+      new SearchQuery('search_soak', { maxResults: 1000 })
+    );
+
     // We created 500, deleted 250 (even indices), so exactly 250 should remain.
     expect(finalResult.length).toBe(250);
     // queryHits should be > 0 indicating it successfully searched while mutations happened

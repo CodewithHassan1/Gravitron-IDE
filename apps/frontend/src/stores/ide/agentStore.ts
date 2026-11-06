@@ -14,5 +14,3 @@ export const useAgentStore = create<AgentUIState>((set) => ({
   setActiveAgentId: (id) => set({ activeAgentId: id }),
   setAgentState: (state) => set({ agentState: state }),
 }));
-
-

@@ -12,7 +12,7 @@ export class IndexedDBMigration {
       }
       // Future extensions, AI cache, etc. can be added here in v2+
     }
-    
+
     // Future migrations
     // if (oldVersion < 2) { ... }
   }

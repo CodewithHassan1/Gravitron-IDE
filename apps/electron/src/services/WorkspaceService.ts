@@ -22,14 +22,14 @@ export class WorkspaceService implements IWorkspaceService {
   constructor(
     private fileWatcherService?: any,
     private eventBroker?: any
-  ) { }
+  ) {}
 
-  public async initialize(): Promise<void> { }
-  public async start(): Promise<void> { }
+  public async initialize(): Promise<void> {}
+  public async start(): Promise<void> {}
   public async stop(): Promise<void> {
     this.workspaces.clear();
   }
-  public async dispose(): Promise<void> { }
+  public async dispose(): Promise<void> {}
   public async health(): Promise<boolean> {
     return true;
   }
@@ -132,13 +132,13 @@ export class WorkspaceService implements IWorkspaceService {
         channel: Channels.Workspace.Open,
         handler: async (payload: string) => {
           await this.openWorkspace(payload);
-        }
+        },
       },
       {
         channel: Channels.Workspace.OpenFileRequest,
         handler: async () => {
           const result = await dialog.showOpenDialog({
-            properties: ['openFile']
+            properties: ['openFile'],
           });
           if (!result.canceled && result.filePaths.length > 0) {
             const filePath = result.filePaths[0];
@@ -147,19 +147,19 @@ export class WorkspaceService implements IWorkspaceService {
             return { id, path: filePath, name, type: 'file' };
           }
           return null;
-        }
+        },
       },
       {
         channel: Channels.Workspace.Close,
         handler: async (workspaceId: string) => {
           await this.closeWorkspace(workspaceId);
-        }
+        },
       },
       {
         channel: Channels.Workspace.SelectFolderRequest,
         handler: async () => {
           const result = await dialog.showOpenDialog({
-            properties: ['openDirectory']
+            properties: ['openDirectory'],
           });
           if (!result.canceled && result.filePaths.length > 0) {
             const testPath = result.filePaths[0];
@@ -172,13 +172,13 @@ export class WorkspaceService implements IWorkspaceService {
             return ret;
           }
           return null;
-        }
+        },
       },
       {
         channel: Channels.Workspace.GetDefaultWorkspaceRequest,
         handler: async () => {
           return undefined; // Frontend handles empty state
-        }
+        },
       },
       {
         channel: Channels.Workspace.SearchRequest,
@@ -272,7 +272,7 @@ export class WorkspaceService implements IWorkspaceService {
                         line: i + 1,
                         column: match.index + 1,
                         match: match[0],
-                        preview: line.substring(0, 200)
+                        preview: line.substring(0, 200),
                       });
                     }
                   }
@@ -285,12 +285,17 @@ export class WorkspaceService implements IWorkspaceService {
 
           await searchDirectory(physicalWorkspacePath, '/');
           return results;
-        }
+        },
       },
       {
         channel: Channels.Workspace.ReadDirectory,
         handler: async ({ workspaceId, path }: { workspaceId: string; path: string }) => {
-          console.log('[FORENSIC:MAIN:READDIR] workspaceId:', workspaceId, 'requested relative path:', path);
+          console.log(
+            '[FORENSIC:MAIN:READDIR] workspaceId:',
+            workspaceId,
+            'requested relative path:',
+            path
+          );
           const fsSync = await import('fs');
 
           const physicalPath = await this.getSecurePath(workspaceId, path);
@@ -306,11 +311,11 @@ export class WorkspaceService implements IWorkspaceService {
             name: entry.name,
             isDirectory: entry.isDirectory(),
             isFile: entry.isFile(),
-            isSymlink: entry.isSymbolicLink()
+            isSymlink: entry.isSymbolicLink(),
           }));
           console.log('[FORENSIC:MAIN:READDIR] exact returned entries:', mapped);
           return mapped;
-        }
+        },
       },
       {
         channel: Channels.Workspace.ReadFile,
@@ -324,7 +329,7 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to read file ${path}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.WriteFile,
@@ -332,7 +337,7 @@ export class WorkspaceService implements IWorkspaceService {
           workspaceId,
           path,
           content,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -380,14 +385,14 @@ export class WorkspaceService implements IWorkspaceService {
             }
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.CreateFile,
         handler: async ({
           workspaceId,
           path,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -404,14 +409,14 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to create file ${path}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.CreateFolder,
         handler: async ({
           workspaceId,
           path,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -428,14 +433,14 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to create folder ${path}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.DeleteFile,
         handler: async ({
           workspaceId,
           path,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -452,14 +457,14 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to delete file ${path}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.DeleteFolder,
         handler: async ({
           workspaceId,
           path,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -476,7 +481,7 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to delete folder ${path}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.RenameFile,
@@ -484,7 +489,7 @@ export class WorkspaceService implements IWorkspaceService {
           workspaceId,
           path,
           newPath,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -504,7 +509,7 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to rename file ${path} to ${newPath}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.RenameFolder,
@@ -512,7 +517,7 @@ export class WorkspaceService implements IWorkspaceService {
           workspaceId,
           path,
           newPath,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -532,7 +537,7 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to rename folder ${path} to ${newPath}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.MoveFile,
@@ -540,7 +545,7 @@ export class WorkspaceService implements IWorkspaceService {
           workspaceId,
           path,
           newPath,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -560,7 +565,7 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to move file ${path} to ${newPath}`, e);
             throw e;
           }
-        }
+        },
       },
       {
         channel: Channels.Workspace.Copy,
@@ -568,7 +573,7 @@ export class WorkspaceService implements IWorkspaceService {
           workspaceId,
           path,
           newPath,
-          mutationId
+          mutationId,
         }: {
           workspaceId: string;
           path: string;
@@ -587,8 +592,8 @@ export class WorkspaceService implements IWorkspaceService {
             console.error(`[WorkspaceService] Failed to copy file ${path} to ${newPath}`, e);
             throw e;
           }
-        }
-      }
+        },
+      },
     ];
   }
 }

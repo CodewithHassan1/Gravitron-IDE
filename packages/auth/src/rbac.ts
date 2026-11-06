@@ -1,6 +1,6 @@
 export type Role = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
-export type Permission = 
+export type Permission =
   | 'organization:read'
   | 'organization:update'
   | 'organization:delete'
@@ -17,26 +17,42 @@ export type Permission =
 
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   OWNER: [
-    'organization:read', 'organization:update', 'organization:delete',
-    'member:invite', 'member:remove', 'member:update_role',
-    'workspace:create', 'workspace:read', 'workspace:update', 'workspace:delete',
-    'agent:execute', 'billing:manage', 'apikey:create'
+    'organization:read',
+    'organization:update',
+    'organization:delete',
+    'member:invite',
+    'member:remove',
+    'member:update_role',
+    'workspace:create',
+    'workspace:read',
+    'workspace:update',
+    'workspace:delete',
+    'agent:execute',
+    'billing:manage',
+    'apikey:create',
   ],
   ADMIN: [
-    'organization:read', 'organization:update',
-    'member:invite', 'member:remove', 'member:update_role',
-    'workspace:create', 'workspace:read', 'workspace:update', 'workspace:delete',
-    'agent:execute', 'apikey:create'
+    'organization:read',
+    'organization:update',
+    'member:invite',
+    'member:remove',
+    'member:update_role',
+    'workspace:create',
+    'workspace:read',
+    'workspace:update',
+    'workspace:delete',
+    'agent:execute',
+    'apikey:create',
   ],
   MEMBER: [
     'organization:read',
-    'workspace:create', 'workspace:read', 'workspace:update', 'workspace:delete',
-    'agent:execute'
+    'workspace:create',
+    'workspace:read',
+    'workspace:update',
+    'workspace:delete',
+    'agent:execute',
   ],
-  VIEWER: [
-    'organization:read',
-    'workspace:read'
-  ]
+  VIEWER: ['organization:read', 'workspace:read'],
 };
 
 export interface UserContext {

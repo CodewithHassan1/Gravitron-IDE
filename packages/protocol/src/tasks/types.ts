@@ -68,7 +68,7 @@ export interface TaskEvent {
   readonly category: 'lifecycle' | 'output' | 'progress' | 'diagnostic';
   readonly kind: string; // 'started', 'completed', 'stdout', 'stderr', 'percentage', 'problem'
   readonly executionId: string;
-  
+
   // Payload fields based on category/kind
   readonly data?: string | Uint8Array;
   readonly progress?: TaskProgress;

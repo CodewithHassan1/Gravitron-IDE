@@ -14,7 +14,7 @@ export class BatchPlanner {
    */
   plan(items: DocumentWorkItem[]): BatchPlan {
     return {
-      items
+      items,
     };
   }
 }

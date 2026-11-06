@@ -7,7 +7,7 @@ export class MinimapController {
     if (!editorInstance) return;
     const config = useEditorStore.getState().config;
     editorInstance.updateOptions({
-      minimap: { enabled: config.minimap }
+      minimap: { enabled: config.minimap },
     });
   }
 
@@ -20,10 +20,10 @@ export class MinimapController {
         options: {
           minimap: {
             color: colorClass,
-            position: 1 // monaco.editor.MinimapPosition.Inline
-          }
-        }
-      }
+            position: 1, // monaco.editor.MinimapPosition.Inline
+          },
+        },
+      },
     ]);
   }
 }

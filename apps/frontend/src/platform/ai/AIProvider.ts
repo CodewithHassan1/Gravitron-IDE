@@ -19,7 +19,10 @@ export interface IAIProvider {
   name: string;
 
   chat(messages: AIMessagePayload[], config?: AIProviderConfig): Promise<AIMessagePayload>;
-  stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown>;
+  stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown>;
   embeddings(texts: string[]): Promise<number[][]>;
   cancel(): void;
   countTokens(text: string): Promise<number>;

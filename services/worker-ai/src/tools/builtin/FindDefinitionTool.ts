@@ -12,39 +12,51 @@ export class FindDefinitionTool implements ToolImplementation {
           type: 'string',
           description: 'The exact name of the symbol to find the definition for.',
           minLength: 1,
-          maxLength: 100
-        }
+          maxLength: 100,
+        },
       },
       required: ['symbolName'],
-      additionalProperties: false
+      additionalProperties: false,
     },
-    riskLevel: 'read' as const
+    riskLevel: 'read' as const,
   };
 
-  public async execute(args: { symbolName: string }, bridge: AgentProtocol.IAgentCapabilityBridge, context: AgentProtocol.AgentCapabilityContext): Promise<ToolResult> {
+  public async execute(
+    args: { symbolName: string },
+    bridge: AgentProtocol.IAgentCapabilityBridge,
+    context: AgentProtocol.AgentCapabilityContext
+  ): Promise<ToolResult> {
     try {
       const response = await bridge.findDefinition(context, args.symbolName);
-      const content = JSON.stringify({
-        success: true,
-        snapshotSequence: response.snapshotSequence,
-        results: response.results,
-        truncated: false
-      }, null, 2);
+      const content = JSON.stringify(
+        {
+          success: true,
+          snapshotSequence: response.snapshotSequence,
+          results: response.results,
+          truncated: false,
+        },
+        null,
+        2
+      );
 
       return {
         content,
-        truncated: false
+        truncated: false,
       };
     } catch (e: any) {
       return {
-        content: JSON.stringify({
-          success: false,
-          error: {
-            code: 'INTELLIGENCE_QUERY_FAILED',
-            message: 'Repository intelligence unavailable.'
-          }
-        }, null, 2),
-        truncated: false
+        content: JSON.stringify(
+          {
+            success: false,
+            error: {
+              code: 'INTELLIGENCE_QUERY_FAILED',
+              message: 'Repository intelligence unavailable.',
+            },
+          },
+          null,
+          2
+        ),
+        truncated: false,
       };
     }
   }

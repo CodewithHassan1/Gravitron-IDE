@@ -21,7 +21,7 @@ export class EditorThemeManagerImpl {
     if (!this.monacoInstance) return;
     this.monacoInstance.editor.defineTheme(themeName, themeData);
   }
-  
+
   dispose() {
     this.monacoInstance = null;
   }

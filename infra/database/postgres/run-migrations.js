@@ -12,7 +12,10 @@ const { Client } = require('pg');
 // Sanitize connection strings and sensitive info from logs/errors
 function sanitize(str) {
   if (typeof str !== 'string') return String(str);
-  return str.replace(/:\/\/([^:]+):(.*?)@([a-zA-Z0-9.-]+(?::\d+)?(?:\/|[?#\s]|$))/g, '://$1:***@$3');
+  return str.replace(
+    /:\/\/([^:]+):(.*?)@([a-zA-Z0-9.-]+(?::\d+)?(?:\/|[?#\s]|$))/g,
+    '://$1:***@$3'
+  );
 }
 
 // Compute CRC32 checksum compatible with Flyway
@@ -21,14 +24,14 @@ function crc32(str) {
   for (let i = 0; i < 256; i++) {
     let c = i;
     for (let k = 0; k < 8; k++) {
-      c = (c & 1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1);
+      c = c & 1 ? -306674912 ^ (c >>> 1) : c >>> 1;
     }
     table[i] = c;
   }
   let crc = -1;
   const buf = Buffer.from(str, 'utf8');
   for (let i = 0; i < buf.length; i++) {
-    crc = table[(crc ^ buf[i]) & 0xFF] ^ (crc >>> 8);
+    crc = table[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8);
   }
   return (crc ^ -1) | 0;
 }
@@ -126,7 +129,7 @@ async function runMigrations() {
         filename: entry,
         versionNum,
         version: match[1],
-        description: match[2].replace(/_/g, ' ')
+        description: match[2].replace(/_/g, ' '),
       });
     }
 
@@ -136,7 +139,9 @@ async function runMigrations() {
     console.log(`[migration-runner] Discovered ${files.length} migration scripts.`);
 
     // Determine current max rank
-    const rankResult = await client.query('SELECT COALESCE(MAX(installed_rank), 0) AS max_rank FROM flyway_schema_history');
+    const rankResult = await client.query(
+      'SELECT COALESCE(MAX(installed_rank), 0) AS max_rank FROM flyway_schema_history'
+    );
     let currentRank = parseInt(rankResult.rows[0].max_rank, 10);
 
     for (const migration of files) {
@@ -153,12 +158,18 @@ async function runMigrations() {
         const row = historyResult.rows[0];
         if (row.success) {
           // Verify checksum against accidental modification
-          if (row.checksum !== null && row.checksum !== undefined && row.checksum !== fileChecksum) {
+          if (
+            row.checksum !== null &&
+            row.checksum !== undefined &&
+            row.checksum !== fileChecksum
+          ) {
             throw new Error(
               `Checksum mismatch for migration "${filename}": recorded checksum is ${row.checksum}, but current file checksum is ${fileChecksum}. Previously applied migrations must not be modified.`
             );
           }
-          console.log(`[migration-runner] [SKIP] ${filename} (already installed on ${row.installed_on ? new Date(row.installed_on).toISOString() : 'earlier'})`);
+          console.log(
+            `[migration-runner] [SKIP] ${filename} (already installed on ${row.installed_on ? new Date(row.installed_on).toISOString() : 'earlier'})`
+          );
           continue;
         } else {
           console.warn(`[migration-runner] [RETRY] ${filename} previously failed. Retrying...`);
@@ -180,24 +191,32 @@ async function runMigrations() {
           await client.query(sqlContent);
           await client.query('COMMIT');
         } else {
-          console.log(`[migration-runner] [NON-TRANSACTIONAL] Executing ${filename} without transaction block...`);
+          console.log(
+            `[migration-runner] [NON-TRANSACTIONAL] Executing ${filename} without transaction block...`
+          );
           await client.query(sqlContent);
         }
         const durationMs = Date.now() - startTime;
 
         currentRank += 1;
         if (historyResult.rows.length === 0) {
-          await client.query(`
+          await client.query(
+            `
             INSERT INTO flyway_schema_history 
             (installed_rank, version, description, type, script, checksum, installed_by, execution_time, success) 
             VALUES ($1, $2, $3, 'SQL', $4, $5, 'migration_runner', $6, true)
-          `, [currentRank, version, description, filename, fileChecksum, durationMs]);
+          `,
+            [currentRank, version, description, filename, fileChecksum, durationMs]
+          );
         } else {
-          await client.query(`
+          await client.query(
+            `
             UPDATE flyway_schema_history 
             SET success = true, execution_time = $1, checksum = $2, installed_on = CURRENT_TIMESTAMP 
             WHERE script = $3
-          `, [durationMs, fileChecksum, filename]);
+          `,
+            [durationMs, fileChecksum, filename]
+          );
         }
 
         console.log(`[migration-runner] [SUCCESS] ${filename} (${durationMs}ms)`);
@@ -213,17 +232,23 @@ async function runMigrations() {
 
         currentRank += 1;
         if (historyResult.rows.length === 0) {
-          await client.query(`
+          await client.query(
+            `
             INSERT INTO flyway_schema_history 
             (installed_rank, version, description, type, script, checksum, installed_by, execution_time, success) 
             VALUES ($1, $2, $3, 'SQL', $4, $5, 'migration_runner', $6, false)
-          `, [currentRank, version, description, filename, fileChecksum, durationMs]);
+          `,
+            [currentRank, version, description, filename, fileChecksum, durationMs]
+          );
         } else {
-          await client.query(`
+          await client.query(
+            `
             UPDATE flyway_schema_history 
             SET success = false, execution_time = $1, checksum = $2, installed_on = CURRENT_TIMESTAMP 
             WHERE script = $3
-          `, [durationMs, fileChecksum, filename]);
+          `,
+            [durationMs, fileChecksum, filename]
+          );
         }
 
         throw new Error(`Migration ${filename} failed: ${sanitizedErrMsg}`);
@@ -249,7 +274,7 @@ async function runMigrations() {
 }
 
 if (require.main === module) {
-  runMigrations().catch(err => {
+  runMigrations().catch((err) => {
     console.error(`[migration-runner] Fatal error:`, sanitize(err.message));
     process.exit(1);
   });

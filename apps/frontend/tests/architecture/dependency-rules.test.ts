@@ -16,11 +16,11 @@ describe('Dependency Rules', () => {
   it('The dependency graph must contain zero cycles', async () => {
     const res = await madge(srcPath, { fileExtensions: ['ts', 'tsx'] });
     const circular = res.circular();
-    
+
     if (circular.length > 0) {
       console.error('Circular dependencies found:', circular);
     }
-    
+
     expect(circular).toHaveLength(0);
   }, 30000);
 
@@ -32,13 +32,18 @@ describe('Dependency Rules', () => {
     Object.entries(dependencies).forEach(([module, deps]) => {
       // Normalize module name (madge returns relative paths like services/workspace/...)
       const mod = module.replace(/\\/g, '/');
-      
-      deps.forEach(d => {
+
+      deps.forEach((d) => {
         const dep = d.replace(/\\/g, '/');
 
         // Rule: Domain cannot import UI
         if (mod.startsWith('services/workspace/') && !mod.includes('adapters/')) {
-          if (dep.startsWith('components/') || dep.startsWith('ui/') || dep.startsWith('app/') || dep.includes('.tsx')) {
+          if (
+            dep.startsWith('components/') ||
+            dep.startsWith('ui/') ||
+            dep.startsWith('app/') ||
+            dep.includes('.tsx')
+          ) {
             violations.push(`DOMAIN->UI: ${mod} -> ${dep}`);
           }
         }
@@ -52,7 +57,11 @@ describe('Dependency Rules', () => {
 
         // Rule: Domain Isolation from native DB/FS APIs directly (VirtualFileSystem cannot import IndexedDB)
         if (mod.includes('VirtualFileSystem')) {
-          if (dep.includes('idb') || dep.includes('WorkspacePersistence') || dep.includes('FileSystemHandle')) {
+          if (
+            dep.includes('idb') ||
+            dep.includes('WorkspacePersistence') ||
+            dep.includes('FileSystemHandle')
+          ) {
             violations.push(`DOMAIN->NATIVE: ${mod} -> ${dep}`);
           }
         }
@@ -62,7 +71,7 @@ describe('Dependency Rules', () => {
     if (violations.length > 0) {
       console.error('Layer Direction Violations:', violations);
     }
-    
+
     expect(violations).toHaveLength(0);
   }, 30000);
 });

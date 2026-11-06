@@ -30,12 +30,20 @@ describe('Soak: Open/Close Loop', () => {
   });
 
   it('runs 100 open/close cycles without listener or memory leaks', async () => {
-    const wsInfo = { id: 'ws-soak', name: 'SoakWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any };
+    const wsInfo = {
+      id: 'ws-soak',
+      name: 'SoakWS',
+      uri: 'file:///',
+      provider: 'memory' as any,
+      lastOpened: Date.now(),
+      type: 'directory' as any,
+      capabilities: {} as any,
+    };
 
     for (let i = 0; i < 100; i++) {
       await manager.openWorkspace(wsInfo, { nativeHandle: {} as any });
       await manager.closeWorkspace();
-      
+
       // Memory Check per loop (Ensure no listener leaks)
       const listeners = (WorkspaceEvents as any).listeners;
       let totalListeners = 0;
@@ -44,7 +52,7 @@ describe('Soak: Open/Close Loop', () => {
       }
       // After close, there should be zero active listeners from Workspace components
       expect(totalListeners).toBe(0);
-      
+
       if ((manager as any).syncEngine) {
         throw new Error('Sync engine failed to dispose');
       }

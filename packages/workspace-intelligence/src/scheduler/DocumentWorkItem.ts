@@ -5,7 +5,7 @@ export enum WorkItemPriority {
   Interactive = 1,
   Background = 2,
   Recovery = 3,
-  Reindex = 4
+  Reindex = 4,
 }
 
 export interface DocumentWorkItem {

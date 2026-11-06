@@ -21,7 +21,7 @@ export class PasswordService {
   }
 
   /**
-   * Generates a dummy hash and performs a dummy compare to mitigate timing attacks 
+   * Generates a dummy hash and performs a dummy compare to mitigate timing attacks
    * when a user is not found.
    */
   static async dummyCompare(): Promise<void> {

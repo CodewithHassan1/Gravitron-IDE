@@ -1,4 +1,11 @@
-import { FileDTO, SymbolDTO, ReferenceDTO, ImportDTO, SnapshotDTO, EmbeddingDTO } from '../domain/IndexDTOs';
+import {
+  FileDTO,
+  SymbolDTO,
+  ReferenceDTO,
+  ImportDTO,
+  SnapshotDTO,
+  EmbeddingDTO,
+} from '../domain/IndexDTOs';
 
 export interface ISQLiteStore {
   /**

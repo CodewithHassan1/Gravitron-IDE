@@ -1,11 +1,17 @@
 import { TerminalProvider } from './TerminalProvider';
-import { TerminalDescriptor, ITerminalStream, TerminalCapabilities, ITerminalTransport, IDisposable } from '../../types';
+import {
+  TerminalDescriptor,
+  ITerminalStream,
+  TerminalCapabilities,
+  ITerminalTransport,
+  IDisposable,
+} from '../../types';
 import { TerminalEvents } from '../../events/TerminalEvents';
 import { TerminalEventType } from '../../types/events';
 
 export abstract class AbstractTerminalProvider implements TerminalProvider {
   public abstract readonly id: string;
-  
+
   public get capabilities(): TerminalCapabilities {
     return {
       supportsResize: true,
@@ -23,7 +29,7 @@ export abstract class AbstractTerminalProvider implements TerminalProvider {
 
     // Listen to global resize events and forward them to transport
     const resizeListener = TerminalEvents.on(TerminalEventType.TerminalResized, (event) => {
-      this.transport.resize(event.terminalId, event.cols, event.rows).catch(err => {
+      this.transport.resize(event.terminalId, event.cols, event.rows).catch((err) => {
         console.error(`Failed to resize terminal ${event.terminalId} over transport:`, err);
       });
     });
@@ -33,12 +39,15 @@ export abstract class AbstractTerminalProvider implements TerminalProvider {
   public async createStream(config: TerminalDescriptor): Promise<ITerminalStream> {
     return this.transport.createStream(config);
   }
-  
+
   public async validateEnvironment(): Promise<boolean> {
     return true;
   }
 
-  public async attachStream(terminalId: string, sessionId: string): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
+  public async attachStream(
+    terminalId: string,
+    sessionId: string
+  ): Promise<{ stream: ITerminalStream; history: Uint8Array }> {
     if (this.transport.attachStream) {
       return this.transport.attachStream(terminalId, sessionId);
     }

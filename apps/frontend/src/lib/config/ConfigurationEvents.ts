@@ -8,7 +8,7 @@ export enum ConfigurationEvents {
   ProfileChanged = 'profile:changed',
   WorkspaceSettingsChanged = 'workspaceSettings:changed',
   MachineSettingsChanged = 'machineSettings:changed',
-  
+
   SettingsImported = 'settings:imported',
   SettingsExported = 'settings:exported',
 }

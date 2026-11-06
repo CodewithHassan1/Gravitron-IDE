@@ -11,11 +11,14 @@ export class OpenAIProvider implements IAIProvider {
     return { role: 'assistant', content: 'Not implemented in stub.' };
   }
 
-  async *stream(messages: AIMessagePayload[], config?: AIProviderConfig): AsyncGenerator<string, void, unknown> {
+  async *stream(
+    messages: AIMessagePayload[],
+    config?: AIProviderConfig
+  ): AsyncGenerator<string, void, unknown> {
     this.abortController = new AbortController();
-    yield "Streaming ";
-    yield "from ";
-    yield "OpenAI stub.";
+    yield 'Streaming ';
+    yield 'from ';
+    yield 'OpenAI stub.';
   }
 
   async embeddings(texts: string[]): Promise<number[][]> {

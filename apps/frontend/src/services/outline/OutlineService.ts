@@ -50,19 +50,19 @@ class OutlineServiceImpl {
 
   private async rebuildOutline(uri: string | null) {
     if (!uri) return;
-    
+
     const activeEditor = EditorManager.getActiveEditor();
     if (!activeEditor) return;
-    
+
     const model = activeEditor.getModel();
     if (!model || model.uri.toString() !== uri) return;
 
     const versionId = model.getVersionId();
     const languageId = model.getLanguageId();
-    
+
     const store = useOutlineStore.getState();
     const cached = store.cache.get(uri);
-    
+
     // Check if cache is still valid
     if (cached && cached.versionId === versionId) {
       return;
@@ -73,15 +73,15 @@ class OutlineServiceImpl {
 
     try {
       const symbols = await provider.getSymbols(uri);
-      
+
       useOutlineStore.getState().setCache(uri, {
         uri,
         versionId,
         symbols,
         expandedState: cached ? cached.expandedState : new Set(),
-        selectedSymbol: cached ? cached.selectedSymbol : null
+        selectedSymbol: cached ? cached.selectedSymbol : null,
       });
-      
+
       // Update cursor position immediately after rebuild
       const cursor = EditorManager.adapter.getCurrentCursor();
       if (cursor && cursor.uri === uri) {
@@ -95,38 +95,53 @@ class OutlineServiceImpl {
   private updateActiveSymbol(position: Position) {
     const uri = EditorManager.adapter.getActiveEditorUri();
     if (!uri) return;
-    
+
     const store = useOutlineStore.getState();
     if (!store.followCursor) return;
-    
+
     const cached = store.cache.get(uri);
     if (!cached) return;
 
     const activeSymbol = this.findDeepestSymbolAtPosition(cached.symbols, position);
     const symbolId = activeSymbol ? this.getSymbolId(activeSymbol) : null;
-    
+
     store.setSelectedSymbol(uri, symbolId);
   }
 
-  private findDeepestSymbolAtPosition(symbols: DocumentSymbol[], position: Position): DocumentSymbol | null {
+  private findDeepestSymbolAtPosition(
+    symbols: DocumentSymbol[],
+    position: Position
+  ): DocumentSymbol | null {
     let bestMatch: DocumentSymbol | null = null;
-    
+
     for (const symbol of symbols) {
       const range = symbol.range;
       // Note: position is 1-indexed.
-      if (position.lineNumber > range.startLineNumber && position.lineNumber < range.endLineNumber) {
-         // Inside strictly
-         bestMatch = symbol;
-      } else if (position.lineNumber === range.startLineNumber && position.lineNumber === range.endLineNumber) {
-         if (position.column >= range.startColumn && position.column <= range.endColumn) {
-             bestMatch = symbol;
-         }
-      } else if (position.lineNumber === range.startLineNumber && position.column >= range.startColumn) {
-         bestMatch = symbol;
-      } else if (position.lineNumber === range.endLineNumber && position.column <= range.endColumn) {
-         bestMatch = symbol;
+      if (
+        position.lineNumber > range.startLineNumber &&
+        position.lineNumber < range.endLineNumber
+      ) {
+        // Inside strictly
+        bestMatch = symbol;
+      } else if (
+        position.lineNumber === range.startLineNumber &&
+        position.lineNumber === range.endLineNumber
+      ) {
+        if (position.column >= range.startColumn && position.column <= range.endColumn) {
+          bestMatch = symbol;
+        }
+      } else if (
+        position.lineNumber === range.startLineNumber &&
+        position.column >= range.startColumn
+      ) {
+        bestMatch = symbol;
+      } else if (
+        position.lineNumber === range.endLineNumber &&
+        position.column <= range.endColumn
+      ) {
+        bestMatch = symbol;
       }
-      
+
       if (bestMatch === symbol && symbol.children && symbol.children.length > 0) {
         const childMatch = this.findDeepestSymbolAtPosition(symbol.children, position);
         if (childMatch) {
@@ -134,10 +149,10 @@ class OutlineServiceImpl {
         }
       }
     }
-    
+
     return bestMatch;
   }
-  
+
   public getSymbolId(symbol: DocumentSymbol): string {
     // Generate a stable ID for the symbol
     return `${symbol.name}:${symbol.range.startLineNumber}:${symbol.range.startColumn}`;

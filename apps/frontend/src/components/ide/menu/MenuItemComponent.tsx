@@ -3,7 +3,7 @@ import {
   MenubarItem,
   MenubarSeparator,
   MenubarShortcut,
-  MenubarCheckboxItem
+  MenubarCheckboxItem,
 } from '../../ui/menubar';
 import { MenuViewModel } from '../../../services/menu/MenuTypes';
 import { CommandRegistry } from '../../../lib/registries/CommandRegistry';
@@ -43,10 +43,7 @@ export function MenuItemComponent({ model }: MenuItemProps) {
   }
 
   return (
-    <MenubarItem
-      disabled={!model.enabled}
-      onSelect={handleSelect}
-    >
+    <MenubarItem disabled={!model.enabled} onSelect={handleSelect}>
       {model.label}
       {model.shortcut && <MenubarShortcut>{model.shortcut}</MenubarShortcut>}
     </MenubarItem>

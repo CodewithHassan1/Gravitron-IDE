@@ -33,7 +33,7 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
       if (!mounted) return;
 
       const languageId = LanguageRegistry.getLanguageByExtension(uri);
-      
+
       let content = '';
       const nodeId = WorkspaceManager.resolvePath(uri);
       try {
@@ -46,7 +46,7 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
       } catch (err) {
         content = '// File content not found';
       }
-      
+
       if (!mounted) return;
 
       const editorOptions = {
@@ -64,7 +64,8 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
         cursorStyle: config.cursorStyle || 'line',
         lineNumbers: config.lineNumbers || 'on',
         guides: config.guides || { indentation: true },
-        scrollBeyondLastLine: config.scrollBeyondLastLine !== undefined ? config.scrollBeyondLastLine : true,
+        scrollBeyondLastLine:
+          config.scrollBeyondLastLine !== undefined ? config.scrollBeyondLastLine : true,
         autoClosingBrackets: config.autoClosingBrackets || 'languageDefined',
         autoIndent: config.autoIndent || 'full',
         stickyScroll: { enabled: config.stickyScrollEnabled || false },
@@ -80,12 +81,12 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
       if (changeDisposableRef.current) {
         changeDisposableRef.current.dispose();
       }
-      
+
       let initialVersionId = model.getAlternativeVersionId();
       changeDisposableRef.current = model.onDidChangeContent(() => {
         const isDirty = initialVersionId !== model.getAlternativeVersionId();
         updateTabDirtyState(groupId, tabId, isDirty);
-        
+
         if (nodeId) {
           WorkspaceManager.contentManager.updateContent(nodeId, model.getValue());
         }
@@ -120,7 +121,7 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
     };
 
     let cleanup: any;
-    initEditor().then(res => cleanup = res);
+    initEditor().then((res) => (cleanup = res));
 
     return () => {
       mounted = false;
@@ -149,7 +150,8 @@ export function MonacoEditor({ uri, tabId, groupId }: MonacoEditorProps) {
         cursorStyle: config.cursorStyle || 'line',
         lineNumbers: config.lineNumbers || 'on',
         guides: config.guides || { indentation: true },
-        scrollBeyondLastLine: config.scrollBeyondLastLine !== undefined ? config.scrollBeyondLastLine : true,
+        scrollBeyondLastLine:
+          config.scrollBeyondLastLine !== undefined ? config.scrollBeyondLastLine : true,
         autoClosingBrackets: config.autoClosingBrackets || 'languageDefined',
         autoIndent: config.autoIndent || 'full',
         stickyScroll: { enabled: config.stickyScrollEnabled || false },

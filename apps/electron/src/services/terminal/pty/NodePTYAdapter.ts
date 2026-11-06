@@ -17,14 +17,14 @@ export class NodePTYAdapter implements IProcess {
     this.ptyProcess.onData((data) => {
       if (this.disposed) return;
       const buf = typeof data === 'string' ? Buffer.from(data, 'utf-8') : data;
-      
+
       const uint8 = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-      this.dataListeners.forEach(cb => cb(uint8));
+      this.dataListeners.forEach((cb) => cb(uint8));
     });
 
     this.ptyProcess.onExit((e) => {
       if (this.disposed) return;
-      this.exitListeners.forEach(cb => cb(e.exitCode));
+      this.exitListeners.forEach((cb) => cb(e.exitCode));
       this.dispose();
     });
   }
@@ -55,7 +55,7 @@ export class NodePTYAdapter implements IProcess {
       // Ignore
     }
     // Manually trigger exit to guarantee cleanup, as node-pty may swallow the event when killed on Windows
-    this.exitListeners.forEach(cb => cb(0));
+    this.exitListeners.forEach((cb) => cb(0));
     this.dispose();
   }
 

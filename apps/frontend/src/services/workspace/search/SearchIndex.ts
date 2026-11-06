@@ -14,17 +14,17 @@ export class SearchIndex {
   private extensionIndex = new Map<string, Set<string>>();
   private pathIndex = new Map<string, string>();
   private nodeIndex = new Map<string, SearchResult>();
-  
+
   public addNode(payload: IndexNodePayload): void {
     const { nodeId, path, name, type, extension } = payload;
-    
+
     // Store full node representation for results
     this.nodeIndex.set(nodeId, {
       nodeId,
       path,
       name,
       type: type === 'directory' ? 'folder' : type,
-      score: 0 // Default, will be calculated on search
+      score: 0, // Default, will be calculated on search
     });
 
     this.pathIndex.set(nodeId, path);
@@ -89,7 +89,7 @@ export class SearchIndex {
       if (query.fileTypes && query.fileTypes.length > 0 && node.type === 'file') {
         const parts = node.name.split('.');
         const ext = parts.length > 1 ? parts.pop()!.toLowerCase() : '';
-        if (!query.fileTypes.map(e => e.toLowerCase()).includes(ext)) {
+        if (!query.fileTypes.map((e) => e.toLowerCase()).includes(ext)) {
           continue;
         }
       }
@@ -106,12 +106,12 @@ export class SearchIndex {
       // 4. Ranking
       const score = this.rank(query.query, matchResult, {
         filename: node.name,
-        path: node.path
+        path: node.path,
       });
 
       results.push({
         ...node,
-        score
+        score,
       });
     }
 
@@ -128,7 +128,7 @@ export class SearchIndex {
 
   private matchFuzzy(lowerQuery: string, text: string): MatchResult {
     if (!lowerQuery) return { isMatch: true, matches: [] };
-    
+
     const lowerText = text.toLowerCase();
     let queryIndex = 0;
     const matches: [number, number][] = [];
@@ -155,7 +155,11 @@ export class SearchIndex {
     return { isMatch: false, matches: [] };
   }
 
-  private rank(queryText: string, matchResult: MatchResult, context: { filename: string, path: string }): number {
+  private rank(
+    queryText: string,
+    matchResult: MatchResult,
+    context: { filename: string; path: string }
+  ): number {
     if (!matchResult.isMatch) return 0;
     if (!queryText) return 1;
 
@@ -174,7 +178,7 @@ export class SearchIndex {
     for (const [start, end] of matchResult.matches) {
       const length = end - start;
       contiguousChars += length;
-      score += (length * length) * 5; 
+      score += length * length * 5;
     }
 
     const filenameStartIndex = context.path.length - context.filename.length;
@@ -185,7 +189,7 @@ export class SearchIndex {
 
     const spread = matchResult.matches.length;
     if (spread > 1 && queryText.length <= 5) {
-      score += 50; 
+      score += 50;
     }
 
     return score;

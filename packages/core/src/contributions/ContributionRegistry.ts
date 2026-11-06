@@ -37,7 +37,7 @@ class ContributionRegistryImpl {
     // Register Commands
     if (contribution.commands && this.commandRegistrar) {
       for (const cmd of contribution.commands) {
-        // If there's a keybinding for this command, we pass the shortcut to the registrar? 
+        // If there's a keybinding for this command, we pass the shortcut to the registrar?
         // Or we let KeybindingContribution handle it. We can just register the command.
         disposables.push(this.commandRegistrar(cmd));
       }
@@ -60,7 +60,7 @@ class ContributionRegistryImpl {
         for (const d of disposables) {
           d.dispose();
         }
-      }
+      },
     };
   }
 }

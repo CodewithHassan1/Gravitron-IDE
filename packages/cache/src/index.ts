@@ -2,6 +2,9 @@ import Redis from 'ioredis';
 import { validateConfig } from '@ag/config';
 import { RedisSession, RedisSessionSchema } from '@ag/validation';
 
+export { Redis };
+export type RedisClientType = Redis;
+
 const config = validateConfig(process.env);
 export const redis = new Redis(config.REDIS_URL);
 
@@ -9,7 +12,6 @@ export const redis = new Redis(config.REDIS_URL);
  * Whitelist Session Manager using exact Redis commands.
  */
 export class SessionManager {
-  
   static async createSession(sid: string, data: RedisSession): Promise<void> {
     const key = `session:${sid}`;
     const ttlSeconds = Math.max(0, Math.floor((data.expires_at - Date.now()) / 1000));
@@ -21,10 +23,10 @@ export class SessionManager {
   static async getSession(sid: string): Promise<RedisSession | null> {
     const data = await redis.get(`session:${sid}`);
     if (!data) return null;
-    
+
     const parsed = RedisSessionSchema.safeParse(JSON.parse(data));
     if (!parsed.success) return null;
-    
+
     return parsed.data;
   }
 

@@ -7,7 +7,7 @@ import { WorkspaceProtocol } from '@ag/protocol';
 export class FileWatcherService {
   private watcher: chokidar.FSWatcher | null = null;
   private currentWorkspacePath: string | null = null;
-  
+
   private retryCount = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private readonly BASE_DELAY = 1000;
@@ -20,30 +20,30 @@ export class FileWatcherService {
     if (this.watcher) {
       this.stopWatching();
     }
-    
+
     this.currentWorkspacePath = workspacePath;
     this.isReconnect = isReconnect;
-    
+
     this.watcher = chokidar.watch(workspacePath, {
       ignored: WorkspaceWatcherConfig.ignored,
       persistent: true,
       ignoreInitial: true,
-      usePolling: false // rely on native OS events for better performance
+      usePolling: false, // rely on native OS events for better performance
     });
 
     this.watcher
-      .on('add', path => this.handleEvent('created', path))
-      .on('change', path => this.handleEvent('modified', path))
-      .on('unlink', path => this.handleEvent('deleted', path))
-      .on('addDir', path => this.handleEvent('created', path))
-      .on('unlinkDir', path => this.handleEvent('deleted', path))
+      .on('add', (path) => this.handleEvent('created', path))
+      .on('change', (path) => this.handleEvent('modified', path))
+      .on('unlink', (path) => this.handleEvent('deleted', path))
+      .on('addDir', (path) => this.handleEvent('created', path))
+      .on('unlinkDir', (path) => this.handleEvent('deleted', path))
       .on('ready', () => this.handleReady())
-      .on('error', error => this.handleError(error));
+      .on('error', (error) => this.handleError(error));
   }
 
   private handleReady(): void {
     this.retryCount = 0; // Successful connection
-    
+
     if (this.isReconnect && this.currentWorkspacePath) {
       const event: WorkspaceProtocol.WorkspaceExternalEvent = {
         id: crypto.randomUUID(),
@@ -71,7 +71,7 @@ export class FileWatcherService {
       this.watcher = null;
     }
 
-    const delay = Math.min(this.MAX_DELAY, this.BASE_DELAY * (2 ** this.retryCount));
+    const delay = Math.min(this.MAX_DELAY, this.BASE_DELAY * 2 ** this.retryCount);
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.retryCount++;
@@ -94,7 +94,10 @@ export class FileWatcherService {
     this.currentWorkspacePath = null;
   }
 
-  private handleEvent(type: 'created' | 'modified' | 'deleted' | 'renamed' | 'reconnected', path: string): void {
+  private handleEvent(
+    type: 'created' | 'modified' | 'deleted' | 'renamed' | 'reconnected',
+    path: string
+  ): void {
     if (!this.currentWorkspacePath) return;
 
     // Convert absolute path from chokidar to workspace relative path

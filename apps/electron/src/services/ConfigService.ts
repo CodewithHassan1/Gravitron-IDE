@@ -26,7 +26,10 @@ export function validateGatewayUrl(input: string, isProduction: boolean): Gatewa
   try {
     parsed = new URL(raw);
   } catch {
-    return { valid: false, error: 'Invalid URL format. Please enter a valid URL (e.g. https://gateway.domain.com).' };
+    return {
+      valid: false,
+      error: 'Invalid URL format. Please enter a valid URL (e.g. https://gateway.domain.com).',
+    };
   }
 
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
@@ -39,20 +42,28 @@ export function validateGatewayUrl(input: string, isProduction: boolean): Gatewa
   parsed.search = '';
   parsed.hash = '';
 
-  const isLocalHost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1' || parsed.hostname === '::1';
-  const hasValidHostname = isLocalHost || parsed.hostname.includes('.') || (!isProduction && Boolean(parsed.port));
+  const isLocalHost =
+    parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1' || parsed.hostname === '::1';
+  const hasValidHostname =
+    isLocalHost || parsed.hostname.includes('.') || (!isProduction && Boolean(parsed.port));
   if (!hasValidHostname) {
-    return { valid: false, error: 'Invalid hostname. Please enter a valid host or domain name (e.g. https://gateway.domain.com).' };
+    return {
+      valid: false,
+      error:
+        'Invalid hostname. Please enter a valid host or domain name (e.g. https://gateway.domain.com).',
+    };
   }
 
   if (isProduction && !isLocalHost && parsed.protocol !== 'https:') {
     return {
       valid: false,
-      error: 'Production Gateway endpoints must use HTTPS. Plain HTTP is only permitted for local development (localhost).'
+      error:
+        'Production Gateway endpoints must use HTTPS. Plain HTTP is only permitted for local development (localhost).',
     };
   }
 
-  const normalized = parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/+$/, ''));
+  const normalized =
+    parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/+$/, ''));
   return { valid: true, normalizedUrl: normalized };
 }
 
@@ -150,11 +161,15 @@ export class ConfigService implements IService, IIpcService {
     return {
       gatewayUrl: current && current.length > 0 ? current : null,
       isPackaged,
-      source
+      source,
     };
   }
 
-  public setGatewayUrl(urlInput: string): { success: boolean; gatewayUrl?: string; error?: string } {
+  public setGatewayUrl(urlInput: string): {
+    success: boolean;
+    gatewayUrl?: string;
+    error?: string;
+  } {
     const isPackaged = app?.isPackaged ?? false;
     const validation = validateGatewayUrl(urlInput, isPackaged);
 
@@ -173,7 +188,7 @@ export class ConfigService implements IService, IIpcService {
         }
         const payload = {
           gatewayUrl: normalized,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
         fs.writeFileSync(this.configFilePath, JSON.stringify(payload, null, 2), 'utf8');
       } catch (err: any) {
@@ -206,7 +221,7 @@ export class ConfigService implements IService, IIpcService {
         channel: Channels.App.GetConfigRequest,
         handler: async (_payload: void, _ctx: IpcContext) => {
           return this.getConfig();
-        }
+        },
       },
       {
         channel: Channels.App.SetGatewayUrlRequest,
@@ -219,14 +234,14 @@ export class ConfigService implements IService, IIpcService {
             throw new Error(result.error || 'Failed to update Gateway URL');
           }
           return result;
-        }
+        },
       },
       {
         channel: Channels.App.ClearGatewayUrlRequest,
         handler: async (_payload: void, _ctx: IpcContext) => {
           return this.clearGatewayUrl();
-        }
-      }
+        },
+      },
     ];
   }
 }

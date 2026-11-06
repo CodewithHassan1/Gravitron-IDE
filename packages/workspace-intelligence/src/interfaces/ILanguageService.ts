@@ -4,7 +4,7 @@ import { SearchQuery } from './ISearchProvider';
 /**
  * A Language Service answers semantic questions about documents and symbols,
  * bridging the gap between raw AST graphs and IDE features (autocomplete, hover, definitions).
- * 
+ *
  * Parsers DO NOT implement this interface. Parsers only extract syntax.
  * Language Services consume the RepositoryModel and semantic tools to answer queries.
  */
@@ -17,7 +17,11 @@ export interface ILanguageService {
   /**
    * Retrieves hover information (documentation, signature) for a given symbol
    */
-  getHoverContent(documentId: DocumentId, line: number, character: number): Promise<any | undefined>;
+  getHoverContent(
+    documentId: DocumentId,
+    line: number,
+    character: number
+  ): Promise<any | undefined>;
 
   /**
    * Finds the definition(s) for a symbol at a given position

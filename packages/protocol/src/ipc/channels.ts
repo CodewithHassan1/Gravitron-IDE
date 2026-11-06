@@ -69,5 +69,5 @@ export const Channels = {
     GetConfigSync: 'app/getConfigSync',
     SetGatewayUrlRequest: 'app/setGatewayUrlRequest',
     ClearGatewayUrlRequest: 'app/clearGatewayUrlRequest',
-  }
+  },
 } as const;

@@ -12,16 +12,16 @@ export class WebSocketTransport implements ITransport {
     return new Promise((resolve, reject) => {
       try {
         this.socket = new WebSocket(this.url);
-        
+
         this.socket.onopen = () => resolve();
         this.socket.onerror = (e) => reject(new Error('WebSocket connection failed'));
-        
+
         this.socket.onmessage = (e) => {
-          this.messageListeners.forEach(l => l(e.data));
+          this.messageListeners.forEach((l) => l(e.data));
         };
-        
+
         this.socket.onclose = () => {
-          this.closeListeners.forEach(l => l());
+          this.closeListeners.forEach((l) => l());
         };
       } catch (err) {
         reject(err);

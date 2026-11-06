@@ -15,7 +15,10 @@ import { randomUUID } from 'crypto';
 
 export class TaskService implements ITaskService {
   public readonly id = ServiceIds.Tasks;
-  public readonly dependencies: readonly ServiceId[] = [ServiceIds.WorkspaceExecution, ServiceIds.Window];
+  public readonly dependencies: readonly ServiceId[] = [
+    ServiceIds.WorkspaceExecution,
+    ServiceIds.Window,
+  ];
 
   private definitionRegistry = new TaskDefinitionRegistry();
   private problemMatcherRegistry = new ProblemMatcherRegistry();
@@ -71,12 +74,12 @@ export class TaskService implements ITaskService {
         workspaceId,
         traceId: randomUUID(),
         correlationId: randomUUID(),
-        reason: 'User'
+        reason: 'User',
       },
       executable: task.command || 'sh',
       args: task.args || [],
       cwd: task.cwd || '/',
-      environment: task.env || {}
+      environment: task.env || {},
     };
 
     const runner = new TaskRunner(
@@ -103,7 +106,7 @@ export class TaskService implements ITaskService {
     if (event.category === 'lifecycle' && event.snapshot) {
       this.historyStore.save(event.snapshot);
     }
-    
+
     // Broadcast event to renderer via WindowService
     this.windowServiceFactory().broadcast(Channels.Tasks.OnEvent, event);
   }

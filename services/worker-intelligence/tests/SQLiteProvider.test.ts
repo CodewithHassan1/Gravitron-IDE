@@ -32,12 +32,16 @@ describe('SQLiteProvider (Gate 4A.5)', () => {
   it('Workspace isolation: A -> A results, B -> B results', async () => {
     await storeA.commitFileIndex(
       { id: 'f1', workspaceId: 'ws-A', filePath: 'test.ts', hash: 'h1', updatedAt: 1 },
-      [{ name: 'MyClass', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }], [], []
+      [{ name: 'MyClass', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }],
+      [],
+      []
     );
 
     await storeB.commitFileIndex(
       { id: 'f2', workspaceId: 'ws-B', filePath: 'test.ts', hash: 'h2', updatedAt: 2 },
-      [{ name: 'MyClass', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }], [], []
+      [{ name: 'MyClass', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }],
+      [],
+      []
     );
 
     const resA = await provider.searchSymbols('ws-A', 'MyClass');
@@ -51,13 +55,21 @@ describe('SQLiteProvider (Gate 4A.5)', () => {
 
   it('Bounding: 1000+ matches bounded to MAX_SEARCH_RESULTS (1000 hard limit)', async () => {
     const symbols = [];
-    for(let i=0; i<1500; i++) {
-      symbols.push({ name: `Match${i}`, kind: SymbolKind.Variable, line: i, column: 1, startOffset: i });
+    for (let i = 0; i < 1500; i++) {
+      symbols.push({
+        name: `Match${i}`,
+        kind: SymbolKind.Variable,
+        line: i,
+        column: 1,
+        startOffset: i,
+      });
     }
-    
+
     await storeA.commitFileIndex(
       { id: 'f1', workspaceId: 'ws-A', filePath: 'huge.ts', hash: 'h', updatedAt: 1 },
-      symbols, [], []
+      symbols,
+      [],
+      []
     );
 
     const res = await provider.searchSymbols('ws-A', 'Match', { limit: 5000 });
@@ -69,11 +81,15 @@ describe('SQLiteProvider (Gate 4A.5)', () => {
     // Exact match first, then by kind, filepath, offset
     await storeA.commitFileIndex(
       { id: 'f1', workspaceId: 'ws-A', filePath: 'z.ts', hash: 'h1', updatedAt: 1 },
-      [{ name: 'Target', kind: SymbolKind.Variable, line: 1, column: 1, startOffset: 10 }], [], []
+      [{ name: 'Target', kind: SymbolKind.Variable, line: 1, column: 1, startOffset: 10 }],
+      [],
+      []
     );
     await storeA.commitFileIndex(
       { id: 'f2', workspaceId: 'ws-A', filePath: 'a.ts', hash: 'h2', updatedAt: 1 },
-      [{ name: 'Target', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }], [], []
+      [{ name: 'Target', kind: SymbolKind.Class, line: 1, column: 1, startOffset: 0 }],
+      [],
+      []
     );
 
     const res = await provider.findDefinition('ws-A', 'Target');
@@ -88,20 +104,24 @@ describe('SQLiteProvider (Gate 4A.5)', () => {
     // Initial state: Snapshot 41
     await storeA.commitFileIndex(
       { id: 'f1', workspaceId: 'ws-A', filePath: '1.ts', hash: 'h1', updatedAt: 1 },
-      [{ name: 'A', kind: SymbolKind.Class, line: 1, column: 1 }], [], []
+      [{ name: 'A', kind: SymbolKind.Class, line: 1, column: 1 }],
+      [],
+      []
     );
 
     const initialSeq = (await storeA.getLatestSnapshot())!.sequence;
 
     // Start a query that uses serialization.
-    // If we trigger a commit asynchronously right after starting it, 
+    // If we trigger a commit asynchronously right after starting it,
     // the query should block the commit (or vice versa) and return consistent data.
     const queryPromise = provider.searchSymbols('ws-A', 'A');
 
     // This commit will queue up behind the transaction of the query in sqlite serialize queue
     const commitPromise = storeA.commitFileIndex(
       { id: 'f2', workspaceId: 'ws-A', filePath: '2.ts', hash: 'h2', updatedAt: 2 },
-      [{ name: 'A', kind: SymbolKind.Class, line: 2, column: 1 }], [], []
+      [{ name: 'A', kind: SymbolKind.Class, line: 2, column: 1 }],
+      [],
+      []
     );
 
     const res = await queryPromise;

@@ -10,12 +10,12 @@ export const SettingsSearch: React.FC = () => {
       setFilteredProperties([]);
       return;
     }
-    
+
     // Simple frontend search for now.
     // In the future this should call the NavigationEngine / SettingsSearchProvider
     const query = searchQuery.toLowerCase();
     const allProps = SettingsRegistry.getAllProperties();
-    
+
     const results = allProps.filter((prop) => {
       const matchTitle = prop.title.toLowerCase().includes(query);
       const matchDesc = prop.description?.toLowerCase().includes(query);

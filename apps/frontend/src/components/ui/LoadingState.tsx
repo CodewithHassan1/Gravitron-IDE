@@ -18,11 +18,7 @@ export function LoadingState({ icon: Icon, title, subtitle }: LoadingStateProps)
         )}
       </div>
       <h3 className="text-sm font-medium text-foreground mb-1">{title}</h3>
-      {subtitle && (
-        <p className="text-xs text-muted-foreground max-w-[250px]">
-          {subtitle}
-        </p>
-      )}
+      {subtitle && <p className="text-xs text-muted-foreground max-w-[250px]">{subtitle}</p>}
     </div>
   );
 }

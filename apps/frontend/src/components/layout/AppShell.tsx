@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
@@ -12,16 +12,14 @@ const AUTH_PATHS = ['/', '/login', '/signup', '/auth'];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const lifecycleState = useWorkspaceStore((state) => state.lifecycleState);
-  
+
   // 1. Auth Routing Bypass
-  const isAuthPage = AUTH_PATHS.some(path => pathname === path || pathname.startsWith(path + '/'));
-  
+  const isAuthPage = AUTH_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(path + '/')
+  );
+
   if (isAuthPage) {
-    return (
-      <main className="flex-1 overflow-auto bg-background text-foreground">
-        {children}
-      </main>
-    );
+    return <main className="flex-1 overflow-auto bg-background text-foreground">{children}</main>;
   }
 
   // 2. Global Shell Structure
@@ -30,9 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-screen w-full bg-background text-foreground overflow-hidden">
       <TopNav />
-      <main className="flex-1 overflow-hidden relative">
-        {children}
-      </main>
+      <main className="flex-1 overflow-hidden relative">{children}</main>
       {isReady && <StatusBar />}
     </div>
   );

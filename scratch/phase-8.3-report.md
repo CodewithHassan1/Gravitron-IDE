@@ -35,6 +35,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
 ## 2. Findings & Remediation
 
 ### A. Downstream services accepted unverifiable / forgeable delegations
+
 - **Control:** every downstream hop independently verifies the delegation signature and
   standard claims against a public key; no service trusts a caller's word.
 - **Where:** `packages/auth/src/s2s.ts` (`verifyAgentDelegation`,
@@ -43,6 +44,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
 - **Proof:** harness §3 (worker `401` on missing delegation), §4 (Go `401` missing token).
 
 ### B. Delegation not bound to an execution / identity (replayable, cross-tenant)
+
 - **Control:** token carries `execution_id`, `user_id`, `org_id`; each hop enforces the
   expected audience and the execution binding; Go additionally enforces tenant/user
   binding (`403` on mismatch).
@@ -54,6 +56,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
   `Execution rejected: ... organization mismatch`.
 
 ### C. Private-key sprawl — more than one component could mint delegations
+
 - **Control:** the **Gateway is the ONLY** holder of `GATEWAY_PRIVATE_KEY` and the only
   caller of `mintDelegation`. Orchestrator, Worker-AI, Execution-Service, and Electron
   hold **public** material only.
@@ -63,6 +66,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
   production only in `services/gateway`; none in worker-ai/electron/execution/orchestrator.
 
 ### D. Raw delegation leaked to the renderer / persisted / logged / telemetry
+
 - **Control:** the raw token is returned **only** on the trusted-host exchange
   (`POST /api/v1/agent/delegations`, gated by `x-agent-host-token` == `AGENT_HOST_SECRET`).
   The client-facing `POST /api/v1/agent/executions` returns only
@@ -74,6 +78,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
   exchange; log scan: no `eyJ...` JWT substring in any captured service log.
 
 ### E. Weak / missing claim set (purpose, aud, scope, exp, jti)
+
 - **Control:** mint enforces `purpose=agent_delegation`, `scope=agent:execute`,
   `aud=worker-ai`, ES256, unique `jti`, ~15 min TTL; verify enforces iss/aud/exp/purpose/
   scope and rejects downgrade/foreign tokens.
@@ -82,6 +87,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
   signature; harness negatives reject forged host secret and missing access token.
 
 ### F. Transport / IPC caller trust (host secret + Electron sender frame)
+
 - **Control:** the delegation-issuing gateway route requires a host-secret check; Electron
   IPC only accepts messages from the trusted renderer frame (`senderFrame.url` /
   `sender.getURL()` fallback), and handler results containing an error envelope are
@@ -90,7 +96,7 @@ RBAC / Electron / AgentStateMachine / AgentSession / ConnectRPC / Fastify, no ge
   `apps/electron/src/ipc/IpcDispatcher.ts` (`trustedSenderMiddleware`).
 - **Proof:** harness §5 (host exchange `403` forged secret; executions `401` missing access
   token); new electron test `rejects untrusted sender frames before any payload handling
-  (PHASE 8.3)`.
+(PHASE 8.3)`.
 
 ---
 
@@ -132,15 +138,15 @@ Result — `ALL E2E CHECKS PASSED`, `EXIT=0`:
 
 ## 5. Verification Matrix
 
-| Component | Command | Result |
-|---|---|---|
-| `@ag/auth` | `pnpm --filter @ag/auth test` | 25 passed |
-| `@ag/gateway` | `pnpm --filter @ag/gateway test` | 12 passed |
-| `@ag/worker-ai` | `pnpm --filter @ag/worker-ai test` | 46 passed |
-| `@ag/electron` | `vitest run --pool=forks --poolOptions.forks.singleFork=true` | 101 passed |
-| Go Execution-Service | `go test ./internal/delegation/...` | 21 passed |
-| End-to-end | `scratch\e2e-run.ps1` | EXIT=0, all checks passed |
-| Gate (lint/build) | `pnpm turbo run lint test build` (Go on PATH) | `@ag/*` lint+build green |
+| Component            | Command                                                       | Result                    |
+| -------------------- | ------------------------------------------------------------- | ------------------------- |
+| `@ag/auth`           | `pnpm --filter @ag/auth test`                                 | 25 passed                 |
+| `@ag/gateway`        | `pnpm --filter @ag/gateway test`                              | 12 passed                 |
+| `@ag/worker-ai`      | `pnpm --filter @ag/worker-ai test`                            | 46 passed                 |
+| `@ag/electron`       | `vitest run --pool=forks --poolOptions.forks.singleFork=true` | 101 passed                |
+| Go Execution-Service | `go test ./internal/delegation/...`                           | 21 passed                 |
+| End-to-end           | `scratch\e2e-run.ps1`                                         | EXIT=0, all checks passed |
+| Gate (lint/build)    | `pnpm turbo run lint test build` (Go on PATH)                 | `@ag/*` lint+build green  |
 
 Electron note: an initial parallel run hit `exit 134` (transient resource flake); the
 single-fork run is green at 101/101.

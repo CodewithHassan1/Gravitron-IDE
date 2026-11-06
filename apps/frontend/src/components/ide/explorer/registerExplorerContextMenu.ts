@@ -10,9 +10,9 @@ export function registerExplorerContextMenu() {
     icon: FilePlus,
     order: 10,
     execute: (nodeIds) => {
-      const parentId = nodeIds.length > 0 ? nodeIds[0] : null; 
+      const parentId = nodeIds.length > 0 ? nodeIds[0] : null;
       TreeController.beginCreate(parentId, 'file');
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -21,9 +21,9 @@ export function registerExplorerContextMenu() {
     icon: FolderPlus,
     order: 20,
     execute: (nodeIds) => {
-      const parentId = nodeIds.length > 0 ? nodeIds[0] : null; 
+      const parentId = nodeIds.length > 0 ? nodeIds[0] : null;
       TreeController.beginCreate(parentId, 'directory');
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -31,7 +31,7 @@ export function registerExplorerContextMenu() {
     label: '',
     isSeparator: true,
     order: 30,
-    execute: () => {}
+    execute: () => {},
   });
 
   ContextMenuRegistry.register({
@@ -41,7 +41,7 @@ export function registerExplorerContextMenu() {
     isVisible: (nodeIds) => nodeIds.length === 1,
     execute: (nodeIds) => {
       TreeController.duplicateNode(nodeIds[0]);
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -52,7 +52,7 @@ export function registerExplorerContextMenu() {
     isVisible: (nodeIds) => nodeIds.length > 0,
     execute: (nodeIds) => {
       TreeController.copyNodes(nodeIds);
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -63,7 +63,7 @@ export function registerExplorerContextMenu() {
     isVisible: (nodeIds) => nodeIds.length > 0,
     execute: (nodeIds) => {
       TreeController.cutNodes(nodeIds);
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -74,7 +74,7 @@ export function registerExplorerContextMenu() {
     execute: (nodeIds) => {
       const targetId = nodeIds.length > 0 ? nodeIds[0] : null;
       TreeController.pasteNodes(targetId);
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -98,7 +98,7 @@ export function registerExplorerContextMenu() {
         findName(tree);
         TreeController.beginRename(nodeIds[0], currentName);
       }
-    }
+    },
   });
 
   ContextMenuRegistry.register({
@@ -109,6 +109,6 @@ export function registerExplorerContextMenu() {
     order: 50,
     execute: (nodeIds) => {
       TreeController.promptDeleteNodes(nodeIds);
-    }
+    },
   });
 }

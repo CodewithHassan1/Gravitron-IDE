@@ -30,7 +30,7 @@ for (const s of services) {
   if (s === 'auth') {
     example += 'AUTH_PRIVATE_KEY=\\n';
     example += 'AUTH_KID=test-key-v1\\n';
-    
+
     env += 'AUTH_PRIVATE_KEY="' + privateKey.replace(/\n/g, '\\n') + '"\n';
     env += 'AUTH_KID=test-key-v1\n';
   } else if (s === 'gateway') {

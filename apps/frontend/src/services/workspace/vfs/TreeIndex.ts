@@ -6,7 +6,7 @@ export class TreeIndex {
   public nodes: Map<string, WorkspaceNode> = new Map();
   public children: Map<string, Set<string>> = new Map();
   public pathMap: Map<string, string> = new Map();
-  
+
   // Secondary indices
   public extensionMap: Map<string, Set<string>> = new Map();
   public nameMap: Map<string, Set<string>> = new Map();

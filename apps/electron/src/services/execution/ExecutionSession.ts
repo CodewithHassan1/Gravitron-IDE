@@ -10,7 +10,7 @@ export interface ExecutionSession {
   readonly process: IProcess;
   readonly createdAt: number;
   readonly state: 'starting' | 'running' | 'exited' | 'killed';
-  
+
   dispose(): void;
 }
 

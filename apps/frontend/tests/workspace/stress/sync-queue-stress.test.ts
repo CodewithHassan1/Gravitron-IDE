@@ -30,14 +30,22 @@ describe('Sync Queue Stress Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-sync', name: 'SyncWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-sync',
+        name: 'SyncWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
 
   afterEach(async () => {
     await manager.closeWorkspace();
-    
+
     // Validation Requirements:
     // Verify: listeners = 0, timers = 0, queues flushed
     expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
@@ -59,7 +67,7 @@ describe('Sync Queue Stress Test', () => {
         type: WorkspaceOperationType.WriteFile,
         timestamp: Date.now() + i,
         path: `/file_${i}.ts`,
-        content: 'content'
+        content: 'content',
       });
     }
 
@@ -81,7 +89,7 @@ describe('Sync Queue Stress Test', () => {
     // Complete queue draining
     // executeSyncCycle will drain it
     await syncEngine.executeSyncCycle();
-    
+
     expect(syncEngine.queue.size).toBe(0);
   }, 60000);
 
@@ -99,17 +107,17 @@ describe('Sync Queue Stress Test', () => {
     const OPS_COUNT = 1000;
 
     // Rapid mutations within milliseconds
-    // Since javascript is single threaded, this synchronous loop represents 
+    // Since javascript is single threaded, this synchronous loop represents
     // operations queued within the same event loop tick / microtask.
     for (let i = 0; i < OPS_COUNT; i++) {
       manager.createFile(`/debounce_test_${i}.ts`); // Do not await to let them queue instantly
     }
 
     // Wait for debounce timeout
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    await new Promise((resolve) => setTimeout(resolve, 2500));
 
     // Validations: scheduler correctly batches operations
-    // With a 2s debounce, 1000 operations dispatched instantly should result in 
+    // With a 2s debounce, 1000 operations dispatched instantly should result in
     // EXACTLY ONE sync cycle execution.
     expect(executionCycles).toBe(1);
     expect(syncEngine.queue.size).toBe(0); // queue drained
@@ -117,7 +125,7 @@ describe('Sync Queue Stress Test', () => {
 
   it('Failed Sync Recovery', async () => {
     const syncEngine = (manager as any).syncEngine;
-    
+
     // Queue an operation
     await manager.createFile('/recoverable.ts');
 

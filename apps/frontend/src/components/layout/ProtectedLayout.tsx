@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/auth';
@@ -16,7 +16,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   }, [status, router]);
 
   if (status !== 'AUTHENTICATED') {
-    return <div className="flex h-screen w-full items-center justify-center">Loading secure context...</div>;
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        Loading secure context...
+      </div>
+    );
   }
 
   return <>{children}</>;

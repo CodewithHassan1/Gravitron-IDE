@@ -1,6 +1,7 @@
 import { ConfigurationScope } from './ConfigurationScopes';
 
-export type ConfigurationType = 'boolean' | 'number' | 'string' | 'enum' | 'array' | 'object' | 'color' | 'keybinding';
+export type ConfigurationType =
+  'boolean' | 'number' | 'string' | 'enum' | 'array' | 'object' | 'color' | 'keybinding';
 
 export interface IConfigurationPropertySchema {
   id: string; // e.g. "editor.fontSize"

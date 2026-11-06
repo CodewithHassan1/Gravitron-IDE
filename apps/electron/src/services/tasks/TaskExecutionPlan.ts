@@ -5,7 +5,7 @@ export interface TaskExecutionPlan {
   readonly target: ExecutionTarget;
   readonly profile?: ExecutionProfile;
   readonly traceContext: TaskTraceContext;
-  
+
   // Fully resolved parameters independent of the target backend
   readonly executable: string;
   readonly args: readonly string[];

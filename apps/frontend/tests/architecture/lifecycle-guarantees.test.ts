@@ -21,12 +21,20 @@ describe('Lifecycle Guarantees', () => {
   it('Close Workspace Cleanup: SyncEngine offline, listeners=0, timers=0', async () => {
     const manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'test-workspace-id', name: 'Test', uri: 'file:///', provider: 'memory', lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'test-workspace-id',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory',
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
     // No dummy listeners - we want to verify the manager didn't leak any internal listeners
-    
+
     // Trigger close
     await manager.closeWorkspace();
 

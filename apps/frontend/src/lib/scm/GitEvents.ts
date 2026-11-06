@@ -38,7 +38,7 @@ export class GitEventEmitter {
   emit(event: GitEvent) {
     const handlers = this.listeners.get(event.type);
     if (handlers) {
-      handlers.forEach(h => h(event));
+      handlers.forEach((h) => h(event));
     }
   }
 }

@@ -5,7 +5,7 @@ import * as child_process from 'child_process';
 
 // Mock child_process for taskkill
 vi.mock('child_process', () => ({
-  execFile: vi.fn((file, args, callback) => callback(null, { stdout: '', stderr: '' }))
+  execFile: vi.fn((file, args, callback) => callback(null, { stdout: '', stderr: '' })),
 }));
 
 describe('ProcessManager', () => {
@@ -26,21 +26,31 @@ describe('ProcessManager', () => {
       write: vi.fn(),
       resize: vi.fn(),
       onData: vi.fn(),
-      onExit: vi.fn((cb) => { exitCallback = cb; return { dispose: vi.fn() }; }),
+      onExit: vi.fn((cb) => {
+        exitCallback = cb;
+        return { dispose: vi.fn() };
+      }),
       triggerExit: (code: number = 0) => {
         if (exitCallback) exitCallback(code);
-      }
+      },
     };
 
     const contextMock: any = { workspaceId };
-    const session = new ExecutionSessionImpl(id, contextMock, backendKind, {} as any, processMock as any, Date.now());
+    const session = new ExecutionSessionImpl(
+      id,
+      contextMock,
+      backendKind,
+      {} as any,
+      processMock as any,
+      Date.now()
+    );
     return { session, processMock };
   }
 
   it('registers and retrieves sessions', () => {
     const { session } = createMockSession('s1', 'w1', 'local');
     processManager.register(session);
-    
+
     expect(processManager.has('s1')).toBe(true);
     expect(processManager.get('s1')).toBe(session);
     expect(processManager.list()).toContain(session);
@@ -49,12 +59,12 @@ describe('ProcessManager', () => {
   it('removes session on normal exit', () => {
     const { session, processMock } = createMockSession('s1', 'w1', 'local');
     processManager.register(session);
-    
+
     expect(processManager.has('s1')).toBe(true);
-    
+
     // Simulate normal exit
     processMock.triggerExit();
-    
+
     expect(processManager.has('s1')).toBe(false);
   });
 
@@ -85,7 +95,11 @@ describe('ProcessManager', () => {
     await processManager.terminateTree('s1');
 
     // ExecFile uses arguments array natively, meaning no shell interpolation
-    expect(execFileMock).toHaveBeenCalledWith('taskkill', ['/PID', '9999', '/T', '/F'], expect.any(Function));
+    expect(execFileMock).toHaveBeenCalledWith(
+      'taskkill',
+      ['/PID', '9999', '/T', '/F'],
+      expect.any(Function)
+    );
   });
 
   it('idempotent termination does not double-kill', async () => {
@@ -94,13 +108,10 @@ describe('ProcessManager', () => {
     processManager.register(session);
 
     // Call twice concurrently
-    await Promise.all([
-      processManager.terminateTree('s1'),
-      processManager.terminateTree('s1')
-    ]);
+    await Promise.all([processManager.terminateTree('s1'), processManager.terminateTree('s1')]);
 
     expect(execFileMock).toHaveBeenCalledTimes(1);
-    
+
     // Call again after it is removed
     await processManager.terminateTree('s1');
     expect(execFileMock).toHaveBeenCalledTimes(1);
@@ -183,20 +194,20 @@ describe('ProcessManager', () => {
     it('allows creation up to limit', () => {
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s1', 'w1', 'local').session);
-      
+
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s2', 'w1', 'local').session);
-      
+
       expect(processManager.getWorkspaceSessionCount('w1')).toBe(2);
     });
 
     it('rejects creation beyond limit deterministically', () => {
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s1', 'w1', 'local').session);
-      
+
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s2', 'w1', 'local').session);
-      
+
       expect(() => {
         processManager.reserveSlot('w1');
       }).toThrow(/TERMINAL_RESOURCE_LIMIT_EXCEEDED/);
@@ -206,7 +217,7 @@ describe('ProcessManager', () => {
       // simulate 3 concurrent reservations
       processManager.reserveSlot('w1'); // 1
       processManager.reserveSlot('w1'); // 2
-      
+
       // third one should fail immediately
       expect(() => {
         processManager.reserveSlot('w1');
@@ -215,17 +226,17 @@ describe('ProcessManager', () => {
 
     it('releases reservation if creation fails', () => {
       processManager.reserveSlot('w1');
-      
+
       // simulate failure
       processManager.releaseReservation('w1');
-      
+
       // I can still create 2
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s1', 'w1', 'local').session);
-      
+
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s2', 'w1', 'local').session);
-      
+
       expect(processManager.getWorkspaceSessionCount('w1')).toBe(2);
     });
 
@@ -233,16 +244,16 @@ describe('ProcessManager', () => {
       processManager.reserveSlot('w1');
       const { session, processMock } = createMockSession('s1', 'w1', 'local');
       processManager.register(session);
-      
+
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s2', 'w1', 'local').session);
-      
+
       // Limit reached
       expect(() => processManager.reserveSlot('w1')).toThrow();
-      
+
       // Simulate exit
       processMock.triggerExit();
-      
+
       // Now a slot is free
       expect(() => processManager.reserveSlot('w1')).not.toThrow();
     });
@@ -250,12 +261,12 @@ describe('ProcessManager', () => {
     it('workspace scoped limits are isolated', () => {
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s1', 'w1', 'local').session);
-      
+
       processManager.reserveSlot('w1');
       processManager.register(createMockSession('s2', 'w1', 'local').session);
-      
+
       expect(() => processManager.reserveSlot('w1')).toThrow();
-      
+
       // Workspace 2 has its own limit
       expect(() => {
         processManager.reserveSlot('w2');

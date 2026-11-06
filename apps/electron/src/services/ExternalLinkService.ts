@@ -14,7 +14,9 @@ export class ExternalLinkService implements IExternalLinkService {
   public async start(): Promise<void> {}
   public async stop(): Promise<void> {}
   public async dispose(): Promise<void> {}
-  public async health(): Promise<boolean> { return true; }
+  public async health(): Promise<boolean> {
+    return true;
+  }
 
   public async openUrl(urlStr: string): Promise<void> {
     try {
@@ -35,8 +37,8 @@ export class ExternalLinkService implements IExternalLinkService {
         channel: Channels.Window.OpenExternalRequest,
         handler: async (url: string) => {
           await this.openUrl(url);
-        }
-      }
+        },
+      },
     ];
   }
 }

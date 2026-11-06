@@ -26,7 +26,11 @@ describe('Gateway Auth Boundary Constraints', () => {
 
   it('client X-User-Id and related headers are stripped/rejected', () => {
     // 37. Gateway blocks spoofed trusted headers
-    const headers: Record<string, string | undefined> = { 'x-user-id': 'spoofed', 'x-organization-id': 'spoofed', 'x-internal-identity': 'spoofed' };
+    const headers: Record<string, string | undefined> = {
+      'x-user-id': 'spoofed',
+      'x-organization-id': 'spoofed',
+      'x-internal-identity': 'spoofed',
+    };
     delete headers['x-user-id'];
     delete headers['x-organization-id'];
     delete headers['x-internal-identity'];
@@ -50,41 +54,41 @@ describe('Gateway Auth Boundary Constraints', () => {
 
   it('allows exact /auth.v1.AuthService/VerifyEmail, ForgotPassword, ResetPassword, Refresh while rejecting unauthorized routes', () => {
     const PUBLIC_AUTH_ROUTES = [
-      "/.well-known/jwks.json",
-      "/api/v1/auth/register",
-      "/api/v1/auth/passwordLogin",
-      "/api/v1/auth/refresh",
-      "/api/v1/auth/forgotPassword",
-      "/api/v1/auth/resetPassword",
-      "/api/v1/auth/verifyEmail",
-      "/api/v1/auth/resendVerification",
-      "/api/v1/auth/.well-known/jwks.json",
-      "/auth.v1.AuthService/Register",
-      "/auth.v1.AuthService/Login",
-      "/auth.v1.AuthService/PasswordLogin",
-      "/auth.v1.AuthService/Refresh",
-      "/auth.v1.AuthService/ForgotPassword",
-      "/auth.v1.AuthService/ResetPassword",
-      "/auth.v1.AuthService/VerifyEmail",
-      "/auth.v1.AuthService/ResendVerification",
+      '/.well-known/jwks.json',
+      '/api/v1/auth/register',
+      '/api/v1/auth/passwordLogin',
+      '/api/v1/auth/refresh',
+      '/api/v1/auth/forgotPassword',
+      '/api/v1/auth/resetPassword',
+      '/api/v1/auth/verifyEmail',
+      '/api/v1/auth/resendVerification',
+      '/api/v1/auth/.well-known/jwks.json',
+      '/auth.v1.AuthService/Register',
+      '/auth.v1.AuthService/Login',
+      '/auth.v1.AuthService/PasswordLogin',
+      '/auth.v1.AuthService/Refresh',
+      '/auth.v1.AuthService/ForgotPassword',
+      '/auth.v1.AuthService/ResetPassword',
+      '/auth.v1.AuthService/VerifyEmail',
+      '/auth.v1.AuthService/ResendVerification',
     ];
 
     const isRoutePublic = (url: string) => {
-      const path = url.split("?")[0];
+      const path = url.split('?')[0];
       return PUBLIC_AUTH_ROUTES.some((r) => path === r || path === `${r}/`);
     };
 
-    expect(isRoutePublic("/.well-known/jwks.json")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmail")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmail?token=abc")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmail/")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/ForgotPassword")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/ResetPassword")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/Refresh")).toBe(true);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmailAdmin")).toBe(false);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmailEvil")).toBe(false);
-    expect(isRoutePublic("/auth.v1.AuthService/VerifyEmail/extra/path")).toBe(false);
-    expect(isRoutePublic("/auth.v1.AuthService/UnknownMethod")).toBe(false);
+    expect(isRoutePublic('/.well-known/jwks.json')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail?token=abc')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail/')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/ForgotPassword')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/ResetPassword')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/Refresh')).toBe(true);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmailAdmin')).toBe(false);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmailEvil')).toBe(false);
+    expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail/extra/path')).toBe(false);
+    expect(isRoutePublic('/auth.v1.AuthService/UnknownMethod')).toBe(false);
   });
 });
 
@@ -94,13 +98,24 @@ describe('Gateway-Level Distributed Authentication Rate Limiting (SEC-AUTH-05)',
   let rateLimiter: RateLimiter;
   let upstreamServer: http.Server;
   let upstreamPort: number;
-  let upstreamCalls: Array<{ url: string; method: string; headers: http.IncomingHttpHeaders; body: any }> = [];
+  let upstreamCalls: Array<{
+    url: string;
+    method: string;
+    headers: http.IncomingHttpHeaders;
+    body: any;
+  }> = [];
   let jwksServer: http.Server;
 
   class StatefulMockRedis implements RateLimiterRedisClient {
     public store = new Map<string, { count: number; expiresAt: number }>();
 
-    async eval(_script: string, _numKeys: number, key: string, limit: number, windowSec: number): Promise<[number, number, number]> {
+    async eval(
+      _script: string,
+      _numKeys: number,
+      key: string,
+      limit: number,
+      windowSec: number
+    ): Promise<[number, number, number]> {
       const now = Date.now();
       let entry = this.store.get(key);
       if (!entry || entry.expiresAt <= now) {
@@ -200,7 +215,10 @@ describe('Gateway-Level Distributed Authentication Rate Limiting (SEC-AUTH-05)',
     expect(res.statusCode).toBe(200);
     expect(upstreamCalls).toHaveLength(1);
     expect(upstreamCalls[0].url).toBe('/auth.v1.AuthService/PasswordLogin');
-    expect(upstreamCalls[0].body).toEqual({ email: 'alice@ag-ide.local', password: 'validPassword123' });
+    expect(upstreamCalls[0].body).toEqual({
+      email: 'alice@ag-ide.local',
+      password: 'validPassword123',
+    });
   });
 
   it('enforces PasswordLogin Account limit (5 attempts / 15m) and blocks 6th attempt', async () => {
@@ -326,7 +344,10 @@ describe('Gateway-Level Distributed Authentication Rate Limiting (SEC-AUTH-05)',
         method: 'POST',
         url: '/auth.v1.AuthService/Register',
         headers: { 'content-type': 'application/json', 'x-forwarded-for': clientIp },
-        payload: JSON.stringify({ email: `new-user-${i}@ag-ide.local`, password: 'StrongPassword123!' }),
+        payload: JSON.stringify({
+          email: `new-user-${i}@ag-ide.local`,
+          password: 'StrongPassword123!',
+        }),
       });
       expect(res.statusCode).toBe(200);
     }
@@ -512,7 +533,10 @@ describe('Gateway-Level Distributed Authentication Rate Limiting (SEC-AUTH-05)',
           'content-type': 'application/json',
           'x-forwarded-for': actualClientIp,
         },
-        payload: JSON.stringify({ email: `trusted-reg-${i}@company.com`, password: 'Password123!' }),
+        payload: JSON.stringify({
+          email: `trusted-reg-${i}@company.com`,
+          password: 'Password123!',
+        }),
       });
     }
 

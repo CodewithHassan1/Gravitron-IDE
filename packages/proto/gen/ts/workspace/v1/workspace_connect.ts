@@ -3,20 +3,29 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateWorkspaceRequest, CreateWorkspaceResponse, DeleteWorkspaceRequest, DeleteWorkspaceResponse, GetWorkspaceRequest, GetWorkspaceResponse, ListWorkspacesRequest, ListWorkspacesResponse } from "./workspace_pb.js";
-import { MethodKind } from "@bufbuild/protobuf";
+import {
+  CreateWorkspaceRequest,
+  CreateWorkspaceResponse,
+  DeleteWorkspaceRequest,
+  DeleteWorkspaceResponse,
+  GetWorkspaceRequest,
+  GetWorkspaceResponse,
+  ListWorkspacesRequest,
+  ListWorkspacesResponse,
+} from './workspace_pb.js';
+import { MethodKind } from '@bufbuild/protobuf';
 
 /**
  * @generated from service workspace.v1.WorkspaceService
  */
 export const WorkspaceService = {
-  typeName: "workspace.v1.WorkspaceService",
+  typeName: 'workspace.v1.WorkspaceService',
   methods: {
     /**
      * @generated from rpc workspace.v1.WorkspaceService.CreateWorkspace
      */
     createWorkspace: {
-      name: "CreateWorkspace",
+      name: 'CreateWorkspace',
       I: CreateWorkspaceRequest,
       O: CreateWorkspaceResponse,
       kind: MethodKind.Unary,
@@ -25,7 +34,7 @@ export const WorkspaceService = {
      * @generated from rpc workspace.v1.WorkspaceService.GetWorkspace
      */
     getWorkspace: {
-      name: "GetWorkspace",
+      name: 'GetWorkspace',
       I: GetWorkspaceRequest,
       O: GetWorkspaceResponse,
       kind: MethodKind.Unary,
@@ -34,7 +43,7 @@ export const WorkspaceService = {
      * @generated from rpc workspace.v1.WorkspaceService.ListWorkspaces
      */
     listWorkspaces: {
-      name: "ListWorkspaces",
+      name: 'ListWorkspaces',
       I: ListWorkspacesRequest,
       O: ListWorkspacesResponse,
       kind: MethodKind.Unary,
@@ -43,11 +52,10 @@ export const WorkspaceService = {
      * @generated from rpc workspace.v1.WorkspaceService.DeleteWorkspace
      */
     deleteWorkspace: {
-      name: "DeleteWorkspace",
+      name: 'DeleteWorkspace',
       I: DeleteWorkspaceRequest,
       O: DeleteWorkspaceResponse,
       kind: MethodKind.Unary,
     },
-  }
+  },
 } as const;
-

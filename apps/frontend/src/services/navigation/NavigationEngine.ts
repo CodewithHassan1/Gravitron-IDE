@@ -30,7 +30,7 @@ export class NavigationEngineImpl {
       language: 'plaintext', // Could use LanguageRegistry
       dirty: false,
       pinned: !preview,
-      isPreview: preview
+      isPreview: preview,
     });
     systemEventBus.emit(SystemEvents.FileOpened, { path });
   }

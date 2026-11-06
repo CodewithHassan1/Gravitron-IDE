@@ -8,7 +8,9 @@ import { MemoryTerminalStream } from '../../src/services/terminal/providers/stre
 
 import { MockTransport } from '../../src/services/terminal/providers/transport/MockTransport';
 class TestProvider extends AbstractTerminalProvider {
-  constructor() { super(new MockTransport()); }
+  constructor() {
+    super(new MockTransport());
+  }
   public id = 'test';
   public async createStream() {
     return new MemoryTerminalStream();
@@ -22,7 +24,7 @@ describe('TerminalSessionImpl', () => {
     cwd: '/',
     executable: 'sh',
     args: [],
-    env: {}
+    env: {},
   };
 
   it('enforces strict state transitions', async () => {
@@ -50,7 +52,7 @@ describe('TerminalSessionImpl', () => {
   it('throws deterministic error on illegal transitions', async () => {
     const provider = new TestProvider();
     const session = new TerminalSessionImpl(metadata, provider);
-    
+
     // Cannot write in Created state
     await expect(session.write('test')).rejects.toThrow('Cannot write data in state Created');
   });

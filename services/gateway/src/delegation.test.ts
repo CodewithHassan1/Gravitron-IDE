@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import * as http from 'node:http';
-import { generateKeyPair, exportJWK, exportPKCS8, exportSPKI, importSPKI, SignJWT, jwtVerify } from 'jose';
+import {
+  generateKeyPair,
+  exportJWK,
+  exportPKCS8,
+  exportSPKI,
+  importSPKI,
+  SignJWT,
+  jwtVerify,
+} from 'jose';
 import type { FastifyInstance } from 'fastify';
 
 const AUTH_ISSUER = 'https://auth.ag-ide.local';
@@ -56,7 +64,12 @@ beforeAll(async () => {
         return {
           ok: true,
           status: 200,
-          json: async () => ({ executionId: EXECUTION_ID, userId: EXTERNAL_SUB, orgId: EXTERNAL_ORG, scope: 'agent:execute' }),
+          json: async () => ({
+            executionId: EXECUTION_ID,
+            userId: EXTERNAL_SUB,
+            orgId: EXTERNAL_ORG,
+            scope: 'agent:execute',
+          }),
           text: async () => JSON.stringify({}),
         } as any;
       }
@@ -198,7 +211,10 @@ describe('PHASE 8.3 Gateway Delegation Boundaries', () => {
     const res = await fastify.inject({
       method: 'POST',
       url: '/api/v1/agent/delegations',
-      headers: { authorization: `Bearer ${externalToken}`, 'x-agent-host-token': 'local-dev-host-secret' },
+      headers: {
+        authorization: `Bearer ${externalToken}`,
+        'x-agent-host-token': 'local-dev-host-secret',
+      },
       payload: { workspaceId: 'ws-1' },
     });
 

@@ -17,18 +17,18 @@ export class TaskOutputBuffer {
     while ((newlineIndex = this.buffer.indexOf('\n')) !== -1) {
       const line = this.buffer.slice(0, newlineIndex);
       this.buffer = this.buffer.slice(newlineIndex + 1);
-      
+
       const cleanLine = line.endsWith('\r') ? line.slice(0, -1) : line;
-      
+
       // Emit line to problem matchers
       this.onLine(cleanLine);
-      
+
       // Emit full output event for the renderer
       this.onEvent({
         category: 'output',
         kind: 'stdout',
         executionId: this.executionId,
-        data: cleanLine + '\n'
+        data: cleanLine + '\n',
       });
     }
   }
@@ -41,7 +41,7 @@ export class TaskOutputBuffer {
         category: 'output',
         kind: 'stdout',
         executionId: this.executionId,
-        data: cleanLine
+        data: cleanLine,
       });
       this.buffer = '';
     }

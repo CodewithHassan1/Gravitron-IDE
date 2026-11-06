@@ -14,7 +14,7 @@ export class KeybindingResolver {
       shiftKey: event.shiftKey,
       altKey: event.altKey,
       metaKey: event.metaKey,
-      key: event.key.toLowerCase()
+      key: event.key.toLowerCase(),
     };
 
     // Very naive implementation for now: just iterate all bindings and find the first match
@@ -22,7 +22,7 @@ export class KeybindingResolver {
     // In a real implementation, we'd format both to a canonical string and compare,
     // or compare the properties directly.
     const bindings = (ShortcutRegistry as any).keybindings; // Internal access for resolver
-    
+
     for (const binding of bindings) {
       if (
         binding.shortcut.key === eventShortcut.key &&
@@ -35,7 +35,7 @@ export class KeybindingResolver {
         return binding.commandId;
       }
     }
-    
+
     return undefined;
   }
 }

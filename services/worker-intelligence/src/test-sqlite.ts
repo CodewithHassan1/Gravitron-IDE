@@ -4,10 +4,10 @@ function runTest() {
   console.log('Testing sqlite3 native binding...');
   try {
     const db = new sqlite3.Database(':memory:');
-    
+
     db.serialize(() => {
       db.run(`CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)`);
-      
+
       const stmt = db.prepare(`INSERT INTO test (name) VALUES (?)`);
       stmt.run('hello');
       stmt.finalize();

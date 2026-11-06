@@ -1,6 +1,19 @@
 export interface IndexItem {
   id: string;
-  type: 'file' | 'folder' | 'symbol' | 'command' | 'recent_file' | 'recent_command' | 'workspace' | 'git_branch' | 'task' | 'breakpoint' | 'bookmark' | 'diagnostic' | 'reference';
+  type:
+    | 'file'
+    | 'folder'
+    | 'symbol'
+    | 'command'
+    | 'recent_file'
+    | 'recent_command'
+    | 'workspace'
+    | 'git_branch'
+    | 'task'
+    | 'breakpoint'
+    | 'bookmark'
+    | 'diagnostic'
+    | 'reference';
   title: string;
   description?: string;
   path?: string;
@@ -12,7 +25,7 @@ export class IndexServiceImpl {
   private index: Map<string, IndexItem> = new Map();
 
   buildIndex(items: IndexItem[]) {
-    items.forEach(item => this.index.set(item.id, item));
+    items.forEach((item) => this.index.set(item.id, item));
   }
 
   updateIndex(item: IndexItem) {

@@ -5,9 +5,9 @@ export class WorkspaceEventBroker {
   private eventQueue: WorkspaceProtocol.WorkspaceExternalEvent[] = [];
   private debounceTimer: NodeJS.Timeout | null = null;
   private DEBOUNCE_MS = 200;
-  
+
   // Track recent mutations to echo them back to the frontend
-  private recentMutations = new Map<string, { id: string, timestamp: number }>();
+  private recentMutations = new Map<string, { id: string; timestamp: number }>();
   private MUTATION_TTL = 3000;
 
   constructor(private windowService: WindowService) {}
@@ -37,13 +37,15 @@ export class WorkspaceEventBroker {
     }
 
     // Basic deduplication in queue based on path and type
-    const existingIndex = this.eventQueue.findIndex(e => e.path === event.path && e.type === event.type);
+    const existingIndex = this.eventQueue.findIndex(
+      (e) => e.path === event.path && e.type === event.type
+    );
     if (existingIndex >= 0) {
       this.eventQueue[existingIndex] = event; // Keep the latest
     } else {
       this.eventQueue.push(event);
     }
-    
+
     this.scheduleFlush();
   }
 
@@ -74,4 +76,3 @@ export class WorkspaceEventBroker {
     this.recentMutations.clear();
   }
 }
-

@@ -10,17 +10,18 @@ export async function publishOutboxEvent(
   payload: Record<string, unknown>
 ) {
   const eventId = crypto.randomUUID(); // In production, ULID is preferred
-  
-  await tx.insertInto('outbox_events')
+
+  await tx
+    .insertInto('outbox_events')
     .values({
       event_id: eventId,
       aggregate_type: aggregateType,
       aggregate_id: aggregateId,
       event_type: eventType,
       payload: JSON.stringify(payload),
-      created_at: new Date()
+      created_at: new Date(),
     })
     .execute();
-    
+
   return eventId;
 }

@@ -3,21 +3,33 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { AcceptInvitationRequest, CreateOrganizationRequest, GetOrganizationRequest, InviteMemberRequest, ListMembersRequest, ListMembersResponse, ListOrganizationsRequest, ListOrganizationsResponse, Organization, RemoveMemberRequest, UpdateOrganizationRequest } from "./organization_pb.js";
-import { MethodKind } from "@bufbuild/protobuf";
-import { Empty } from "../../common/v1/common_pb.js";
+import {
+  AcceptInvitationRequest,
+  CreateOrganizationRequest,
+  GetOrganizationRequest,
+  InviteMemberRequest,
+  ListMembersRequest,
+  ListMembersResponse,
+  ListOrganizationsRequest,
+  ListOrganizationsResponse,
+  Organization,
+  RemoveMemberRequest,
+  UpdateOrganizationRequest,
+} from './organization_pb.js';
+import { MethodKind } from '@bufbuild/protobuf';
+import { Empty } from '../../common/v1/common_pb.js';
 
 /**
  * @generated from service organization.v1.OrganizationService
  */
 export const OrganizationService = {
-  typeName: "organization.v1.OrganizationService",
+  typeName: 'organization.v1.OrganizationService',
   methods: {
     /**
      * @generated from rpc organization.v1.OrganizationService.CreateOrganization
      */
     createOrganization: {
-      name: "CreateOrganization",
+      name: 'CreateOrganization',
       I: CreateOrganizationRequest,
       O: Organization,
       kind: MethodKind.Unary,
@@ -26,7 +38,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.GetOrganization
      */
     getOrganization: {
-      name: "GetOrganization",
+      name: 'GetOrganization',
       I: GetOrganizationRequest,
       O: Organization,
       kind: MethodKind.Unary,
@@ -35,7 +47,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.ListOrganizations
      */
     listOrganizations: {
-      name: "ListOrganizations",
+      name: 'ListOrganizations',
       I: ListOrganizationsRequest,
       O: ListOrganizationsResponse,
       kind: MethodKind.Unary,
@@ -44,7 +56,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.UpdateOrganization
      */
     updateOrganization: {
-      name: "UpdateOrganization",
+      name: 'UpdateOrganization',
       I: UpdateOrganizationRequest,
       O: Organization,
       kind: MethodKind.Unary,
@@ -53,7 +65,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.ListMembers
      */
     listMembers: {
-      name: "ListMembers",
+      name: 'ListMembers',
       I: ListMembersRequest,
       O: ListMembersResponse,
       kind: MethodKind.Unary,
@@ -62,7 +74,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.InviteMember
      */
     inviteMember: {
-      name: "InviteMember",
+      name: 'InviteMember',
       I: InviteMemberRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -71,7 +83,7 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.AcceptInvitation
      */
     acceptInvitation: {
-      name: "AcceptInvitation",
+      name: 'AcceptInvitation',
       I: AcceptInvitationRequest,
       O: Empty,
       kind: MethodKind.Unary,
@@ -80,11 +92,10 @@ export const OrganizationService = {
      * @generated from rpc organization.v1.OrganizationService.RemoveMember
      */
     removeMember: {
-      name: "RemoveMember",
+      name: 'RemoveMember',
       I: RemoveMemberRequest,
       O: Empty,
       kind: MethodKind.Unary,
     },
-  }
+  },
 } as const;
-

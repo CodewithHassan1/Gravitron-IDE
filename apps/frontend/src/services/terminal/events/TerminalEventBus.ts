@@ -25,14 +25,11 @@ export class TerminalEventBus implements IDisposable {
         if (listenersForEvent.size === 0) {
           this.listeners.delete(event);
         }
-      }
+      },
     };
   }
 
-  public emit<T extends TerminalEventType>(
-    event: T,
-    payload: TerminalEventPayloads[T]
-  ): void {
+  public emit<T extends TerminalEventType>(event: T, payload: TerminalEventPayloads[T]): void {
     const listenersForEvent = this.listeners.get(event);
     if (!listenersForEvent || listenersForEvent.size === 0) return;
 

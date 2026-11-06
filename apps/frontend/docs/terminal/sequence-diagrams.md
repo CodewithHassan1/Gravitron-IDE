@@ -18,7 +18,7 @@ sequenceDiagram
     TM->>TR: register(session)
     TR-->>TM: session ID
     TM-->>UI: return TerminalSession
-    
+
     UI->>TS: connect()
     TS->>TP: createStream(descriptor)
     TP->>PTY: spawn()
@@ -42,7 +42,7 @@ sequenceDiagram
     UI->>TS: write("ls -l")
     TS->>Stream: write(Uint8Array)
     Stream->>Exec: pipe stdin
-    
+
     Exec-->>Stream: stdout chunk
     Stream-->>TS: onData(Uint8Array)
     TS-->>UI: onData(Uint8Array)

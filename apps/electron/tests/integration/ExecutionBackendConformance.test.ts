@@ -33,36 +33,36 @@ describe('ExecutionBackend Conformance Suite', () => {
         const backend = createBackend(backendKind);
         const sessionId = randomUUID();
         const target: ExecutionTarget = { kind: 'local' }; // Use local target for test
-        
+
         const context: ExecutionContext = {
           target,
           cwd: os.homedir(),
           environment: { ...process.env, NODE_ENV: 'test' } as Record<string, string>,
           shell: {
             executable: process.platform === 'win32' ? 'cmd.exe' : 'sh',
-            args: []
+            args: [],
           },
           cols: 80,
           rows: 24,
           profiles: [],
-          policies: []
+          policies: [],
         };
-        
+
         const nativeProcessId = await backend.createProcess(sessionId, context);
-        
+
         const ptyProcess = backend.getProcess(nativeProcessId);
         expect(ptyProcess).toBeDefined();
-        
+
         let exited = false;
         ptyProcess!.onExit(() => {
           exited = true;
         });
 
         ptyProcess!.kill();
-        
+
         // Wait for exit
-        await new Promise(r => setTimeout(r, 50));
-        
+        await new Promise((r) => setTimeout(r, 50));
+
         expect(exited).toBe(true);
         expect(backend.getProcess(nativeProcessId)).toBeUndefined();
       });
@@ -78,19 +78,19 @@ describe('ExecutionBackend Conformance Suite', () => {
             environment: { ...process.env, NODE_ENV: 'test' } as Record<string, string>,
             shell: {
               executable: process.platform === 'win32' ? 'cmd.exe' : 'sh',
-              args: []
+              args: [],
             },
             cols: 80,
             rows: 24,
             profiles: [],
-            policies: []
+            policies: [],
           };
 
           const nativeProcessId = await backend.createProcess(sessionId, context);
-          
+
           const ptyProcess = backend.getProcess(nativeProcessId);
           expect(() => ptyProcess!.resize(100, 40)).not.toThrow();
-          
+
           ptyProcess!.kill();
         }
       });

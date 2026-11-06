@@ -21,7 +21,7 @@ export interface RepositorySnapshot {
   readonly statistics: RepositoryStatistics;
   readonly creationReason: string;
   readonly diagnostics: readonly RepositoryDiagnostic[];
-  
+
   // Independent Graph Versions
   readonly fileGraphVersion: string;
   readonly importGraphVersion: string;

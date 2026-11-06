@@ -3,9 +3,16 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3 } from "@bufbuild/protobuf";
-import { ResponseMetadata } from "../../common/v1/common_pb.js";
+import type {
+  BinaryReadOptions,
+  FieldList,
+  JsonReadOptions,
+  JsonValue,
+  PartialMessage,
+  PlainMessage,
+} from '@bufbuild/protobuf';
+import { Message, proto3 } from '@bufbuild/protobuf';
+import { ResponseMetadata } from '../../common/v1/common_pb.js';
 
 /**
  * @generated from message gateway.v1.PingResponse
@@ -14,7 +21,7 @@ export class PingResponse extends Message<PingResponse> {
   /**
    * @generated from field: string status = 1;
    */
-  status = "";
+  status = '';
 
   /**
    * @generated from field: common.v1.ResponseMetadata metadata = 2;
@@ -27,10 +34,10 @@ export class PingResponse extends Message<PingResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "gateway.v1.PingResponse";
+  static readonly typeName = 'gateway.v1.PingResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "metadata", kind: "message", T: ResponseMetadata },
+    { no: 1, name: 'status', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'metadata', kind: 'message', T: ResponseMetadata },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PingResponse {
@@ -45,8 +52,10 @@ export class PingResponse extends Message<PingResponse> {
     return new PingResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: PingResponse | PlainMessage<PingResponse> | undefined, b: PingResponse | PlainMessage<PingResponse> | undefined): boolean {
+  static equals(
+    a: PingResponse | PlainMessage<PingResponse> | undefined,
+    b: PingResponse | PlainMessage<PingResponse> | undefined
+  ): boolean {
     return proto3.util.equals(PingResponse, a, b);
   }
 }
-

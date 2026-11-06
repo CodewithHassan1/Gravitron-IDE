@@ -46,14 +46,14 @@ describe('TerminalProviders', () => {
   it('MemoryTerminalStream echoes data and supports disposal', async () => {
     const stream = new MemoryTerminalStream();
     let received: Uint8Array | null = null;
-    
+
     stream.onData((data) => {
       received = data;
     });
 
     const payload = new Uint8Array([1, 2, 3]);
     await stream.write(payload);
-    
+
     expect(received).toEqual(payload);
 
     stream.dispose();

@@ -28,7 +28,21 @@ export function SecondarySidebar() {
           ) : (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4">
               <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center opacity-50">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M21 3v18M3 3h18M3 21h18"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-muted-foreground"
+                >
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M21 3v18M3 3h18M3 21h18" />
+                </svg>
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-medium text-foreground">No view available</h3>

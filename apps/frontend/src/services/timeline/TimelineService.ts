@@ -39,9 +39,9 @@ class TimelineServiceImpl {
 
     try {
       const providers = TimelineProviderRegistry.getProvidersFor(this.currentUri);
-      
-      const promises = providers.map(p => 
-        p.provideTimeline(this.currentUri!).catch(err => {
+
+      const promises = providers.map((p) =>
+        p.provideTimeline(this.currentUri!).catch((err) => {
           console.error(`TimelineProvider ${p.id} failed`, err);
           return [] as TimelineItem[];
         })
@@ -49,13 +49,13 @@ class TimelineServiceImpl {
 
       const results = await Promise.all(promises);
       const allItems = results.flat();
-      
+
       // Sort by timestamp descending (newest first)
       allItems.sort((a, b) => b.timestamp - a.timestamp);
-      
+
       // Basic deduplication by ID
-      const uniqueItems = Array.from(new Map(allItems.map(item => [item.id, item])).values());
-      
+      const uniqueItems = Array.from(new Map(allItems.map((item) => [item.id, item])).values());
+
       useTimelineStore.getState().setItems(uniqueItems);
     } catch (err: any) {
       console.error('Failed to refresh timeline', err);

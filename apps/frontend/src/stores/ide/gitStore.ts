@@ -16,5 +16,5 @@ export const useGitStore = create<GitState>((set) => ({
   mergeState: 'none',
   setCurrentRepository: (id) => set({ currentRepository: id }),
   setDirtyFiles: (files) => set({ dirtyFiles: files }),
-  setMergeState: (state) => set({ mergeState: state })
+  setMergeState: (state) => set({ mergeState: state }),
 }));

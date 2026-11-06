@@ -16,7 +16,7 @@ export class TaskRunner {
     private readonly executionService: IWorkspaceExecutionService,
     private readonly problemMatcherRegistry: ProblemMatcherRegistry,
     private readonly emitEvent: (event: TaskEvent) => void
-  ) { }
+  ) {}
 
   public async run(): Promise<number> {
     if (this.isCancelled) throw new Error('Task was cancelled before starting');
@@ -24,12 +24,12 @@ export class TaskRunner {
     this.emitEvent({
       category: 'lifecycle',
       kind: 'started',
-      executionId: this.executionId
+      executionId: this.executionId,
     });
 
     const activeMatchers = (this.plan.definition.problemMatchers || [])
-      .map(id => this.problemMatcherRegistry.get(id))
-      .filter(m => m !== undefined);
+      .map((id) => this.problemMatcherRegistry.get(id))
+      .filter((m) => m !== undefined);
 
     this.outputBuffer = new TaskOutputBuffer(
       this.executionId,
@@ -42,7 +42,7 @@ export class TaskRunner {
               category: 'diagnostic',
               kind: 'problem',
               executionId: this.executionId,
-              diagnostic
+              diagnostic,
             });
           }
         }
@@ -57,12 +57,12 @@ export class TaskRunner {
       environmentOverride: this.plan.environment,
       shellOverride: {
         executable: this.plan.executable,
-        args: this.plan.args as string[]
+        args: this.plan.args as string[],
       },
       terminalOptions: {
         cols: 80,
-        rows: 24
-      }
+        rows: 24,
+      },
     });
 
     if (this.session.process) {
@@ -94,8 +94,8 @@ export class TaskRunner {
             targetKind: this.plan.target.kind,
             workspaceId: this.plan.traceContext.workspaceId,
             state: exitCode === 0 ? 'completed' : 'failed',
-            problemsFound: [] // Ideally we accumulate them in the runner
-          }
+            problemsFound: [], // Ideally we accumulate them in the runner
+          },
         });
 
         resolve(exitCode);

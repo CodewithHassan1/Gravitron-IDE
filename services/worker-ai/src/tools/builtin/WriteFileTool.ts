@@ -10,24 +10,28 @@ export class WriteFileTool implements ToolImplementation {
       properties: {
         path: {
           type: 'string',
-          description: 'The path of the file to write, relative to the workspace root.'
+          description: 'The path of the file to write, relative to the workspace root.',
         },
         content: {
           type: 'string',
-          description: 'The content to write to the file.'
-        }
+          description: 'The content to write to the file.',
+        },
       },
-      required: ['path', 'content']
+      required: ['path', 'content'],
     },
-    riskLevel: 'destructive' as const
+    riskLevel: 'destructive' as const,
   };
 
-  public async execute(args: { path: string; content: string }, bridge: AgentProtocol.IAgentCapabilityBridge, context: AgentProtocol.AgentCapabilityContext): Promise<ToolResult> {
+  public async execute(
+    args: { path: string; content: string },
+    bridge: AgentProtocol.IAgentCapabilityBridge,
+    context: AgentProtocol.AgentCapabilityContext
+  ): Promise<ToolResult> {
     try {
       await bridge.writeFile(context, args.path, args.content);
       return {
         content: `Successfully wrote ${args.content.length} characters to ${args.path}`,
-        truncated: false
+        truncated: false,
       };
     } catch (e: any) {
       throw e;

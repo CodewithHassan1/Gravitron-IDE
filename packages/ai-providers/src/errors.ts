@@ -5,7 +5,7 @@ export enum ProviderErrorType {
   ContextExhausted = 'ContextExhausted',
   InvalidRequest = 'InvalidRequest',
   Cancelled = 'Cancelled',
-  Unknown = 'Unknown'
+  Unknown = 'Unknown',
 }
 
 export class ProviderError extends Error {

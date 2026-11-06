@@ -4,7 +4,7 @@ import { ConnectError, Code } from '@connectrpc/connect';
 import { workspaceRoutes } from './server';
 // Mock dependencies
 vi.mock('@ag/auth', async () => ({
-  ...await vi.importActual('@ag/auth'),
+  ...(await vi.importActual('@ag/auth')),
   createAuthInterceptor: vi.fn(),
 }));
 

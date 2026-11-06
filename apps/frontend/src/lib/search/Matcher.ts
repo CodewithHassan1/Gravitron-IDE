@@ -27,7 +27,11 @@ export class Matcher {
     // 3. Substring match
     const subIdx = normTarget.indexOf(normQuery);
     if (subIdx !== -1) {
-      return { matched: true, score: Scorer.SUBSTRING_MATCH, indices: this.getRange(subIdx, subIdx + query.length) };
+      return {
+        matched: true,
+        score: Scorer.SUBSTRING_MATCH,
+        indices: this.getRange(subIdx, subIdx + query.length),
+      };
     }
 
     // 4. Sequence/Fuzzy match
@@ -41,7 +45,7 @@ export class Matcher {
       if (normQuery[qIdx] === normTarget[tIdx]) {
         indices.push(tIdx);
         if (lastMatchIdx !== -1 && tIdx > lastMatchIdx + 1) {
-          gaps += (tIdx - lastMatchIdx - 1);
+          gaps += tIdx - lastMatchIdx - 1;
         }
         lastMatchIdx = tIdx;
         qIdx++;

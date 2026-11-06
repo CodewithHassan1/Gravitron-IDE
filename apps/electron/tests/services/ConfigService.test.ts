@@ -60,7 +60,10 @@ describe('ConfigService and Electron Gateway Configuration', () => {
     });
 
     it('strips credentials and query strings to avoid leaking secrets', () => {
-      const res = validateGatewayUrl('https://user:secret123@api.hosted-backend.com/?auth=leak#top', true);
+      const res = validateGatewayUrl(
+        'https://user:secret123@api.hosted-backend.com/?auth=leak#top',
+        true
+      );
       expect(res.valid).toBe(true);
       expect(res.normalizedUrl).toBe('https://api.hosted-backend.com');
       expect(res.normalizedUrl).not.toContain('secret123');
@@ -83,7 +86,11 @@ describe('ConfigService and Electron Gateway Configuration', () => {
     });
 
     it('prioritizes environment variable preconfiguration over file config', () => {
-      fs.writeFileSync(tempConfigFile, JSON.stringify({ gatewayUrl: 'https://file-config.org' }), 'utf8');
+      fs.writeFileSync(
+        tempConfigFile,
+        JSON.stringify({ gatewayUrl: 'https://file-config.org' }),
+        'utf8'
+      );
       process.env.GATEWAY_URL = 'https://env-config.org';
 
       const service = new ConfigService(tempConfigFile);
@@ -92,7 +99,11 @@ describe('ConfigService and Electron Gateway Configuration', () => {
     });
 
     it('reads configuration from persistent file if env var is absent', () => {
-      fs.writeFileSync(tempConfigFile, JSON.stringify({ gatewayUrl: 'https://saved-gateway.org' }), 'utf8');
+      fs.writeFileSync(
+        tempConfigFile,
+        JSON.stringify({ gatewayUrl: 'https://saved-gateway.org' }),
+        'utf8'
+      );
 
       const service = new ConfigService(tempConfigFile);
       const config = service.getConfig();
@@ -128,13 +139,13 @@ describe('ConfigService and Electron Gateway Configuration', () => {
       const service = new ConfigService(tempConfigFile);
       const handlers = service.registerHandlers();
 
-      const getHandler = handlers.find(h => h.channel === Channels.App.GetConfigRequest);
+      const getHandler = handlers.find((h) => h.channel === Channels.App.GetConfigRequest);
       expect(getHandler).toBeDefined();
 
-      const setHandler = handlers.find(h => h.channel === Channels.App.SetGatewayUrlRequest);
+      const setHandler = handlers.find((h) => h.channel === Channels.App.SetGatewayUrlRequest);
       expect(setHandler).toBeDefined();
 
-      const clearHandler = handlers.find(h => h.channel === Channels.App.ClearGatewayUrlRequest);
+      const clearHandler = handlers.find((h) => h.channel === Channels.App.ClearGatewayUrlRequest);
       expect(clearHandler).toBeDefined();
 
       // Test handler execution

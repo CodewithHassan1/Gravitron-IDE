@@ -16,10 +16,14 @@ export function TimelineView() {
 
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case 'git-commit': return <GitCommit size={14} className="text-blue-500" />;
-      case 'save': return <Save size={14} className="text-green-500" />;
-      case 'sparkles': return <Sparkles size={14} className="text-purple-500" />;
-      default: return <Clock size={14} className="text-muted-foreground" />;
+      case 'git-commit':
+        return <GitCommit size={14} className="text-blue-500" />;
+      case 'save':
+        return <Save size={14} className="text-green-500" />;
+      case 'sparkles':
+        return <Sparkles size={14} className="text-purple-500" />;
+      default:
+        return <Clock size={14} className="text-muted-foreground" />;
     }
   };
 
@@ -32,12 +36,12 @@ export function TimelineView() {
   return (
     <div className="flex flex-col h-full overflow-hidden relative">
       <div className="absolute top-1 right-2 z-10 flex gap-2">
-        <button 
-          onClick={() => TimelineService.refresh()} 
+        <button
+          onClick={() => TimelineService.refresh()}
           className="text-muted-foreground hover:text-foreground transition-colors p-1"
           title="Refresh timeline"
         >
-          <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
+          <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
         </button>
       </div>
       <div className="flex-1 overflow-y-auto pt-6">
@@ -49,14 +53,12 @@ export function TimelineView() {
         ) : items.length > 0 ? (
           <div className="relative border-l border-border/50 ml-4 pl-4 space-y-4 pb-4">
             {items.map((item) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 className="relative cursor-pointer group"
                 onClick={() => handleItemClick(item)}
               >
-                <div className="absolute -left-6 top-1 bg-background">
-                  {getIcon(item.icon)}
-                </div>
+                <div className="absolute -left-6 top-1 bg-background">{getIcon(item.icon)}</div>
                 <div className="text-sm font-medium group-hover:text-primary transition-colors">
                   {item.title}
                 </div>
@@ -69,9 +71,7 @@ export function TimelineView() {
           </div>
         ) : (
           !isLoading && (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-               No history found
-            </div>
+            <div className="p-4 text-center text-sm text-muted-foreground">No history found</div>
           )
         )}
       </div>

@@ -37,7 +37,7 @@ export interface ParseRequestedCommand extends BaseRepositoryCommand {
   documentId: DocumentId;
 }
 
-export type RepositoryCommand = 
+export type RepositoryCommand =
   | IndexRequestedCommand
   | ReindexRequestedCommand
   | RecoveryRequestedCommand

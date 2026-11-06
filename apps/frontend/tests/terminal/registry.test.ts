@@ -8,18 +8,28 @@ import { MemoryTerminalStream } from '../../src/services/terminal/providers/stre
 
 import { MockTransport } from '../../src/services/terminal/providers/transport/MockTransport';
 class TestProvider extends AbstractTerminalProvider {
-  constructor() { super(new MockTransport()); }
+  constructor() {
+    super(new MockTransport());
+  }
   public id = 'test';
-  public async createStream() { return new MemoryTerminalStream(); }
+  public async createStream() {
+    return new MemoryTerminalStream();
+  }
 }
 
 describe('TerminalRegistryImpl', () => {
   it('manages active session and ordering', () => {
     const registry = new TerminalRegistryImpl();
     const provider = new TestProvider();
-    
-    const session1 = new TerminalSessionImpl({ id: '1', name: '1', cwd: '/', executable: 'sh', args: [], env: {} }, provider);
-    const session2 = new TerminalSessionImpl({ id: '2', name: '2', cwd: '/', executable: 'sh', args: [], env: {} }, provider);
+
+    const session1 = new TerminalSessionImpl(
+      { id: '1', name: '1', cwd: '/', executable: 'sh', args: [], env: {} },
+      provider
+    );
+    const session2 = new TerminalSessionImpl(
+      { id: '2', name: '2', cwd: '/', executable: 'sh', args: [], env: {} },
+      provider
+    );
 
     registry.addSession(session1);
     expect(registry.getActiveSession()?.id).toBe('1');
@@ -42,9 +52,12 @@ describe('TerminalRegistryImpl', () => {
   it('guarantees UUID uniqueness', () => {
     const registry = new TerminalRegistryImpl();
     const provider = new TestProvider();
-    const session1 = new TerminalSessionImpl({ id: '1', name: '1', cwd: '/', executable: 'sh', args: [], env: {} }, provider);
+    const session1 = new TerminalSessionImpl(
+      { id: '1', name: '1', cwd: '/', executable: 'sh', args: [], env: {} },
+      provider
+    );
     registry.addSession(session1);
-    
+
     expect(() => {
       registry.addSession(session1);
     }).toThrow('already exists in registry');

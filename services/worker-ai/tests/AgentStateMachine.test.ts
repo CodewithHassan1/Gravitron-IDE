@@ -10,11 +10,11 @@ describe('AgentStateMachine', () => {
 
   it('allows valid transitions', () => {
     const sm = new AgentStateMachine();
-    
+
     // Valid standard flow
     sm.transition(AgentProtocol.AgentState.Planning);
     expect(sm.state).toBe(AgentProtocol.AgentState.Planning);
-    
+
     sm.transition(AgentProtocol.AgentState.CallingProvider);
     sm.transition(AgentProtocol.AgentState.Streaming);
     sm.transition(AgentProtocol.AgentState.ToolCallPending);
@@ -33,16 +33,20 @@ describe('AgentStateMachine', () => {
 
   it('throws on invalid transitions', () => {
     const sm = new AgentStateMachine();
-    
+
     // Idle -> CallingProvider is invalid
-    expect(() => sm.transition(AgentProtocol.AgentState.CallingProvider)).toThrow('Invalid state transition');
+    expect(() => sm.transition(AgentProtocol.AgentState.CallingProvider)).toThrow(
+      'Invalid state transition'
+    );
   });
 
   it('prevents transitioning out of terminal states', () => {
     const sm = new AgentStateMachine();
     sm.transition(AgentProtocol.AgentState.Planning);
     sm.transition(AgentProtocol.AgentState.Completed);
-    
-    expect(() => sm.transition(AgentProtocol.AgentState.Planning)).toThrow('Invalid state transition');
+
+    expect(() => sm.transition(AgentProtocol.AgentState.Planning)).toThrow(
+      'Invalid state transition'
+    );
   });
 });

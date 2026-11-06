@@ -13,7 +13,7 @@ export interface StorageAdapter {
 class LocalStorageAdapter implements StorageAdapter {
   async getItem<T>(key: string): Promise<T | null> {
     if (typeof window === 'undefined') return null;
-    
+
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
@@ -25,7 +25,7 @@ class LocalStorageAdapter implements StorageAdapter {
 
   async setItem<T>(key: string, value: T): Promise<void> {
     if (typeof window === 'undefined') return;
-    
+
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {

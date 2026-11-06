@@ -2,7 +2,7 @@ import { TerminalProtocol } from '@ag/protocol';
 
 export class TerminalMetricsTracker {
   private startTime = Date.now();
-  
+
   private bytesSent = 0;
   private bytesReceived = 0;
   private flushCount = 0;
@@ -37,7 +37,7 @@ export class TerminalMetricsTracker {
   public recordReconnect() {
     this.reconnectCount++;
   }
-  
+
   public recordAttachFailure() {
     this.attachFailures++;
   }
@@ -51,7 +51,7 @@ export class TerminalMetricsTracker {
       flushCount: this.flushCount,
       bufferDrops: this.bufferDrops,
       avgLatency: this.avgLatency,
-      peakQueue: this.peakQueue
+      peakQueue: this.peakQueue,
     };
   }
 
@@ -62,7 +62,7 @@ export class TerminalMetricsTracker {
       reconnectCount: this.reconnectCount,
       attachFailures: this.attachFailures,
       cancelCount: this.cancelCount,
-      spawnFailures: this.spawnFailures
+      spawnFailures: this.spawnFailures,
     };
   }
 }

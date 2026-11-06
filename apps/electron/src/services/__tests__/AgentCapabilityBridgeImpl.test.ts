@@ -9,17 +9,17 @@ describe('AgentCapabilityBridgeImpl', () => {
   const mockWorkspaceService = {
     registerHandlers: vi.fn().mockReturnValue([
       { channel: Channels.Workspace.ReadFile, handler: async (p: any) => p },
-      { channel: Channels.Workspace.WriteFile, handler: async (p: any) => p }
-    ])
+      { channel: Channels.Workspace.WriteFile, handler: async (p: any) => p },
+    ]),
   } as unknown as IWorkspaceService;
 
   const mockExecutionService = {
     execute: vi.fn(),
-    terminateSession: vi.fn().mockResolvedValue(undefined)
+    terminateSession: vi.fn().mockResolvedValue(undefined),
   } as unknown as IWorkspaceExecutionService;
 
   const mockIntelligenceManager = {
-    sendRequest: vi.fn()
+    sendRequest: vi.fn(),
   } as unknown as IntelligenceManager;
 
   const bridge = new AgentCapabilityBridgeImpl(
@@ -32,7 +32,7 @@ describe('AgentCapabilityBridgeImpl', () => {
     const context: AgentProtocol.AgentCapabilityContext = {
       agentId: 'agent-1',
       workspaceId: 'trusted-ws-1',
-      signal: new AbortController().signal
+      signal: new AbortController().signal,
     };
 
     const res = await bridge.readFile(context, '/secret.txt');
@@ -43,7 +43,7 @@ describe('AgentCapabilityBridgeImpl', () => {
     const context: AgentProtocol.AgentCapabilityContext = {
       agentId: 'agent-1',
       workspaceId: 'trusted-ws-1',
-      signal: new AbortController().signal
+      signal: new AbortController().signal,
     };
 
     const res = await bridge.writeFile(context, '/secret.txt', 'data');
@@ -54,7 +54,7 @@ describe('AgentCapabilityBridgeImpl', () => {
     const context: AgentProtocol.AgentCapabilityContext = {
       agentId: 'agent-1',
       workspaceId: 'trusted-ws-1',
-      signal: new AbortController().signal
+      signal: new AbortController().signal,
     };
 
     const mockSession = {
@@ -65,22 +65,22 @@ describe('AgentCapabilityBridgeImpl', () => {
         }),
         onExit: vi.fn((cb) => {
           cb(0);
-        })
-      }
+        }),
+      },
     };
 
     vi.mocked(mockExecutionService.execute).mockResolvedValueOnce(mockSession as any);
 
     const res = await bridge.executeCommand(context, 'echo hi');
-    
+
     expect(mockExecutionService.execute).toHaveBeenCalledWith({
       workspaceId: 'trusted-ws-1',
       target: { kind: 'local' },
       shellOverride: {
         executable: 'powershell.exe',
-        args: ['-NoProfile', '-NonInteractive', '-Command', 'echo hi']
+        args: ['-NoProfile', '-NonInteractive', '-Command', 'echo hi'],
       },
-      cwdOverride: undefined
+      cwdOverride: undefined,
     });
 
     expect(res.stdout).toBe('test output');

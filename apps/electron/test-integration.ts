@@ -2,11 +2,16 @@ import { LocalBackend } from './src/services/terminal/pty/LocalBackend';
 import { ExecutionContext } from '@ag/protocol';
 import * as pty from 'node-pty';
 
-async function testShell(executable: string, args: string[], cmds: string[], expectedPatterns: RegExp[]) {
+async function testShell(
+  executable: string,
+  args: string[],
+  cmds: string[],
+  expectedPatterns: RegExp[]
+) {
   console.log(`\n=== Testing ${executable} ===`);
   const backend = new LocalBackend();
   const sessionId = 'test-' + Date.now();
-  
+
   const ctx: ExecutionContext = {
     shell: { executable, args },
     cols: 80,
@@ -14,25 +19,25 @@ async function testShell(executable: string, args: string[], cmds: string[], exp
     cwd: process.cwd(),
     environment: process.env,
     target: { kind: 'local' },
-    executionProfileId: 'test'
+    executionProfileId: 'test',
   };
 
   const pid = await backend.createProcess(sessionId, ctx);
   const adapter = backend.getProcess(pid);
-  
+
   if (!adapter) throw new Error('Process not found');
 
   let output = '';
-  adapter.onData(data => {
+  adapter.onData((data) => {
     output += data;
   });
 
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000));
 
   for (const cmd of cmds) {
     console.log(`Sending: ${cmd}`);
     adapter.write(cmd + '\r');
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1500));
   }
 
   backend.dispose();
@@ -52,7 +57,7 @@ async function testShell(executable: string, args: string[], cmds: string[], exp
 
 async function runTests() {
   let success = true;
-  
+
   // 1. PowerShell
   const psPassed = await testShell(
     'powershell.exe',
@@ -61,7 +66,7 @@ async function runTests() {
     [
       /\\x1b\]7;file:\/\/localhost\/.*?\\x07/, // initial OSC 7
       /\\x1b\]0;PowerShell\\x07/, // initial OSC 0
-      /\\x1b\]0;node\\x07/ // active command OSC 0
+      /\\x1b\]0;node\\x07/, // active command OSC 0
     ]
   );
   if (!psPassed) success = false;
@@ -73,7 +78,7 @@ async function runTests() {
     ['cd ..'],
     [
       /\\x1b\]7;file:\/\/localhost\/.*?\\x07/, // CWD
-      /\\x1b\]0;Command Prompt\\x07/ // Title
+      /\\x1b\]0;Command Prompt\\x07/, // Title
     ]
   );
   if (!cmdPassed) success = false;
@@ -87,7 +92,7 @@ async function runTests() {
       [
         /\\x1b\]7;file:\/\/localhost.*?\\x07/, // CWD
         /\\x1b\]0;bash\\x07/, // Idle title
-        /\\x1b\]0;sleep\\x07/ // Active title
+        /\\x1b\]0;sleep\\x07/, // Active title
       ]
     );
     if (!bashPassed) success = false;

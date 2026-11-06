@@ -19,18 +19,23 @@ export class RemotePTYAdapter implements IPTYAdapter {
 
   constructor(private transport: ITransport) {}
 
-  async spawn(executable: string, args: string[], cwd: string, env: Record<string, string>): Promise<void> {
+  async spawn(
+    executable: string,
+    args: string[],
+    cwd: string,
+    env: Record<string, string>
+  ): Promise<void> {
     if (!this.transport.isConnected()) {
       await this.transport.connect();
     }
 
     this.unsubscribeMessage = this.transport.onMessage((msg) => {
       // In a real implementation, msg would be parsed (e.g. JSON with type: 'data' | 'exit')
-      this.dataListeners.forEach(l => l(msg));
+      this.dataListeners.forEach((l) => l(msg));
     });
 
     this.unsubscribeClose = this.transport.onClose(() => {
-      this.exitListeners.forEach(l => l(0)); // Propagate exit
+      this.exitListeners.forEach((l) => l(0)); // Propagate exit
     });
 
     // Send spawn command

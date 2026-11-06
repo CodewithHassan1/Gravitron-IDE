@@ -29,7 +29,7 @@ export class TypeScriptParser implements IParser {
     const symbols: Omit<SymbolDTO, 'id' | 'workspaceId' | 'fileId'>[] = [];
     const references: Omit<ReferenceDTO, 'id' | 'workspaceId' | 'fileId'>[] = [];
     const imports: Omit<ImportDTO, 'id' | 'workspaceId' | 'fileId'>[] = [];
-    const diagnostics: { message: string, line: number, column: number }[] = [];
+    const diagnostics: { message: string; line: number; column: number }[] = [];
 
     const visit = (node: ts.Node) => {
       try {
@@ -64,7 +64,7 @@ export class TypeScriptParser implements IParser {
                 moduleName,
                 symbolName: importClause.name.text,
                 startOffset: node.getStart(),
-                endOffset: node.getEnd()
+                endOffset: node.getEnd(),
               });
             }
             if (importClause.namedBindings) {
@@ -74,7 +74,7 @@ export class TypeScriptParser implements IParser {
                     moduleName,
                     symbolName: element.name.text,
                     startOffset: element.getStart(),
-                    endOffset: element.getEnd()
+                    endOffset: element.getEnd(),
                   });
                 }
               } else if (ts.isNamespaceImport(importClause.namedBindings)) {
@@ -82,7 +82,7 @@ export class TypeScriptParser implements IParser {
                   moduleName,
                   symbolName: importClause.namedBindings.name.text,
                   startOffset: node.getStart(),
-                  endOffset: node.getEnd()
+                  endOffset: node.getEnd(),
                 });
               }
             }
@@ -91,13 +91,13 @@ export class TypeScriptParser implements IParser {
             imports.push({
               moduleName,
               startOffset: node.getStart(),
-              endOffset: node.getEnd()
+              endOffset: node.getEnd(),
             });
           }
         } else if (ts.isIdentifier(node)) {
           // Identify if this is a syntactic reference (not part of a declaration name)
           const parent = node.parent;
-          const isDeclarationName = (
+          const isDeclarationName =
             (ts.isClassDeclaration(parent) && parent.name === node) ||
             (ts.isInterfaceDeclaration(parent) && parent.name === node) ||
             (ts.isFunctionDeclaration(parent) && parent.name === node) ||
@@ -106,8 +106,7 @@ export class TypeScriptParser implements IParser {
             (ts.isTypeAliasDeclaration(parent) && parent.name === node) ||
             (ts.isEnumDeclaration(parent) && parent.name === node) ||
             (ts.isPropertyDeclaration(parent) && parent.name === node) ||
-            (ts.isPropertySignature(parent) && parent.name === node)
-          );
+            (ts.isPropertySignature(parent) && parent.name === node);
 
           if (!isDeclarationName) {
             const pos = sourceFile.getLineAndCharacterOfPosition(node.getStart());
@@ -116,7 +115,7 @@ export class TypeScriptParser implements IParser {
               line: pos.line + 1,
               column: pos.character + 1,
               startOffset: node.getStart(),
-              endOffset: node.getEnd()
+              endOffset: node.getEnd(),
             });
           }
         }
@@ -124,7 +123,11 @@ export class TypeScriptParser implements IParser {
         ts.forEachChild(node, visit);
       } catch (err: any) {
         const pos = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-        diagnostics.push({ message: err.message || 'Error parsing node', line: pos.line + 1, column: pos.character + 1 });
+        diagnostics.push({
+          message: err.message || 'Error parsing node',
+          line: pos.line + 1,
+          column: pos.character + 1,
+        });
       }
     };
 
@@ -138,7 +141,7 @@ export class TypeScriptParser implements IParser {
         startOffset: identifier.getStart(),
         endOffset: identifier.getEnd(),
         // Just storing a generic snippet for the demo, can be expanded later
-        snippet: identifier.text
+        snippet: identifier.text,
       });
     }
 

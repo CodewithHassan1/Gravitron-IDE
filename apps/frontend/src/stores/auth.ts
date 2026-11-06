@@ -1,6 +1,6 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-export type AuthStatus = 
+export type AuthStatus =
   | 'UNAUTHENTICATED'
   | 'AUTHENTICATING'
   | 'AUTHENTICATED'
@@ -24,5 +24,4 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (accessToken, user, status) => set({ accessToken, user, status }),
   logout: () => set({ accessToken: null, user: null, status: 'UNAUTHENTICATED' }),
   setStatus: (status) => set({ status }),
-}))
-
+}));

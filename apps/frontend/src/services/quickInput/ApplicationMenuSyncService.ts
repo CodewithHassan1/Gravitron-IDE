@@ -6,10 +6,11 @@ import { MenuId, MenuContribution, MenuStateUpdate } from '@ag/protocol';
 import { ShortcutFormatter, ShortcutRegistry } from '@ag/core';
 
 export class ApplicationMenuSyncService {
-  private lastStates: Map<string, { enabled: boolean; visible: boolean; checked?: boolean }> = new Map();
+  private lastStates: Map<string, { enabled: boolean; visible: boolean; checked?: boolean }> =
+    new Map();
   private hasInitialized = false;
 
-  constructor() { }
+  constructor() {}
 
   public init() {
     if (this.hasInitialized) return;
@@ -37,7 +38,12 @@ export class ApplicationMenuSyncService {
 
     // Build the top level menubar
     const menuTree = this.buildMenuTree(MenuId.Menubar);
-    console.log('[NativeMenuAudit] Built menu tree, sending to Electron. Top-level item count:', menuTree.length, 'Total registered contributions:', MenuRegistry.getAllMenus().size);
+    console.log(
+      '[NativeMenuAudit] Built menu tree, sending to Electron. Top-level item count:',
+      menuTree.length,
+      'Total registered contributions:',
+      MenuRegistry.getAllMenus().size
+    );
 
     (window as any).agApi.window.setApplicationMenu(menuTree);
   }
@@ -80,7 +86,7 @@ export class ApplicationMenuSyncService {
         enabled,
         visible,
         checked,
-        accelerator
+        accelerator,
       };
 
       if (item.submenu) {
@@ -104,18 +110,24 @@ export class ApplicationMenuSyncService {
       const contribution = this.findContribution(menuItemId);
       if (!contribution) return;
 
-      const command = contribution.command ? CommandRegistry.getCommand(contribution.command) : undefined;
-      
+      const command = contribution.command
+        ? CommandRegistry.getCommand(contribution.command)
+        : undefined;
+
       const enabled = command ? CommandRegistry.isEnabled(command) : true;
       const visible = command ? CommandRegistry.isVisible(command) : true;
       const checked = command ? CommandRegistry.isToggled(command) : undefined;
 
-      if (enabled !== lastState.enabled || visible !== lastState.visible || checked !== lastState.checked) {
+      if (
+        enabled !== lastState.enabled ||
+        visible !== lastState.visible ||
+        checked !== lastState.checked
+      ) {
         updates.push({
           menuItemId,
           enabled: enabled !== lastState.enabled ? enabled : undefined,
           visible: visible !== lastState.visible ? visible : undefined,
-          checked: checked !== lastState.checked ? checked : undefined
+          checked: checked !== lastState.checked ? checked : undefined,
         });
 
         this.lastStates.set(menuItemId, { enabled, visible, checked });

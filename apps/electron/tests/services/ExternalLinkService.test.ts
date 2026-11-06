@@ -28,10 +28,16 @@ describe('ExternalLinkService', () => {
     const launcher = new MockLauncher();
     const service = new ExternalLinkService(launcher);
 
-    await expect(service.openUrl('file:///etc/passwd')).rejects.toThrow('Protocol not allowed: file:');
-    await expect(service.openUrl('javascript:alert(1)')).rejects.toThrow('Protocol not allowed: javascript:');
-    await expect(service.openUrl('data:text/html,<h1>Hello</h1>')).rejects.toThrow('Protocol not allowed: data:');
-    
+    await expect(service.openUrl('file:///etc/passwd')).rejects.toThrow(
+      'Protocol not allowed: file:'
+    );
+    await expect(service.openUrl('javascript:alert(1)')).rejects.toThrow(
+      'Protocol not allowed: javascript:'
+    );
+    await expect(service.openUrl('data:text/html,<h1>Hello</h1>')).rejects.toThrow(
+      'Protocol not allowed: data:'
+    );
+
     expect(launcher.openedUrl).toBeNull();
   });
 

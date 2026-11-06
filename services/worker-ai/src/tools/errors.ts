@@ -13,7 +13,10 @@ export class ToolNotFound extends ToolError {
 }
 
 export class ToolInputValidationFailed extends ToolError {
-  constructor(public readonly toolName: string, public readonly errors: string[]) {
+  constructor(
+    public readonly toolName: string,
+    public readonly errors: string[]
+  ) {
     super(`Input validation failed for tool ${toolName}: ${errors.join(', ')}`);
     this.name = 'ToolInputValidationFailed';
   }
@@ -27,7 +30,10 @@ export class ToolApprovalDenied extends ToolError {
 }
 
 export class ToolExecutionFailed extends ToolError {
-  constructor(public readonly toolName: string, public readonly originalError: Error) {
+  constructor(
+    public readonly toolName: string,
+    public readonly originalError: Error
+  ) {
     super(`Execution failed for tool ${toolName}: ${originalError.message}`);
     this.name = 'ToolExecutionFailed';
   }

@@ -5,9 +5,9 @@ export class GitDiffEngine {
    * Classifies file changes into GitChange array from parsed status lines.
    */
   static classifyChanges(statusEntries: { path: string; status: string }[]): GitChange[] {
-    return statusEntries.map(entry => ({
+    return statusEntries.map((entry) => ({
       path: entry.path,
-      status: entry.status as GitChange['status']
+      status: entry.status as GitChange['status'],
     }));
   }
 
@@ -15,8 +15,10 @@ export class GitDiffEngine {
    * Simple unified diff parser to extract added/removed lines
    * for Monaco gutter decorations.
    */
-  static parseDecorations(diffText: string): { type: 'added' | 'deleted' | 'modified', line: number }[] {
-    const decorations: { type: 'added' | 'deleted' | 'modified', line: number }[] = [];
+  static parseDecorations(
+    diffText: string
+  ): { type: 'added' | 'deleted' | 'modified'; line: number }[] {
+    const decorations: { type: 'added' | 'deleted' | 'modified'; line: number }[] = [];
     if (!diffText) return decorations;
 
     let currentLine = 0;

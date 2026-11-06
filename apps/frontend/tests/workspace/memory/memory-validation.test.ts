@@ -29,15 +29,26 @@ describe('Memory Validation Suite', () => {
 
   it('completely cleans up after closeWorkspace', async () => {
     let manager = new WorkspaceManagerImpl();
-    await manager.openWorkspace({ id: 'mem-test', name: 'Mem', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
-    
+    await manager.openWorkspace(
+      {
+        id: 'mem-test',
+        name: 'Mem',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
+
     // Add some data
     await manager.createFile('/file1.ts');
     await manager.createFile('/file2.ts');
-    
+
     // Verify listeners are attached
     expect((WorkspaceEvents as any).listeners.size).toBeGreaterThan(0);
-    
+
     // Close workspace
     await manager.closeWorkspace();
 
@@ -49,14 +60,25 @@ describe('Memory Validation Suite', () => {
     // Validate no dangling objects in session
     expect(WorkspaceSession.getWorkspaceId()).toBeNull();
     expect(WorkspaceSession.getState().metadata).toBeNull();
-    
+
     // Create new one to ensure no state carries over
     manager = new WorkspaceManagerImpl();
-    await manager.openWorkspace({ id: 'mem-test2', name: 'Mem2', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any }, { nativeHandle: {} as any });
-    
+    await manager.openWorkspace(
+      {
+        id: 'mem-test2',
+        name: 'Mem2',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
+      { nativeHandle: {} as any }
+    );
+
     const rootChildren = manager.getChildren((manager as any).vfs.resolve('/'));
     expect(rootChildren.length).toBe(0); // Empty new workspace
-    
+
     await manager.closeWorkspace();
   });
 });

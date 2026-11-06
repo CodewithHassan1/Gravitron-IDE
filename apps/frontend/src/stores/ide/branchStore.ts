@@ -16,5 +16,5 @@ export const useBranchStore = create<BranchState>((set) => ({
   tags: [],
   setCurrentBranch: (branch) => set({ currentBranch: branch }),
   setBranches: (branches) => set({ branches }),
-  setTags: (tags) => set({ tags })
+  setTags: (tags) => set({ tags }),
 }));

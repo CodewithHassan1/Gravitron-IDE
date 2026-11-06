@@ -9,7 +9,8 @@ export function registerRepositorySettings() {
       {
         id: 'repository.watcher.polling',
         title: 'Watcher Polling',
-        description: 'Use polling instead of native filesystem events (useful for certain network drives)',
+        description:
+          'Use polling instead of native filesystem events (useful for certain network drives)',
         type: 'boolean',
         defaultValue: false,
         category: 'Repository',
@@ -41,7 +42,7 @@ export function registerRepositorySettings() {
         defaultValue: 5,
         category: 'Repository',
         scope: ConfigurationScope.Workspace,
-      }
-    ]
+      },
+    ],
   });
 }

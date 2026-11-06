@@ -17,11 +17,21 @@ class MockService implements ILifecycleService {
   public stopped = false;
   public disposed = false;
 
-  async initialize() { this.initialized = true; }
-  async start() { this.started = true; }
-  async stop() { this.stopped = true; }
-  async dispose() { this.disposed = true; }
-  async health() { return true; }
+  async initialize() {
+    this.initialized = true;
+  }
+  async start() {
+    this.started = true;
+  }
+  async stop() {
+    this.stopped = true;
+  }
+  async dispose() {
+    this.disposed = true;
+  }
+  async health() {
+    return true;
+  }
 }
 
 describe('ApplicationHost', () => {

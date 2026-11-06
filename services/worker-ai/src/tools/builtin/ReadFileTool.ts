@@ -10,15 +10,19 @@ export class ReadFileTool implements ToolImplementation {
       properties: {
         path: {
           type: 'string',
-          description: 'The path of the file to read, relative to the workspace root.'
-        }
+          description: 'The path of the file to read, relative to the workspace root.',
+        },
       },
-      required: ['path']
+      required: ['path'],
     },
-    riskLevel: 'read' as const
+    riskLevel: 'read' as const,
   };
 
-  public async execute(args: { path: string }, bridge: AgentProtocol.IAgentCapabilityBridge, context: AgentProtocol.AgentCapabilityContext): Promise<ToolResult> {
+  public async execute(
+    args: { path: string },
+    bridge: AgentProtocol.IAgentCapabilityBridge,
+    context: AgentProtocol.AgentCapabilityContext
+  ): Promise<ToolResult> {
     try {
       const content = await bridge.readFile(context, args.path);
       // Truncate to 8000 characters if it's too large
@@ -26,12 +30,12 @@ export class ReadFileTool implements ToolImplementation {
         return {
           content: content.substring(0, 8000),
           truncated: true,
-          originalSize: content.length
+          originalSize: content.length,
         };
       }
       return {
         content,
-        truncated: false
+        truncated: false,
       };
     } catch (e: any) {
       throw e; // Handled by ToolRegistry or AgentSession

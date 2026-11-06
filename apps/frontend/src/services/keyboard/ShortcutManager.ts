@@ -41,7 +41,11 @@ export class ShortcutManagerImpl {
     // Handle "+" as key explicitly (e.g. "Ctrl++")
     const isPlusKey = shortcutStr.endsWith('++');
     const normalizedStr = isPlusKey ? shortcutStr.slice(0, -1) : shortcutStr;
-    const parts = normalizedStr.toLowerCase().split('+').map(p => p.trim()).filter(Boolean);
+    const parts = normalizedStr
+      .toLowerCase()
+      .split('+')
+      .map((p) => p.trim())
+      .filter(Boolean);
 
     const key = isPlusKey ? '+' : parts[parts.length - 1];
     if (!key) return;
@@ -51,7 +55,7 @@ export class ShortcutManagerImpl {
       ctrlKey: parts.includes('ctrl') || parts.includes('cmd'),
       shiftKey: parts.includes('shift'),
       altKey: parts.includes('alt') || parts.includes('option'),
-      commandId
+      commandId,
     };
 
     // Replace if exists
@@ -60,7 +64,7 @@ export class ShortcutManagerImpl {
   }
 
   unbindShortcutString(commandId: string) {
-    this.shortcuts = this.shortcuts.filter(s => s.commandId !== commandId);
+    this.shortcuts = this.shortcuts.filter((s) => s.commandId !== commandId);
   }
 
   unregisterShortcut(commandId: string) {
@@ -73,7 +77,7 @@ export class ShortcutManagerImpl {
     for (const shortcut of this.shortcuts) {
       if (!shortcut.key || typeof shortcut.key !== 'string') continue;
 
-      const matchCtrl = shortcut.ctrlKey ? (e.ctrlKey || e.metaKey) : !(e.ctrlKey || e.metaKey);
+      const matchCtrl = shortcut.ctrlKey ? e.ctrlKey || e.metaKey : !(e.ctrlKey || e.metaKey);
       const matchShift = shortcut.shiftKey ? e.shiftKey : !e.shiftKey;
       const matchAlt = shortcut.altKey ? e.altKey : !e.altKey;
       const matchKey = shortcut.key.toLowerCase() === e.key.toLowerCase();

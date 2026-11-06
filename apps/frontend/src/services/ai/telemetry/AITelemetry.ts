@@ -19,8 +19,8 @@ export class AITelemetrySession {
     this.events.push(event);
   }
 
-  getEvents(): TelemetryEvent[] { 
-    return this.events; 
+  getEvents(): TelemetryEvent[] {
+    return this.events;
   }
 }
 

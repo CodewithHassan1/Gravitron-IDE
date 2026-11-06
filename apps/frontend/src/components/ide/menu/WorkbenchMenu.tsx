@@ -10,8 +10,8 @@ import { MenuRegistry } from '@ag/core';
 export function WorkbenchMenu() {
   const menuItems = useMenuState(MenuId.Menubar);
 
-  console.log("=== WORKBENCH MENU RENDER ===");
-  console.log("MenuItems for Menubar:", MenuRegistry.getMenuItems(MenuId.Menubar));
+  console.log('=== WORKBENCH MENU RENDER ===');
+  console.log('MenuItems for Menubar:', MenuRegistry.getMenuItems(MenuId.Menubar));
 
   return (
     <Menubar className="border-none bg-transparent h-8 p-0">

@@ -29,10 +29,14 @@ export class ThemeManager {
 
   getTheme(type: 'workbench' | 'monaco' | 'terminal' | 'icon'): string {
     switch (type) {
-      case 'workbench': return this.currentWorkbenchThemeId;
-      case 'monaco': return this.currentMonacoThemeId;
-      case 'terminal': return this.currentTerminalThemeId;
-      case 'icon': return this.currentIconThemeId;
+      case 'workbench':
+        return this.currentWorkbenchThemeId;
+      case 'monaco':
+        return this.currentMonacoThemeId;
+      case 'terminal':
+        return this.currentTerminalThemeId;
+      case 'icon':
+        return this.currentIconThemeId;
     }
   }
 }

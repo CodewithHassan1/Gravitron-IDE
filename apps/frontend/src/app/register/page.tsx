@@ -1,52 +1,52 @@
-"use client"
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { getErrorMessage } from '../../utils/errors'
-import { getGatewayUrl, getAuthClient, isProductionRuntime } from '../../utils/gateway'
-import { GatewaySetupModal } from '../../components/auth/GatewaySetupModal'
+'use client';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getErrorMessage } from '../../utils/errors';
+import { getGatewayUrl, getAuthClient, isProductionRuntime } from '../../utils/gateway';
+import { GatewaySetupModal } from '../../components/auth/GatewaySetupModal';
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [displayName, setDisplayName] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [emailFailed, setEmailFailed] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentGatewayUrl, setCurrentGatewayUrl] = useState<string | null>(null)
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailFailed, setEmailFailed] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentGatewayUrl, setCurrentGatewayUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setCurrentGatewayUrl(getGatewayUrl())
-  }, [])
+    setCurrentGatewayUrl(getGatewayUrl());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isSubmitting) return
-    setError('')
-    setEmailFailed(false)
-    setIsSubmitting(true)
-    
+    e.preventDefault();
+    if (isSubmitting) return;
+    setError('');
+    setEmailFailed(false);
+    setIsSubmitting(true);
+
     try {
-      const normalizedEmail = email.trim().toLowerCase()
-      const client = getAuthClient()
-      const res = await client.register({ 
-        email: normalizedEmail, 
-        password, 
-        displayName: displayName.trim() 
-      })
+      const normalizedEmail = email.trim().toLowerCase();
+      const client = getAuthClient();
+      const res = await client.register({
+        email: normalizedEmail,
+        password,
+        displayName: displayName.trim(),
+      });
       if (res.status === 'PENDING_VERIFICATION_EMAIL_FAILED') {
-        setEmailFailed(true)
+        setEmailFailed(true);
       }
-      setSuccess(true)
+      setSuccess(true);
     } catch (err: unknown) {
-      setError(getErrorMessage(err))
+      setError(getErrorMessage(err));
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (success) {
     return (
@@ -57,15 +57,21 @@ export default function RegisterPage() {
           </h2>
           {emailFailed ? (
             <p className="text-sm text-amber-500 font-medium">
-              Your account was created, but we could not deliver the verification email automatically. Please return to login, sign in, and click &quot;Resend Verification Email&quot;.
+              Your account was created, but we could not deliver the verification email
+              automatically. Please return to login, sign in, and click &quot;Resend Verification
+              Email&quot;.
             </p>
           ) : (
-            <p className="text-sm text-muted-foreground">Please check your email for a verification link.</p>
+            <p className="text-sm text-muted-foreground">
+              Please check your email for a verification link.
+            </p>
           )}
-          <Link href="/login" className="text-blue-500 text-sm inline-block mt-4">Return to Login</Link>
+          <Link href="/login" className="text-blue-500 text-sm inline-block mt-4">
+            Return to Login
+          </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -87,7 +93,7 @@ export default function RegisterPage() {
             </button>
           </div>
         )}
-        
+
         {error && (
           <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive space-y-1">
             <p className="font-medium">{error}</p>
@@ -105,17 +111,45 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <input type="text" placeholder="Display Name (optional)" value={displayName} onChange={e => setDisplayName(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
-            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required />
-            <input type="password" placeholder="Password (min 8 characters)" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" required minLength={8} />
+            <input
+              type="text"
+              placeholder="Display Name (optional)"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password (min 8 characters)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              required
+              minLength={8}
+            />
           </div>
-          <button type="submit" disabled={isSubmitting} className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex w-full items-center justify-center rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          >
             {isSubmitting ? 'Registering...' : 'Register'}
           </button>
         </form>
 
         <div className="text-sm text-center">
-          Already have an account? <Link href="/login" className="text-blue-500">Sign In</Link>
+          Already have an account?{' '}
+          <Link href="/login" className="text-blue-500">
+            Sign In
+          </Link>
         </div>
 
         <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
@@ -141,5 +175,5 @@ export default function RegisterPage() {
         }}
       />
     </div>
-  )
+  );
 }

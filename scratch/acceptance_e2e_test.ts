@@ -9,7 +9,7 @@ async function main() {
   console.log('=== Gravitron IDE Auth Verification Acceptance Test ===\n');
 
   const pgClient = new Client({
-    connectionString: 'postgres://ag_user:ag_password@localhost:5432/ag_ide'
+    connectionString: 'postgres://ag_user:ag_password@localhost:5432/ag_ide',
   });
   await pgClient.connect();
   const redis = new Redis('redis://localhost:6379');
@@ -26,15 +26,17 @@ async function main() {
   const regRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/Register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: testEmail, password, displayName })
+    body: JSON.stringify({ email: testEmail, password, displayName }),
   });
 
   console.log(`  Registration HTTP status: ${regRes.status}`);
   const regBody = await regRes.json();
   console.log(`  Registration RPC response:`, JSON.stringify(regBody));
-  
+
   if (regRes.status !== 200 || regBody.status !== 'PENDING_VERIFICATION') {
-    throw new Error(`Registration failed or email was not sent automatically! Got status: ${regBody.status}`);
+    throw new Error(
+      `Registration failed or email was not sent automatically! Got status: ${regBody.status}`
+    );
   }
   const userId = regBody.userId;
   console.log(`  Registration succeeded. User ID: ${userId}`);
@@ -43,7 +45,9 @@ async function main() {
   // STEP 2: Database Status Check (Immediately After Registration)
   // -------------------------------------------------------------
   console.log('\n[Step 2] Verifying initial user status in Postgres');
-  const userCheck1 = await pgClient.query('SELECT id, email, status FROM users WHERE id = $1', [userId]);
+  const userCheck1 = await pgClient.query('SELECT id, email, status FROM users WHERE id = $1', [
+    userId,
+  ]);
   console.log('  Database record:', userCheck1.rows[0]);
   if (userCheck1.rows[0]?.status !== 'PENDING_VERIFICATION') {
     throw new Error(`Expected status PENDING_VERIFICATION, got ${userCheck1.rows[0]?.status}`);
@@ -84,7 +88,7 @@ async function main() {
   const invalidRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/VerifyEmail`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: 'completely_invalid_token' })
+    body: JSON.stringify({ token: 'completely_invalid_token' }),
   });
   console.log(`  Invalid token HTTP status: ${invalidRes.status}`);
   const invalidBody = await invalidRes.json();
@@ -105,23 +109,30 @@ async function main() {
   const verifyRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/VerifyEmail`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: testRawToken })
+    body: JSON.stringify({ token: testRawToken }),
   });
   console.log(`  VerifyEmail HTTP status: ${verifyRes.status}`);
   const verifyBody = await verifyRes.json();
   console.log('  VerifyEmail RPC response:', JSON.stringify(verifyBody));
   if (verifyRes.status !== 200) {
-    throw new Error(`VerifyEmail failed! Status: ${verifyRes.status}, Body: ${JSON.stringify(verifyBody)}`);
+    throw new Error(
+      `VerifyEmail failed! Status: ${verifyRes.status}, Body: ${JSON.stringify(verifyBody)}`
+    );
   }
 
   // -------------------------------------------------------------
   // STEP 7: Verify Database Status Changed to ACTIVE
   // -------------------------------------------------------------
   console.log('\n[Step 7] Checking user status in database after verification');
-  const userCheck2 = await pgClient.query('SELECT id, email, status, updated_at FROM users WHERE id = $1', [userId]);
+  const userCheck2 = await pgClient.query(
+    'SELECT id, email, status, updated_at FROM users WHERE id = $1',
+    [userId]
+  );
   console.log('  Updated database record:', userCheck2.rows[0]);
   if (userCheck2.rows[0]?.status !== 'ACTIVE') {
-    throw new Error(`User status did not transition to ACTIVE! Current status: ${userCheck2.rows[0]?.status}`);
+    throw new Error(
+      `User status did not transition to ACTIVE! Current status: ${userCheck2.rows[0]?.status}`
+    );
   }
 
   // -------------------------------------------------------------
@@ -131,7 +142,7 @@ async function main() {
   const replayRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/VerifyEmail`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: testRawToken })
+    body: JSON.stringify({ token: testRawToken }),
   });
   console.log(`  Replay HTTP status: ${replayRes.status}`);
   const replayBody = await replayRes.json();
@@ -147,7 +158,7 @@ async function main() {
   const loginRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/PasswordLogin`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: testEmail, password })
+    body: JSON.stringify({ email: testEmail, password }),
   });
   console.log(`  Login HTTP status: ${loginRes.status}`);
   const loginBody = await loginRes.json();
@@ -164,7 +175,7 @@ async function main() {
   const protRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/IntrospectToken`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({})
+    body: JSON.stringify({}),
   });
   console.log(`  Unauthenticated protected route status: ${protRes.status}`);
   if (protRes.status !== 401) {
@@ -174,7 +185,7 @@ async function main() {
   const prefixRes = await fetch(`${GATEWAY_URL}/auth.v1.AuthService/VerifyEmailMaliciousBypass`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({})
+    body: JSON.stringify({}),
   });
   console.log(`  Prefix spoof route status: ${prefixRes.status}`);
   if (prefixRes.status !== 401) {

@@ -1,0 +1,73 @@
+# ==============================================================================
+# Gravitron IDE — Phase 5.2.3.17 Isolated Runtime Verification Fixture
+# ==============================================================================
+# Dedicated Compose topology for real-Redis and multi-replica rate limit testing.
+# ISOLATION & SAFETY GUARANTEES:
+#   - Unique project name: -p ag_rate_limit_verify
+#   - Dedicated bridge network: ag_verify_net
+#   - Ephemeral in-memory tmpfs storage (zero disk persistence)
+#   - Strict loopback binding: 127.0.0.1:16379:6379 (never exposed to 0.0.0.0)
+#   - Zero connection to production or developer database volumes
+# ==============================================================================
+
+name: ag_rate_limit_verify
+
+services:
+  verify_redis:
+    image: redis:8.0-M02-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--bind", "0.0.0.0"]
+    tmpfs:
+      - /data
+    ports:
+      - "127.0.0.1:16379:6379"
+    networks:
+      - ag_verify_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+
+  verify_gateway_a:
+    build:
+      context: ../../../
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      PORT: 8080
+      NODE_ENV: test
+      REDIS_URL: redis://verify_redis:6379
+      RATE_LIMIT_HMAC_SECRET: verify-shared-secret-min-32-chars-long-here!
+      JWT_SECRET: test-secret-that-is-at-least-32-characters-long!
+      GATEWAY_PRIVATE_KEY: ${GATEWAY_PRIVATE_KEY:-}
+      TRUSTED_PROXIES: 127.0.0.1,::1,172.28.0.0/16
+    depends_on:
+      verify_redis:
+        condition: service_healthy
+    networks:
+      - ag_verify_net
+
+  verify_gateway_b:
+    build:
+      context: ../../../
+      dockerfile: services/gateway/Dockerfile
+    environment:
+      PORT: 8080
+      NODE_ENV: test
+      REDIS_URL: redis://verify_redis:6379
+      RATE_LIMIT_HMAC_SECRET: verify-shared-secret-min-32-chars-long-here!
+      JWT_SECRET: test-secret-that-is-at-least-32-characters-long!
+      GATEWAY_PRIVATE_KEY: ${GATEWAY_PRIVATE_KEY:-}
+      TRUSTED_PROXIES: 127.0.0.1,::1,172.28.0.0/16
+    depends_on:
+      verify_redis:
+        condition: service_healthy
+    networks:
+      - ag_verify_net
+
+networks:
+  ag_verify_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+

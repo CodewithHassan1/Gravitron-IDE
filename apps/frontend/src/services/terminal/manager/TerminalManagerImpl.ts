@@ -46,7 +46,7 @@ export class TerminalManagerImpl implements TerminalManager {
       args: options.args ? Object.freeze([...options.args]) : undefined,
       env: options.env ? Object.freeze({ ...options.env }) : undefined,
       profileId: options.profileId,
-      workspaceId: options.workspaceId
+      workspaceId: options.workspaceId,
     };
 
     const session = new TerminalSessionImpl(metadata, this.provider);
@@ -55,7 +55,7 @@ export class TerminalManagerImpl implements TerminalManager {
     TerminalEvents.emit(TerminalEventType.TerminalCreated, {
       terminalId: metadata.id,
       timestamp: Date.now(),
-      metadata: metadata // metadata is already readonly
+      metadata: metadata, // metadata is already readonly
     });
 
     try {
@@ -70,7 +70,7 @@ export class TerminalManagerImpl implements TerminalManager {
 
   public async destroyTerminal(id: string): Promise<void> {
     if (this.isDisposed) throw new Error('TerminalManager is disposed');
-    
+
     const session = this.registry.getSession(id);
     if (!session) return;
 
@@ -104,15 +104,15 @@ export class TerminalManagerImpl implements TerminalManager {
 
     for (const metadata of snapshot.sessions) {
       if (!this.registry.hasSession(metadata.id)) {
-        const backendSession = backendSessions.find(s => s.terminalId === metadata.id);
+        const backendSession = backendSessions.find((s) => s.terminalId === metadata.id);
 
         const session = new TerminalSessionImpl(metadata, this.provider);
         this.registry.addSession(session);
-        
+
         TerminalEvents.emit(TerminalEventType.TerminalCreated, {
           terminalId: metadata.id,
           timestamp: Date.now(),
-          metadata: metadata
+          metadata: metadata,
         });
 
         if (backendSession && (session as any).attach) {
@@ -120,7 +120,7 @@ export class TerminalManagerImpl implements TerminalManager {
             await (session as any).attach(backendSession.sessionId);
           } catch (e) {
             console.error(`[TerminalManager] Failed to attach session ${metadata.id}`, e);
-            await session.connect().catch(err => console.error(err));
+            await session.connect().catch((err) => console.error(err));
           }
         } else {
           try {
@@ -139,14 +139,14 @@ export class TerminalManagerImpl implements TerminalManager {
 
   private async persistSessions(): Promise<void> {
     if (this.isDisposed || !this.activeWorkspaceId) return;
-    const sessions = this.registry.getSessions().map(s => s.metadata);
+    const sessions = this.registry.getSessions().map((s) => s.metadata);
     const active = this.registry.getActiveSession();
-    
+
     const snapshot: TerminalSnapshot = {
       version: 1,
       sessions,
       activeSessionId: active ? active.id : null,
-      layout: {}
+      layout: {},
     };
 
     await this.persistence.save(this.activeWorkspaceId, snapshot);
@@ -155,7 +155,7 @@ export class TerminalManagerImpl implements TerminalManager {
   public async destroyAllSessions(): Promise<void> {
     if (this.isDisposed) throw new Error('TerminalManager is disposed');
     const sessions = this.registry.getSessions();
-    await Promise.all(sessions.map(s => this.destroyTerminal(s.id).catch(console.error)));
+    await Promise.all(sessions.map((s) => this.destroyTerminal(s.id).catch(console.error)));
   }
 
   public dispose(): void {

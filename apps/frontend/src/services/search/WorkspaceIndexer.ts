@@ -2,11 +2,10 @@ import { IndexService } from './IndexService';
 import { CommandRegistry } from '../../lib/registries/CommandRegistry';
 
 export class WorkspaceIndexerImpl {
-  
   // Mock index for 100k items test
   async buildMockIndex() {
     const items = [];
-    
+
     // Add commands
     const commands = CommandRegistry.getCommands();
     for (const cmd of commands) {
@@ -15,7 +14,7 @@ export class WorkspaceIndexerImpl {
         type: 'command',
         title: cmd.title,
         description: cmd.category,
-        metadata: { commandId: cmd.id }
+        metadata: { commandId: cmd.id },
       });
     }
 

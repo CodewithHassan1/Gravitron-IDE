@@ -9,7 +9,7 @@ export class ApplicationHost {
   public async start(): Promise<void> {
     try {
       console.log('ApplicationHost starting...');
-      
+
       // Topological sort ensures correct boot order
       const lifecycleServices = this.container.getSortedLifecycleServices();
 
@@ -49,7 +49,7 @@ export class ApplicationHost {
     try {
       // Reverse order for shutdown
       const lifecycleServices = this.container.getSortedLifecycleServices().reverse();
-      
+
       // Stop all services
       for (const service of lifecycleServices) {
         try {

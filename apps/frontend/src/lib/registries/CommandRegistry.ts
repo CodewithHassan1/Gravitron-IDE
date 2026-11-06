@@ -16,13 +16,13 @@ export interface CommandExecutionContext {
 export interface Command extends CommandMetadata {
   description?: string;
   aliases?: string[];
-  
+
   // Guards
   requiresWorkspace?: boolean;
   requiresEditor?: boolean;
   requiresGit?: boolean;
   requiresTerminal?: boolean;
-  
+
   // Handlers
   handler: (context: CommandExecutionContext, ...args: any[]) => Promise<void> | void;
 }
@@ -43,14 +43,17 @@ class CommandRegistryImpl {
     let shortcutDisposable: Disposable | undefined;
     if (shortcutStr) {
       shortcutDisposable = ShortcutRegistry.registerKeybinding(command.id, shortcutStr);
-      systemEventBus.emit(SystemEvents.CommandRegistered as any, { id: command.id, shortcut: shortcutStr });
+      systemEventBus.emit(SystemEvents.CommandRegistered as any, {
+        id: command.id,
+        shortcut: shortcutStr,
+      });
     }
 
     return {
       dispose: () => {
         this.unregisterCommand(command.id);
         if (shortcutDisposable) shortcutDisposable.dispose();
-      }
+      },
     };
   }
 
@@ -68,7 +71,7 @@ class CommandRegistryImpl {
 
   getCommands(): Command[] {
     // Only return commands whose 'when' clause is satisfied if they have one
-    return Array.from(this.commands.values()).filter(c => this.isVisible(c));
+    return Array.from(this.commands.values()).filter((c) => this.isVisible(c));
   }
 
   isVisible(c: Command): boolean {
@@ -81,12 +84,12 @@ class CommandRegistryImpl {
     if (c.requiresEditor && !ContextEngine.evaluate('editorIsOpen')) return false; // Needs editorIsOpen context
     if (c.requiresGit && !ContextEngine.evaluate('gitAvailable')) return false;
     if (c.requiresTerminal && !ContextEngine.evaluate('terminalIsOpen')) return false; // Needs terminalIsOpen
-    
+
     if (c.enablement && !ContextEngine.evaluate(c.enablement)) return false;
     if (c.precondition && !ContextEngine.evaluate(c.precondition)) return false;
     return true;
   }
-  
+
   isToggled(c: Command): boolean {
     if (c.toggled && ContextEngine.evaluate(c.toggled)) return true;
     return false;

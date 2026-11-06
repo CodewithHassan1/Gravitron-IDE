@@ -38,7 +38,7 @@ export enum AIStreamEventType {
   Reasoning = 'reasoning',
   Usage = 'usage',
   Finish = 'finish',
-  Error = 'error'
+  Error = 'error',
 }
 
 export interface TokenUsage {
@@ -67,7 +67,7 @@ export interface CompletionResponse {
 export interface AIProvider {
   /** Unified chat completion API */
   completeChat(req: CompletionRequest, signal?: AbortSignal): Promise<CompletionResponse>;
-  
+
   /** Unified streaming API */
   streamChat(req: CompletionRequest, signal?: AbortSignal): AsyncIterable<AIStreamEvent>;
 

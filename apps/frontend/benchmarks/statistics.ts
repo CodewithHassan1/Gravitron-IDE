@@ -15,22 +15,23 @@ export function calculateStatistics(durations: number[]): BenchmarkStats {
   }
 
   durations.sort((a, b) => a - b);
-  
+
   const sum = durations.reduce((a, b) => a + b, 0);
   const mean = sum / durations.length;
-  
+
   const mid = Math.floor(durations.length / 2);
-  const median = durations.length % 2 !== 0 ? durations[mid] : (durations[mid - 1] + durations[mid]) / 2;
-  
+  const median =
+    durations.length % 2 !== 0 ? durations[mid] : (durations[mid - 1] + durations[mid]) / 2;
+
   const min = durations[0];
   const max = durations[durations.length - 1];
-  
+
   const p95Index = Math.max(0, Math.floor(durations.length * 0.95) - 1);
   const p99Index = Math.max(0, Math.floor(durations.length * 0.99) - 1);
-  
+
   const p95 = durations[p95Index];
   const p99 = durations[p99Index];
-  
+
   const variance = durations.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / durations.length;
   const stddev = Math.sqrt(variance);
 
@@ -42,6 +43,6 @@ export function calculateStatistics(durations: number[]): BenchmarkStats {
     p95,
     p99,
     stddev,
-    samples: durations.length
+    samples: durations.length,
   };
 }

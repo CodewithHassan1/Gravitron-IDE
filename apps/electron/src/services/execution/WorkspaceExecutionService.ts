@@ -23,8 +23,12 @@ export class WorkspaceExecutionService implements IWorkspaceExecutionService {
 
   public async initialize(): Promise<void> {}
   public async start(): Promise<void> {}
-  public async stop(): Promise<void> { await this.processManager.terminateAll(); }
-  public async health(): Promise<boolean> { return true; }
+  public async stop(): Promise<void> {
+    await this.processManager.terminateAll();
+  }
+  public async health(): Promise<boolean> {
+    return true;
+  }
 
   public async execute(request: ExecutionRequest): Promise<ExecutionSession> {
     // 1. Resolve context
@@ -42,11 +46,11 @@ export class WorkspaceExecutionService implements IWorkspaceExecutionService {
 
       // 5. Create native process
       const sessionId = randomUUID();
-      
+
       // We pass context.environment as Record<string, string> since the backend might expect mutable records,
-      // though the contract now can accept Readonly. 
+      // though the contract now can accept Readonly.
       const nativeProcessId = await backend.createProcess(sessionId, context);
-      
+
       const process = backend.getProcess(nativeProcessId);
       if (!process) {
         throw new Error(`Failed to retrieve native process ${nativeProcessId}`);
@@ -61,7 +65,7 @@ export class WorkspaceExecutionService implements IWorkspaceExecutionService {
         process,
         Date.now()
       );
-      
+
       session.state = 'running';
 
       // 7. Commit reservation and register

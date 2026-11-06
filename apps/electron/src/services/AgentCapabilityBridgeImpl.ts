@@ -13,8 +13,8 @@ export class AgentCapabilityBridgeImpl implements AgentProtocol.IAgentCapability
     private intelligenceManager: IntelligenceManager
   ) {
     const handlers = this.workspaceService.registerHandlers();
-    this.readHandler = handlers.find(h => h.channel === Channels.Workspace.ReadFile)!.handler;
-    this.writeHandler = handlers.find(h => h.channel === Channels.Workspace.WriteFile)!.handler;
+    this.readHandler = handlers.find((h) => h.channel === Channels.Workspace.ReadFile)!.handler;
+    this.writeHandler = handlers.find((h) => h.channel === Channels.Workspace.WriteFile)!.handler;
   }
 
   public async searchWorkspace(
@@ -75,7 +75,10 @@ export class AgentCapabilityBridgeImpl implements AgentProtocol.IAgentCapability
     );
   }
 
-  public async readFile(context: AgentProtocol.AgentCapabilityContext, path: string): Promise<string> {
+  public async readFile(
+    context: AgentProtocol.AgentCapabilityContext,
+    path: string
+  ): Promise<string> {
     return await this.readHandler({ workspaceId: context.workspaceId, path });
   }
 
@@ -138,7 +141,7 @@ export class AgentCapabilityBridgeImpl implements AgentProtocol.IAgentCapability
 
       exitCode = result.exitCode;
     } finally {
-      await this.workspaceExecutionService.terminateSession(session.id).catch(() => { });
+      await this.workspaceExecutionService.terminateSession(session.id).catch(() => {});
     }
 
     return { stdout, stderr, exitCode };
@@ -200,13 +203,13 @@ export class AgentCapabilityBridgeImpl implements AgentProtocol.IAgentCapability
     }>,
     upsertOptions: {
       deleteStrategy?:
-      | {
-        type: 'by_ids';
-        ids: string[];
-      }
-      | {
-        type: 'all';
-      };
+        | {
+            type: 'by_ids';
+            ids: string[];
+          }
+        | {
+            type: 'all';
+          };
       batchSize?: number;
     }
   ): Promise<void> {

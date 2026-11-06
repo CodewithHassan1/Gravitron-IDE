@@ -3,7 +3,7 @@ import { ITaskProvider } from '../providers/ITaskProvider';
 
 export class TaskDefinitionRegistry {
   private providers = new Map<string, ITaskProvider>();
-  
+
   // Cache of discovered tasks, keyed by workspaceId
   private taskCache = new Map<string, Map<string, TaskDefinition>>();
 
@@ -25,9 +25,9 @@ export class TaskDefinitionRegistry {
     }
 
     const allTasks = new Map<string, TaskDefinition>();
-    
+
     // Ask all providers for tasks
-    const promises = Array.from(this.providers.values()).map(async p => {
+    const promises = Array.from(this.providers.values()).map(async (p) => {
       try {
         const tasks = await p.provideTasks(workspaceId);
         for (const task of tasks) {
@@ -40,12 +40,12 @@ export class TaskDefinitionRegistry {
 
     await Promise.allSettled(promises);
     this.taskCache.set(workspaceId, allTasks);
-    
+
     return Array.from(allTasks.values());
   }
 
   public async getTask(workspaceId: string, taskId: string): Promise<TaskDefinition | undefined> {
     const tasks = await this.getTasks(workspaceId);
-    return tasks.find(t => t.id === taskId);
+    return tasks.find((t) => t.id === taskId);
   }
 }

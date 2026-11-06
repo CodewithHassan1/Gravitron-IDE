@@ -21,3 +21,4 @@ A modular personal agent & cloud-native IDE monorepo orchestrated with Turborepo
 ```bash
 pnpm install
 pnpm dev
+```

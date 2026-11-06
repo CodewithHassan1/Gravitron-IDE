@@ -10,7 +10,7 @@ interface EditorGroupProps {
 }
 
 export function EditorGroup({ group }: EditorGroupProps) {
-  const activeTab = group.tabs.find(t => t.id === group.activeTabId);
+  const activeTab = group.tabs.find((t) => t.id === group.activeTabId);
 
   const renderContent = () => {
     if (!activeTab) {
@@ -32,9 +32,7 @@ export function EditorGroup({ group }: EditorGroupProps) {
     <div className="flex-1 flex flex-col min-w-0 min-h-0 border-r border-border last:border-r-0">
       <EditorTabs group={group} />
       {activeTab && <Breadcrumbs path={activeTab.path} />}
-      <div className="flex-1 relative overflow-hidden">
-        {renderContent()}
-      </div>
+      <div className="flex-1 relative overflow-hidden">{renderContent()}</div>
     </div>
   );
 }

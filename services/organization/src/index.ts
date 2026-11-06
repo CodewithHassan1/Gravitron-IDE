@@ -5,7 +5,7 @@ import { organizationRoutes } from './server';
 const logger = new AGLogger('organization-service', '1.0.0');
 
 const server = Fastify({
-  logger: true
+  logger: true,
 });
 
 server.register(organizationRoutes);

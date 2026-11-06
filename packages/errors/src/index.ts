@@ -1,11 +1,11 @@
 export const ERROR_CODES = {
-  ERR_AUTH_INVALID_TOKEN: { code: "UNAUTHENTICATED", status: 401 },
-  ERR_FORBID_POLICY: { code: "PERMISSION_DENIED", status: 403 },
-  ERR_WS_NOT_FOUND: { code: "NOT_FOUND", status: 404 },
-  ERR_EXEC_TIMEOUT: { code: "DEADLINE_EXCEEDED", status: 504 },
-  ERR_QUOTA_EXCEEDED: { code: "RESOURCE_EXHAUSTED", status: 429 },
-  ERR_INTERNAL_SERVER: { code: "INTERNAL", status: 500 },
-  ERR_VALIDATION_FAILED: { code: "INVALID_ARGUMENT", status: 400 },
+  ERR_AUTH_INVALID_TOKEN: { code: 'UNAUTHENTICATED', status: 401 },
+  ERR_FORBID_POLICY: { code: 'PERMISSION_DENIED', status: 403 },
+  ERR_WS_NOT_FOUND: { code: 'NOT_FOUND', status: 404 },
+  ERR_EXEC_TIMEOUT: { code: 'DEADLINE_EXCEEDED', status: 504 },
+  ERR_QUOTA_EXCEEDED: { code: 'RESOURCE_EXHAUSTED', status: 429 },
+  ERR_INTERNAL_SERVER: { code: 'INTERNAL', status: 500 },
+  ERR_VALIDATION_FAILED: { code: 'INVALID_ARGUMENT', status: 400 },
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;
@@ -17,7 +17,7 @@ export class AGError extends Error {
     public details?: Record<string, unknown>
   ) {
     super(message);
-    this.name = "AGError";
+    this.name = 'AGError';
   }
 
   get grpcCode() {

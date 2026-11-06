@@ -21,21 +21,21 @@ export class MemoryTerminalStream implements ITerminalStream {
   public onData(listener: (data: Uint8Array) => void): IDisposable {
     this.dataListeners.add(listener);
     return {
-      dispose: () => this.dataListeners.delete(listener)
+      dispose: () => this.dataListeners.delete(listener),
     };
   }
 
   public onClose(listener: () => void): IDisposable {
     this.closeListeners.add(listener);
     return {
-      dispose: () => this.closeListeners.delete(listener)
+      dispose: () => this.closeListeners.delete(listener),
     };
   }
 
   public onError(listener: (error: Error) => void): IDisposable {
     this.errorListeners.add(listener);
     return {
-      dispose: () => this.errorListeners.delete(listener)
+      dispose: () => this.errorListeners.delete(listener),
     };
   }
 

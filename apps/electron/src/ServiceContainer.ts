@@ -8,7 +8,7 @@ export class ServiceContainer {
     if (this.services.has(service.id)) {
       throw new Error(`Service ${service.id.toString()} is already registered.`);
     }
-    
+
     if (service.dependencies.includes(service.id)) {
       throw new Error(`Service ${service.id.toString()} has a self-dependency.`);
     }
@@ -36,7 +36,7 @@ export class ServiceContainer {
   public getSortedLifecycleServices(): ILifecycleService[] {
     const sortedIds = this.topologicalSort();
     const lifecycleServices: ILifecycleService[] = [];
-    
+
     for (const id of sortedIds) {
       const service = this.get(id);
       if (this.isLifecycleService(service)) {
@@ -51,7 +51,9 @@ export class ServiceContainer {
   }
 
   private isLifecycleService(service: IService): service is ILifecycleService {
-    return 'initialize' in service && 'start' in service && 'stop' in service && 'dispose' in service;
+    return (
+      'initialize' in service && 'start' in service && 'stop' in service && 'dispose' in service
+    );
   }
 
   private isIpcService(service: IService): service is IIpcService {
@@ -65,7 +67,7 @@ export class ServiceContainer {
 
     const visit = (id: ServiceId, trace: ServiceId[]) => {
       if (visiting.has(id)) {
-        const cycle = [...trace, id].map(s => s.toString()).join(' -> ');
+        const cycle = [...trace, id].map((s) => s.toString()).join(' -> ');
         throw new Error(`Cyclic dependency detected: ${cycle}`);
       }
       if (visited.has(id)) {
@@ -74,7 +76,9 @@ export class ServiceContainer {
 
       const service = this.services.get(id);
       if (!service) {
-        throw new Error(`Missing dependency ${id.toString()} required by ${trace[trace.length - 1]?.toString()}`);
+        throw new Error(
+          `Missing dependency ${id.toString()} required by ${trace[trace.length - 1]?.toString()}`
+        );
       }
 
       visiting.add(id);

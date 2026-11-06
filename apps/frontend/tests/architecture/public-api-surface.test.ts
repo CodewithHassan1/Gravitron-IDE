@@ -35,24 +35,27 @@ describe('Public API Surface', () => {
       'getState',
       'getWorkspaceId',
       'onEvent', // Documented implicitly via the event handling API section
-      'getSearchEngine' // Optional but historically present
+      'getSearchEngine', // Optional but historically present
     ]);
 
     const manager = new WorkspaceManagerImpl();
-    
+
     // Get all properties on the prototype, filter out constructor and private methods (starting with _)
     const prototype = Object.getPrototypeOf(manager);
     const methods = Object.getOwnPropertyNames(prototype).filter(
-      name => name !== 'constructor' && typeof (prototype as any)[name] === 'function' && !name.startsWith('_')
+      (name) =>
+        name !== 'constructor' &&
+        typeof (prototype as any)[name] === 'function' &&
+        !name.startsWith('_')
     );
 
-    const exposedMethods = methods.filter(name => {
+    const exposedMethods = methods.filter((name) => {
       // In JS, 'public' typescript methods are just prototype methods without '#'.
       // We check what the prototype exports.
       return true;
     });
 
-    const unauthorizedMethods = exposedMethods.filter(name => !allowedMethods.has(name));
+    const unauthorizedMethods = exposedMethods.filter((name) => !allowedMethods.has(name));
 
     if (unauthorizedMethods.length > 0) {
       console.error('Unauthorized public methods found on WorkspaceManager:', unauthorizedMethods);
@@ -64,7 +67,7 @@ describe('Public API Surface', () => {
   it('Internal maps, VFS internals, queues, and persistence adapters are not exposed', () => {
     const manager = new WorkspaceManagerImpl();
     const keys = Object.keys(manager) as (keyof WorkspaceManagerImpl)[];
-    
+
     // Ensure no public property leaks internal states like vfs, persistence, syncEngine
     // Note: TypeScript transpiles private properties to normal keys in JS, so Object.keys will show them.
     // However, the test should verify that no public accessor exists for them.

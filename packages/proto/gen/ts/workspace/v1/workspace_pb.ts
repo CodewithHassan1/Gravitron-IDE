@@ -3,8 +3,15 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3, Timestamp } from "@bufbuild/protobuf";
+import type {
+  BinaryReadOptions,
+  FieldList,
+  JsonReadOptions,
+  JsonValue,
+  PartialMessage,
+  PlainMessage,
+} from '@bufbuild/protobuf';
+import { Message, proto3, Timestamp } from '@bufbuild/protobuf';
 
 /**
  * @generated from enum workspace.v1.GitProvider
@@ -41,13 +48,13 @@ export enum GitProvider {
   GENERIC = 5,
 }
 // Retrieve enum metadata with: proto3.getEnumType(GitProvider)
-proto3.util.setEnumType(GitProvider, "workspace.v1.GitProvider", [
-  { no: 0, name: "GIT_PROVIDER_UNSPECIFIED" },
-  { no: 1, name: "GIT_PROVIDER_GITHUB" },
-  { no: 2, name: "GIT_PROVIDER_GITLAB" },
-  { no: 3, name: "GIT_PROVIDER_BITBUCKET" },
-  { no: 4, name: "GIT_PROVIDER_AZURE_DEVOPS" },
-  { no: 5, name: "GIT_PROVIDER_GENERIC" },
+proto3.util.setEnumType(GitProvider, 'workspace.v1.GitProvider', [
+  { no: 0, name: 'GIT_PROVIDER_UNSPECIFIED' },
+  { no: 1, name: 'GIT_PROVIDER_GITHUB' },
+  { no: 2, name: 'GIT_PROVIDER_GITLAB' },
+  { no: 3, name: 'GIT_PROVIDER_BITBUCKET' },
+  { no: 4, name: 'GIT_PROVIDER_AZURE_DEVOPS' },
+  { no: 5, name: 'GIT_PROVIDER_GENERIC' },
 ]);
 
 /**
@@ -90,14 +97,14 @@ export enum WorkspaceStatus {
   FAILED = 6,
 }
 // Retrieve enum metadata with: proto3.getEnumType(WorkspaceStatus)
-proto3.util.setEnumType(WorkspaceStatus, "workspace.v1.WorkspaceStatus", [
-  { no: 0, name: "WORKSPACE_STATUS_UNSPECIFIED" },
-  { no: 1, name: "WORKSPACE_STATUS_CREATING" },
-  { no: 2, name: "WORKSPACE_STATUS_PROVISIONING" },
-  { no: 3, name: "WORKSPACE_STATUS_CLONING" },
-  { no: 4, name: "WORKSPACE_STATUS_INDEXING" },
-  { no: 5, name: "WORKSPACE_STATUS_READY" },
-  { no: 6, name: "WORKSPACE_STATUS_FAILED" },
+proto3.util.setEnumType(WorkspaceStatus, 'workspace.v1.WorkspaceStatus', [
+  { no: 0, name: 'WORKSPACE_STATUS_UNSPECIFIED' },
+  { no: 1, name: 'WORKSPACE_STATUS_CREATING' },
+  { no: 2, name: 'WORKSPACE_STATUS_PROVISIONING' },
+  { no: 3, name: 'WORKSPACE_STATUS_CLONING' },
+  { no: 4, name: 'WORKSPACE_STATUS_INDEXING' },
+  { no: 5, name: 'WORKSPACE_STATUS_READY' },
+  { no: 6, name: 'WORKSPACE_STATUS_FAILED' },
 ]);
 
 /**
@@ -120,10 +127,10 @@ export enum WorkspaceVisibility {
   PUBLIC = 2,
 }
 // Retrieve enum metadata with: proto3.getEnumType(WorkspaceVisibility)
-proto3.util.setEnumType(WorkspaceVisibility, "workspace.v1.WorkspaceVisibility", [
-  { no: 0, name: "WORKSPACE_VISIBILITY_UNSPECIFIED" },
-  { no: 1, name: "WORKSPACE_VISIBILITY_PRIVATE" },
-  { no: 2, name: "WORKSPACE_VISIBILITY_PUBLIC" },
+proto3.util.setEnumType(WorkspaceVisibility, 'workspace.v1.WorkspaceVisibility', [
+  { no: 0, name: 'WORKSPACE_VISIBILITY_UNSPECIFIED' },
+  { no: 1, name: 'WORKSPACE_VISIBILITY_PRIVATE' },
+  { no: 2, name: 'WORKSPACE_VISIBILITY_PUBLIC' },
 ]);
 
 /**
@@ -133,34 +140,34 @@ export class Workspace extends Message<Workspace> {
   /**
    * @generated from field: string id = 1;
    */
-  id = "";
+  id = '';
 
   /**
    * @generated from field: string organization_id = 2;
    */
-  organizationId = "";
+  organizationId = '';
 
   /**
    * @generated from field: string created_by = 3;
    */
-  createdBy = "";
+  createdBy = '';
 
   /**
    * @generated from field: string name = 4;
    */
-  name = "";
+  name = '';
 
   /**
    * Git Configuration
    *
    * @generated from field: string git_uri = 5;
    */
-  gitUri = "";
+  gitUri = '';
 
   /**
    * @generated from field: string default_branch = 6;
    */
-  defaultBranch = "";
+  defaultBranch = '';
 
   /**
    * @generated from field: workspace.v1.GitProvider provider = 7;
@@ -207,21 +214,21 @@ export class Workspace extends Message<Workspace> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.Workspace";
+  static readonly typeName = 'workspace.v1.Workspace';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "organization_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "created_by", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "git_uri", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "default_branch", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "provider", kind: "enum", T: proto3.getEnumType(GitProvider) },
-    { no: 8, name: "is_private", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 9, name: "status", kind: "enum", T: proto3.getEnumType(WorkspaceStatus) },
-    { no: 10, name: "visibility", kind: "enum", T: proto3.getEnumType(WorkspaceVisibility) },
-    { no: 11, name: "created_at", kind: "message", T: Timestamp },
-    { no: 12, name: "updated_at", kind: "message", T: Timestamp },
-    { no: 13, name: "last_activity_at", kind: "message", T: Timestamp },
+    { no: 1, name: 'id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'organization_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'created_by', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: 'name', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: 'git_uri', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: 'default_branch', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: 'provider', kind: 'enum', T: proto3.getEnumType(GitProvider) },
+    { no: 8, name: 'is_private', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
+    { no: 9, name: 'status', kind: 'enum', T: proto3.getEnumType(WorkspaceStatus) },
+    { no: 10, name: 'visibility', kind: 'enum', T: proto3.getEnumType(WorkspaceVisibility) },
+    { no: 11, name: 'created_at', kind: 'message', T: Timestamp },
+    { no: 12, name: 'updated_at', kind: 'message', T: Timestamp },
+    { no: 13, name: 'last_activity_at', kind: 'message', T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Workspace {
@@ -236,7 +243,10 @@ export class Workspace extends Message<Workspace> {
     return new Workspace().fromJsonString(jsonString, options);
   }
 
-  static equals(a: Workspace | PlainMessage<Workspace> | undefined, b: Workspace | PlainMessage<Workspace> | undefined): boolean {
+  static equals(
+    a: Workspace | PlainMessage<Workspace> | undefined,
+    b: Workspace | PlainMessage<Workspace> | undefined
+  ): boolean {
     return proto3.util.equals(Workspace, a, b);
   }
 }
@@ -248,22 +258,22 @@ export class CreateWorkspaceRequest extends Message<CreateWorkspaceRequest> {
   /**
    * @generated from field: string organization_id = 1;
    */
-  organizationId = "";
+  organizationId = '';
 
   /**
    * @generated from field: string name = 2;
    */
-  name = "";
+  name = '';
 
   /**
    * @generated from field: string git_uri = 3;
    */
-  gitUri = "";
+  gitUri = '';
 
   /**
    * @generated from field: string default_branch = 4;
    */
-  defaultBranch = "";
+  defaultBranch = '';
 
   /**
    * @generated from field: workspace.v1.GitProvider provider = 5;
@@ -286,30 +296,42 @@ export class CreateWorkspaceRequest extends Message<CreateWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.CreateWorkspaceRequest";
+  static readonly typeName = 'workspace.v1.CreateWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "organization_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "git_uri", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "default_branch", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "provider", kind: "enum", T: proto3.getEnumType(GitProvider) },
-    { no: 6, name: "is_private", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 7, name: "visibility", kind: "enum", T: proto3.getEnumType(WorkspaceVisibility) },
+    { no: 1, name: 'organization_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'name', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: 'git_uri', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: 'default_branch', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: 'provider', kind: 'enum', T: proto3.getEnumType(GitProvider) },
+    { no: 6, name: 'is_private', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
+    { no: 7, name: 'visibility', kind: 'enum', T: proto3.getEnumType(WorkspaceVisibility) },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateWorkspaceRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): CreateWorkspaceRequest {
     return new CreateWorkspaceRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreateWorkspaceRequest {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): CreateWorkspaceRequest {
     return new CreateWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreateWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): CreateWorkspaceRequest {
     return new CreateWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: CreateWorkspaceRequest | PlainMessage<CreateWorkspaceRequest> | undefined, b: CreateWorkspaceRequest | PlainMessage<CreateWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: CreateWorkspaceRequest | PlainMessage<CreateWorkspaceRequest> | undefined,
+    b: CreateWorkspaceRequest | PlainMessage<CreateWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(CreateWorkspaceRequest, a, b);
   }
 }
@@ -329,24 +351,36 @@ export class CreateWorkspaceResponse extends Message<CreateWorkspaceResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.CreateWorkspaceResponse";
+  static readonly typeName = 'workspace.v1.CreateWorkspaceResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace", kind: "message", T: Workspace },
+    { no: 1, name: 'workspace', kind: 'message', T: Workspace },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateWorkspaceResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): CreateWorkspaceResponse {
     return new CreateWorkspaceResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreateWorkspaceResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): CreateWorkspaceResponse {
     return new CreateWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreateWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): CreateWorkspaceResponse {
     return new CreateWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: CreateWorkspaceResponse | PlainMessage<CreateWorkspaceResponse> | undefined, b: CreateWorkspaceResponse | PlainMessage<CreateWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: CreateWorkspaceResponse | PlainMessage<CreateWorkspaceResponse> | undefined,
+    b: CreateWorkspaceResponse | PlainMessage<CreateWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(CreateWorkspaceResponse, a, b);
   }
 }
@@ -358,7 +392,7 @@ export class GetWorkspaceRequest extends Message<GetWorkspaceRequest> {
   /**
    * @generated from field: string id = 1;
    */
-  id = "";
+  id = '';
 
   constructor(data?: PartialMessage<GetWorkspaceRequest>) {
     super();
@@ -366,9 +400,9 @@ export class GetWorkspaceRequest extends Message<GetWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.GetWorkspaceRequest";
+  static readonly typeName = 'workspace.v1.GetWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetWorkspaceRequest {
@@ -379,11 +413,17 @@ export class GetWorkspaceRequest extends Message<GetWorkspaceRequest> {
     return new GetWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): GetWorkspaceRequest {
     return new GetWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: GetWorkspaceRequest | PlainMessage<GetWorkspaceRequest> | undefined, b: GetWorkspaceRequest | PlainMessage<GetWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: GetWorkspaceRequest | PlainMessage<GetWorkspaceRequest> | undefined,
+    b: GetWorkspaceRequest | PlainMessage<GetWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(GetWorkspaceRequest, a, b);
   }
 }
@@ -403,9 +443,9 @@ export class GetWorkspaceResponse extends Message<GetWorkspaceResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.GetWorkspaceResponse";
+  static readonly typeName = 'workspace.v1.GetWorkspaceResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspace", kind: "message", T: Workspace },
+    { no: 1, name: 'workspace', kind: 'message', T: Workspace },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetWorkspaceResponse {
@@ -416,11 +456,17 @@ export class GetWorkspaceResponse extends Message<GetWorkspaceResponse> {
     return new GetWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): GetWorkspaceResponse {
     return new GetWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: GetWorkspaceResponse | PlainMessage<GetWorkspaceResponse> | undefined, b: GetWorkspaceResponse | PlainMessage<GetWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: GetWorkspaceResponse | PlainMessage<GetWorkspaceResponse> | undefined,
+    b: GetWorkspaceResponse | PlainMessage<GetWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(GetWorkspaceResponse, a, b);
   }
 }
@@ -432,7 +478,7 @@ export class ListWorkspacesRequest extends Message<ListWorkspacesRequest> {
   /**
    * @generated from field: string organization_id = 1;
    */
-  organizationId = "";
+  organizationId = '';
 
   /**
    * @generated from field: int32 page_size = 2;
@@ -442,7 +488,7 @@ export class ListWorkspacesRequest extends Message<ListWorkspacesRequest> {
   /**
    * @generated from field: string page_token = 3;
    */
-  pageToken = "";
+  pageToken = '';
 
   constructor(data?: PartialMessage<ListWorkspacesRequest>) {
     super();
@@ -450,14 +496,17 @@ export class ListWorkspacesRequest extends Message<ListWorkspacesRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.ListWorkspacesRequest";
+  static readonly typeName = 'workspace.v1.ListWorkspacesRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "organization_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "page_size", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 3, name: "page_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'organization_id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: 'page_size', kind: 'scalar', T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: 'page_token', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListWorkspacesRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): ListWorkspacesRequest {
     return new ListWorkspacesRequest().fromBinary(bytes, options);
   }
 
@@ -465,11 +514,17 @@ export class ListWorkspacesRequest extends Message<ListWorkspacesRequest> {
     return new ListWorkspacesRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListWorkspacesRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ListWorkspacesRequest {
     return new ListWorkspacesRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ListWorkspacesRequest | PlainMessage<ListWorkspacesRequest> | undefined, b: ListWorkspacesRequest | PlainMessage<ListWorkspacesRequest> | undefined): boolean {
+  static equals(
+    a: ListWorkspacesRequest | PlainMessage<ListWorkspacesRequest> | undefined,
+    b: ListWorkspacesRequest | PlainMessage<ListWorkspacesRequest> | undefined
+  ): boolean {
     return proto3.util.equals(ListWorkspacesRequest, a, b);
   }
 }
@@ -486,7 +541,7 @@ export class ListWorkspacesResponse extends Message<ListWorkspacesResponse> {
   /**
    * @generated from field: string next_page_token = 2;
    */
-  nextPageToken = "";
+  nextPageToken = '';
 
   constructor(data?: PartialMessage<ListWorkspacesResponse>) {
     super();
@@ -494,25 +549,37 @@ export class ListWorkspacesResponse extends Message<ListWorkspacesResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.ListWorkspacesResponse";
+  static readonly typeName = 'workspace.v1.ListWorkspacesResponse';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "workspaces", kind: "message", T: Workspace, repeated: true },
-    { no: 2, name: "next_page_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'workspaces', kind: 'message', T: Workspace, repeated: true },
+    { no: 2, name: 'next_page_token', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListWorkspacesResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): ListWorkspacesResponse {
     return new ListWorkspacesResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListWorkspacesResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): ListWorkspacesResponse {
     return new ListWorkspacesResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListWorkspacesResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): ListWorkspacesResponse {
     return new ListWorkspacesResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: ListWorkspacesResponse | PlainMessage<ListWorkspacesResponse> | undefined, b: ListWorkspacesResponse | PlainMessage<ListWorkspacesResponse> | undefined): boolean {
+  static equals(
+    a: ListWorkspacesResponse | PlainMessage<ListWorkspacesResponse> | undefined,
+    b: ListWorkspacesResponse | PlainMessage<ListWorkspacesResponse> | undefined
+  ): boolean {
     return proto3.util.equals(ListWorkspacesResponse, a, b);
   }
 }
@@ -524,7 +591,7 @@ export class DeleteWorkspaceRequest extends Message<DeleteWorkspaceRequest> {
   /**
    * @generated from field: string id = 1;
    */
-  id = "";
+  id = '';
 
   constructor(data?: PartialMessage<DeleteWorkspaceRequest>) {
     super();
@@ -532,24 +599,36 @@ export class DeleteWorkspaceRequest extends Message<DeleteWorkspaceRequest> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.DeleteWorkspaceRequest";
+  static readonly typeName = 'workspace.v1.DeleteWorkspaceRequest';
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: 'id', kind: 'scalar', T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteWorkspaceRequest {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): DeleteWorkspaceRequest {
     return new DeleteWorkspaceRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteWorkspaceRequest {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): DeleteWorkspaceRequest {
     return new DeleteWorkspaceRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteWorkspaceRequest {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): DeleteWorkspaceRequest {
     return new DeleteWorkspaceRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DeleteWorkspaceRequest | PlainMessage<DeleteWorkspaceRequest> | undefined, b: DeleteWorkspaceRequest | PlainMessage<DeleteWorkspaceRequest> | undefined): boolean {
+  static equals(
+    a: DeleteWorkspaceRequest | PlainMessage<DeleteWorkspaceRequest> | undefined,
+    b: DeleteWorkspaceRequest | PlainMessage<DeleteWorkspaceRequest> | undefined
+  ): boolean {
     return proto3.util.equals(DeleteWorkspaceRequest, a, b);
   }
 }
@@ -564,24 +643,34 @@ export class DeleteWorkspaceResponse extends Message<DeleteWorkspaceResponse> {
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "workspace.v1.DeleteWorkspaceResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-  ]);
+  static readonly typeName = 'workspace.v1.DeleteWorkspaceResponse';
+  static readonly fields: FieldList = proto3.util.newFieldList(() => []);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteWorkspaceResponse {
+  static fromBinary(
+    bytes: Uint8Array,
+    options?: Partial<BinaryReadOptions>
+  ): DeleteWorkspaceResponse {
     return new DeleteWorkspaceResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteWorkspaceResponse {
+  static fromJson(
+    jsonValue: JsonValue,
+    options?: Partial<JsonReadOptions>
+  ): DeleteWorkspaceResponse {
     return new DeleteWorkspaceResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteWorkspaceResponse {
+  static fromJsonString(
+    jsonString: string,
+    options?: Partial<JsonReadOptions>
+  ): DeleteWorkspaceResponse {
     return new DeleteWorkspaceResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: DeleteWorkspaceResponse | PlainMessage<DeleteWorkspaceResponse> | undefined, b: DeleteWorkspaceResponse | PlainMessage<DeleteWorkspaceResponse> | undefined): boolean {
+  static equals(
+    a: DeleteWorkspaceResponse | PlainMessage<DeleteWorkspaceResponse> | undefined,
+    b: DeleteWorkspaceResponse | PlainMessage<DeleteWorkspaceResponse> | undefined
+  ): boolean {
     return proto3.util.equals(DeleteWorkspaceResponse, a, b);
   }
 }
-

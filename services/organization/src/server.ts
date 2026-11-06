@@ -246,7 +246,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
           }
 
           if (requestedRole === 'OWNER' && callerRole !== 'OWNER') {
-            throw new ConnectError('Only an OWNER can invite members with the OWNER role', Code.PermissionDenied);
+            throw new ConnectError(
+              'Only an OWNER can invite members with the OWNER role',
+              Code.PermissionDenied
+            );
           }
 
           const org = await db
@@ -270,7 +273,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
             .executeTakeFirst();
 
           if (existingMember) {
-            throw new ConnectError('User is already a member of this organization', Code.AlreadyExists);
+            throw new ConnectError(
+              'User is already a member of this organization',
+              Code.AlreadyExists
+            );
           }
 
           const existingInvite = await db
@@ -283,7 +289,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
             .executeTakeFirst();
 
           if (existingInvite) {
-            throw new ConnectError('An active invitation for this email already exists', Code.AlreadyExists);
+            throw new ConnectError(
+              'An active invitation for this email already exists',
+              Code.AlreadyExists
+            );
           }
 
           const rawToken = crypto.randomBytes(32).toString('hex');
@@ -355,7 +364,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
             }
 
             if (invite.status !== 'PENDING') {
-              throw new ConnectError('Invitation has already been accepted or revoked', Code.FailedPrecondition);
+              throw new ConnectError(
+                'Invitation has already been accepted or revoked',
+                Code.FailedPrecondition
+              );
             }
 
             if (new Date() >= new Date(invite.expires_at)) {
@@ -378,7 +390,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
             }
 
             if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-              throw new ConnectError('This invitation was issued for a different email address', Code.PermissionDenied);
+              throw new ConnectError(
+                'This invitation was issued for a different email address',
+                Code.PermissionDenied
+              );
             }
 
             const existingMember = await tx
@@ -394,7 +409,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
                 .set({ status: 'ACCEPTED' })
                 .where('id', '=', invite.id)
                 .execute();
-              throw new ConnectError('User is already a member of this organization', Code.AlreadyExists);
+              throw new ConnectError(
+                'User is already a member of this organization',
+                Code.AlreadyExists
+              );
             }
 
             await tx
@@ -452,7 +470,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
 
           const isSelfRemoval = userId === targetUserId;
 
-          if (!isSelfRemoval && !authorize({ id: userId, roles: [callerRole as Role] }, 'member:remove')) {
+          if (
+            !isSelfRemoval &&
+            !authorize({ id: userId, roles: [callerRole as Role] }, 'member:remove')
+          ) {
             throw new ConnectError('Permission denied: member:remove', Code.PermissionDenied);
           }
 
@@ -493,7 +514,10 @@ export const organizationRoutes: FastifyPluginAsync = async (fastify) => {
                 .execute();
 
               if (owners.length <= 1) {
-                throw new ConnectError('Cannot remove the last OWNER of an organization', Code.FailedPrecondition);
+                throw new ConnectError(
+                  'Cannot remove the last OWNER of an organization',
+                  Code.FailedPrecondition
+                );
               }
             }
 

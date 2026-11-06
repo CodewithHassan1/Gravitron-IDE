@@ -9,13 +9,15 @@ interface EditorTabsProps {
 export function EditorTabs({ group }: EditorTabsProps) {
   const moveTab = useEditorLayoutStore((state) => state.moveTab);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Scroll active tab into view
   useEffect(() => {
     if (!scrollContainerRef.current || !group.activeTabId) return;
-    const activeTab = scrollContainerRef.current.querySelector(`[data-tab-id="${group.activeTabId}"]`);
+    const activeTab = scrollContainerRef.current.querySelector(
+      `[data-tab-id="${group.activeTabId}"]`
+    );
     if (activeTab) {
       activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
@@ -32,7 +34,7 @@ export function EditorTabs({ group }: EditorTabsProps) {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     if (!scrollContainerRef.current) return;
-    
+
     // Auto scroll when dragging near edges
     const rect = scrollContainerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -45,18 +47,18 @@ export function EditorTabs({ group }: EditorTabsProps) {
     // Calculate insertion index
     const children = Array.from(scrollContainerRef.current.children) as HTMLElement[];
     let targetIndex = group.tabs.length;
-    
+
     for (let i = 0; i < children.length; i++) {
       const child = children[i];
       const childRect = child.getBoundingClientRect();
       const childCenter = childRect.left + childRect.width / 2;
-      
+
       if (e.clientX < childCenter) {
         targetIndex = i;
         break;
       }
     }
-    
+
     setDragOverIndex(targetIndex);
   };
 
@@ -68,7 +70,7 @@ export function EditorTabs({ group }: EditorTabsProps) {
     e.preventDefault();
     const index = dragOverIndex !== null ? dragOverIndex : group.tabs.length;
     setDragOverIndex(null);
-    
+
     try {
       const dataStr = e.dataTransfer.getData('application/json');
       if (dataStr) {
@@ -83,7 +85,7 @@ export function EditorTabs({ group }: EditorTabsProps) {
   };
 
   return (
-    <div 
+    <div
       ref={scrollContainerRef}
       role="tablist"
       aria-label="Editor tabs"
@@ -99,13 +101,17 @@ export function EditorTabs({ group }: EditorTabsProps) {
           {dragOverIndex === idx && (
             <div className="w-0.5 bg-primary h-full shrink-0 relative z-10" />
           )}
-          
+
           <div data-tab-id={tab.id} className="h-full flex shrink-0">
-            <EditorTabComponent tab={tab} groupId={group.id} isActive={group.activeTabId === tab.id} />
+            <EditorTabComponent
+              tab={tab}
+              groupId={group.id}
+              isActive={group.activeTabId === tab.id}
+            />
           </div>
         </React.Fragment>
       ))}
-      
+
       {/* Drop Indicator at the end */}
       {dragOverIndex === group.tabs.length && (
         <div className="w-0.5 bg-primary h-full shrink-0 relative z-10" />

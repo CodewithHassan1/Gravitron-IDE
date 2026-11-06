@@ -1,4 +1,8 @@
-import { QuickInputProvider, QuickInputItem, QuickInputProviderMetadata } from '../../../types/quickInput';
+import {
+  QuickInputProvider,
+  QuickInputItem,
+  QuickInputProviderMetadata,
+} from '../../../types/quickInput';
 import { WorkspaceManager } from '../../workspace/WorkspaceManager';
 import { Folder } from 'lucide-react';
 import React from 'react';
@@ -21,21 +25,21 @@ export const RecentWorkspacesManager = {
 
   addWorkspace(name: string, path: string) {
     const workspaces = this.getRecentWorkspaces();
-    const existingIndex = workspaces.findIndex(w => w.path === path);
+    const existingIndex = workspaces.findIndex((w) => w.path === path);
     if (existingIndex >= 0) {
       workspaces.splice(existingIndex, 1);
     }
     workspaces.unshift({ name, path, timestamp: Date.now() });
     // Keep top 20
     localStorage.setItem('ag_recent_workspaces', JSON.stringify(workspaces.slice(0, 20)));
-  }
+  },
 };
 
 export class RecentWorkspacesProvider implements QuickInputProvider {
   metadata: QuickInputProviderMetadata = {
     id: 'recent-workspaces',
     title: 'Open Recent Workspace',
-    prefixes: ['~'], 
+    prefixes: ['~'],
     priority: 5,
     supportsEmptyQuery: true,
     supportsAsync: false,
@@ -52,13 +56,17 @@ export class RecentWorkspacesProvider implements QuickInputProvider {
     const lowercaseQuery = query.toLowerCase();
 
     return workspaces
-      .filter(w => w.name.toLowerCase().includes(lowercaseQuery) || w.path.toLowerCase().includes(lowercaseQuery))
-      .map(item => ({
+      .filter(
+        (w) =>
+          w.name.toLowerCase().includes(lowercaseQuery) ||
+          w.path.toLowerCase().includes(lowercaseQuery)
+      )
+      .map((item) => ({
         id: `recent_${item.path}`,
         label: item.name,
         description: item.path,
         icon: React.createElement(Folder, { size: 16 }),
-        metadata: { path: item.path }
+        metadata: { path: item.path },
       }));
   }
 

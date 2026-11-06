@@ -4,7 +4,7 @@ export interface ParsedDocument {
   symbols: Omit<SymbolDTO, 'id' | 'workspaceId' | 'fileId'>[];
   references: Omit<ReferenceDTO, 'id' | 'workspaceId' | 'fileId'>[];
   imports: Omit<ImportDTO, 'id' | 'workspaceId' | 'fileId'>[];
-  diagnostics?: { message: string, line: number, column: number }[];
+  diagnostics?: { message: string; line: number; column: number }[];
 }
 
 export interface IParser {

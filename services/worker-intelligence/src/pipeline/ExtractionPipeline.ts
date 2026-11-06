@@ -12,10 +12,10 @@ export class ExtractionPipeline {
     try {
       // 1. Analyze history using AI provider
       const prompt = `Analyze this conversation history and extract durable facts, user preferences, or learned conventions. Return ONLY a JSON object with a 'facts' array of strings:\n\n${JSON.stringify(history)}`;
-      
+
       const response = await this.aiProvider.chat({
         model: 'claude-3-5-sonnet',
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: prompt }],
       });
 
       const extracted = JSON.parse(response.content);
@@ -27,7 +27,10 @@ export class ExtractionPipeline {
         try {
           embedding = await this.embeddingProvider.embed(fact);
         } catch (embedError) {
-          console.warn(`ExtractionPipeline: Failed to embed fact "${fact}". Gracefully saving without embedding.`, embedError);
+          console.warn(
+            `ExtractionPipeline: Failed to embed fact "${fact}". Gracefully saving without embedding.`,
+            embedError
+          );
           // Graceful degradation: save without embedding
         }
 
@@ -35,7 +38,7 @@ export class ExtractionPipeline {
           content: fact,
           embedding,
           confidence: 0.8, // Initial confidence
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
     } catch (err) {

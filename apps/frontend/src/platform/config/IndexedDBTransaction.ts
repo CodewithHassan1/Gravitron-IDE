@@ -85,7 +85,7 @@ export class IndexedDBTransaction {
       try {
         const transaction = this.db.transaction(this.storeName, 'readonly');
         const store = transaction.objectStore(this.storeName);
-        
+
         const keysRequest = store.getAllKeys();
         const valuesRequest = store.getAll();
 

@@ -3,20 +3,39 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CloneRepositoryRequest, CloneRepositoryResponse, DeleteFileRequest, DeleteFileResponse, DestroyWorkspaceRequest, DestroyWorkspaceResponse, ExecRequest, ExecResponse, ListDirectoryRequest, ListDirectoryResponse, ReadFileRequest, ReadFileResponse, StartWorkspaceRequest, StartWorkspaceResponse, StopWorkspaceRequest, StopWorkspaceResponse, WriteFileRequest, WriteFileResponse } from "./execution_pb.js";
-import { MethodKind } from "@bufbuild/protobuf";
+import {
+  CloneRepositoryRequest,
+  CloneRepositoryResponse,
+  DeleteFileRequest,
+  DeleteFileResponse,
+  DestroyWorkspaceRequest,
+  DestroyWorkspaceResponse,
+  ExecRequest,
+  ExecResponse,
+  ListDirectoryRequest,
+  ListDirectoryResponse,
+  ReadFileRequest,
+  ReadFileResponse,
+  StartWorkspaceRequest,
+  StartWorkspaceResponse,
+  StopWorkspaceRequest,
+  StopWorkspaceResponse,
+  WriteFileRequest,
+  WriteFileResponse,
+} from './execution_pb.js';
+import { MethodKind } from '@bufbuild/protobuf';
 
 /**
  * @generated from service execution.v1.ExecutionService
  */
 export const ExecutionService = {
-  typeName: "execution.v1.ExecutionService",
+  typeName: 'execution.v1.ExecutionService',
   methods: {
     /**
      * @generated from rpc execution.v1.ExecutionService.StartWorkspace
      */
     startWorkspace: {
-      name: "StartWorkspace",
+      name: 'StartWorkspace',
       I: StartWorkspaceRequest,
       O: StartWorkspaceResponse,
       kind: MethodKind.Unary,
@@ -25,7 +44,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.StopWorkspace
      */
     stopWorkspace: {
-      name: "StopWorkspace",
+      name: 'StopWorkspace',
       I: StopWorkspaceRequest,
       O: StopWorkspaceResponse,
       kind: MethodKind.Unary,
@@ -34,7 +53,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.DestroyWorkspace
      */
     destroyWorkspace: {
-      name: "DestroyWorkspace",
+      name: 'DestroyWorkspace',
       I: DestroyWorkspaceRequest,
       O: DestroyWorkspaceResponse,
       kind: MethodKind.Unary,
@@ -43,7 +62,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.CloneRepository
      */
     cloneRepository: {
-      name: "CloneRepository",
+      name: 'CloneRepository',
       I: CloneRepositoryRequest,
       O: CloneRepositoryResponse,
       kind: MethodKind.Unary,
@@ -52,7 +71,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.ExecCommand
      */
     execCommand: {
-      name: "ExecCommand",
+      name: 'ExecCommand',
       I: ExecRequest,
       O: ExecResponse,
       kind: MethodKind.Unary,
@@ -63,7 +82,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.ReadFile
      */
     readFile: {
-      name: "ReadFile",
+      name: 'ReadFile',
       I: ReadFileRequest,
       O: ReadFileResponse,
       kind: MethodKind.Unary,
@@ -72,7 +91,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.WriteFile
      */
     writeFile: {
-      name: "WriteFile",
+      name: 'WriteFile',
       I: WriteFileRequest,
       O: WriteFileResponse,
       kind: MethodKind.Unary,
@@ -81,7 +100,7 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.ListDirectory
      */
     listDirectory: {
-      name: "ListDirectory",
+      name: 'ListDirectory',
       I: ListDirectoryRequest,
       O: ListDirectoryResponse,
       kind: MethodKind.Unary,
@@ -90,11 +109,10 @@ export const ExecutionService = {
      * @generated from rpc execution.v1.ExecutionService.DeleteFile
      */
     deleteFile: {
-      name: "DeleteFile",
+      name: 'DeleteFile',
       I: DeleteFileRequest,
       O: DeleteFileResponse,
       kind: MethodKind.Unary,
     },
-  }
+  },
 } as const;
-

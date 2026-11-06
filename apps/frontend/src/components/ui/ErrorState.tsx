@@ -10,12 +10,12 @@ export interface ErrorStateProps {
   retryLabel?: string;
 }
 
-export function ErrorState({ 
-  icon: Icon = AlertTriangle, 
-  title, 
-  description, 
+export function ErrorState({
+  icon: Icon = AlertTriangle,
+  title,
+  description,
   onRetry,
-  retryLabel = 'Retry'
+  retryLabel = 'Retry',
 }: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full w-full p-4 text-center">
@@ -24,9 +24,7 @@ export function ErrorState({
       </div>
       <h3 className="text-sm font-medium text-foreground mb-1">{title}</h3>
       {description && (
-        <p className="text-xs text-muted-foreground max-w-[250px] mb-4">
-          {description}
-        </p>
+        <p className="text-xs text-muted-foreground max-w-[250px] mb-4">{description}</p>
       )}
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>

@@ -28,11 +28,20 @@ export class IpcDispatcher {
    * app:// or file:// origin. Any other sender is denied before payload
    * handling. This mirrors NavigationPolicy's trust model.
    */
-  private async trustedSenderMiddleware(envelope: RequestEnvelope<any>, event: IpcMainInvokeEvent, ctx: IpcContext, next: () => Promise<any>) {
+  private async trustedSenderMiddleware(
+    envelope: RequestEnvelope<any>,
+    event: IpcMainInvokeEvent,
+    ctx: IpcContext,
+    next: () => Promise<any>
+  ) {
     const senderUrl = event?.senderFrame?.url || (event?.sender?.getURL?.() as string | undefined);
     if (!senderUrl || !this.isTrustedSenderUrl(senderUrl)) {
       console.error(`[IPC] Rejected IPC from untrusted sender: ${senderUrl ?? 'no sender frame'}`);
-      return this.createErrorResponse('UNTRUSTED_SENDER', 'Untrusted IPC sender', envelope.requestId);
+      return this.createErrorResponse(
+        'UNTRUSTED_SENDER',
+        'Untrusted IPC sender',
+        envelope.requestId
+      );
     }
     return next();
   }
@@ -77,10 +86,13 @@ export class IpcDispatcher {
         parentSpanId: envelope.traceContext?.parentSpanId,
         abortSignal: abortController.signal,
         logger: {
-          log: (msg: string, ...args: any[]) => console.log(`[ReqID: ${envelope.requestId}] ${msg}`, ...args),
-          error: (msg: string, ...args: any[]) => console.error(`[ReqID: ${envelope.requestId}] ${msg}`, ...args),
-          warn: (msg: string, ...args: any[]) => console.warn(`[ReqID: ${envelope.requestId}] ${msg}`, ...args)
-        }
+          log: (msg: string, ...args: any[]) =>
+            console.log(`[ReqID: ${envelope.requestId}] ${msg}`, ...args),
+          error: (msg: string, ...args: any[]) =>
+            console.error(`[ReqID: ${envelope.requestId}] ${msg}`, ...args),
+          warn: (msg: string, ...args: any[]) =>
+            console.warn(`[ReqID: ${envelope.requestId}] ${msg}`, ...args),
+        },
       };
 
       let index = 0;
@@ -102,10 +114,14 @@ export class IpcDispatcher {
         return {
           version: ProtocolVersion.V1,
           requestId: envelope.requestId,
-          payload: result
+          payload: result,
         };
       } catch (e: any) {
-        return this.createErrorResponse('INTERNAL_ERROR', e?.message || 'Unknown Error', envelope.requestId);
+        return this.createErrorResponse(
+          'INTERNAL_ERROR',
+          e?.message || 'Unknown Error',
+          envelope.requestId
+        );
       } finally {
         this.activeRequests.delete(envelope.requestId);
       }
@@ -114,25 +130,38 @@ export class IpcDispatcher {
 
   public registerCancellationHandler() {
     // Assuming Channels.IPC.CancelRequest is defined
-    ipcMain.handle('ipc/cancelRequest', (event, envelope: RequestEnvelope<{ requestId: string }>) => {
-      const abortController = this.activeRequests.get(envelope.payload.requestId);
-      if (abortController) {
-        abortController.abort();
+    ipcMain.handle(
+      'ipc/cancelRequest',
+      (event, envelope: RequestEnvelope<{ requestId: string }>) => {
+        const abortController = this.activeRequests.get(envelope.payload.requestId);
+        if (abortController) {
+          abortController.abort();
+        }
+        return {
+          version: ProtocolVersion.V1,
+          requestId: envelope.requestId,
+          payload: { cancelled: !!abortController },
+        };
       }
-      return {
-        version: ProtocolVersion.V1,
-        requestId: envelope.requestId,
-        payload: { cancelled: !!abortController }
-      };
-    });
+    );
   }
 
-  private async validationMiddleware(envelope: RequestEnvelope<any>, event: IpcMainInvokeEvent, ctx: IpcContext, next: () => Promise<any>) {
+  private async validationMiddleware(
+    envelope: RequestEnvelope<any>,
+    event: IpcMainInvokeEvent,
+    ctx: IpcContext,
+    next: () => Promise<any>
+  ) {
     // Future validation extension point
     return next();
   }
 
-  private async loggingMiddleware(envelope: RequestEnvelope<any>, event: IpcMainInvokeEvent, ctx: IpcContext, next: () => Promise<any>) {
+  private async loggingMiddleware(
+    envelope: RequestEnvelope<any>,
+    event: IpcMainInvokeEvent,
+    ctx: IpcContext,
+    next: () => Promise<any>
+  ) {
     ctx.logger.log(`req start`);
     const start = Date.now();
     try {
@@ -161,7 +190,7 @@ export class IpcDispatcher {
       requestId,
       errorName: 'IpcError',
       code,
-      message
+      message,
     };
   }
 }

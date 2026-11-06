@@ -10,13 +10,13 @@ class OutlineProviderRegistryImpl {
   }
 
   unregister(provider: OutlineProvider) {
-    this.providers = this.providers.filter(p => p !== provider);
+    this.providers = this.providers.filter((p) => p !== provider);
   }
 
   getProviderFor(uri: string, languageId: string): OutlineProvider | null {
     // Return the first provider that can handle the URI and language.
     // In the future, we could have priority or weight here.
-    return this.providers.find(p => p.canHandle(uri, languageId)) || null;
+    return this.providers.find((p) => p.canHandle(uri, languageId)) || null;
   }
 }
 

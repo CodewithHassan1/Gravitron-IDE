@@ -61,13 +61,16 @@ export const useSearchStore = create<SearchState & SearchActions>()(
       setResults: (results) => set({ results }),
       setLoading: (loading) => set({ loading, isSearching: loading }),
       setSelectedResult: (id) => set({ selectedResult: id }),
-      addRecentQuery: (query) => set((state) => ({
-        recentQueries: [query, ...state.recentQueries.filter(q => q !== query)].slice(0, 50)
-      })),
+      addRecentQuery: (query) =>
+        set((state) => ({
+          recentQueries: [query, ...state.recentQueries.filter((q) => q !== query)].slice(0, 50),
+        })),
     }),
     {
       name: 'ide-search-storage',
-      storage: createJSONStorage ? createJSONStorage(() => zustandStorageAdapter) : (zustandStorageAdapter as any),
+      storage: createJSONStorage
+        ? createJSONStorage(() => zustandStorageAdapter)
+        : (zustandStorageAdapter as any),
       partialize: (state) => ({
         caseSensitive: state.caseSensitive,
         wholeWord: state.wholeWord,

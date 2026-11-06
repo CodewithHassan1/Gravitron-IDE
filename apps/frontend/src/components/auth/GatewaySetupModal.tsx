@@ -1,6 +1,12 @@
-"use client"
+'use client';
 import React, { useState, useEffect } from 'react';
-import { getGatewayUrl, setGatewayUrl, clearGatewayUrl, validateGatewayUrl, isProductionRuntime } from '../../utils/gateway';
+import {
+  getGatewayUrl,
+  setGatewayUrl,
+  clearGatewayUrl,
+  validateGatewayUrl,
+  isProductionRuntime,
+} from '../../utils/gateway';
 
 interface GatewaySetupModalProps {
   isOpen: boolean;
@@ -89,7 +95,8 @@ export function GatewaySetupModal({ isOpen, onClose, onConfigured }: GatewaySetu
         </div>
 
         <p className="text-sm text-muted-foreground mt-3">
-          Gravitron IDE connects to your organization&apos;s API Gateway over HTTPS to manage authentication and workspaces.
+          Gravitron IDE connects to your organization&apos;s API Gateway over HTTPS to manage
+          authentication and workspaces.
         </p>
 
         <form onSubmit={handleSave} className="mt-4 space-y-4">
@@ -104,7 +111,7 @@ export function GatewaySetupModal({ isOpen, onClose, onConfigured }: GatewaySetu
                 setUrlInput(e.target.value);
                 setValidationError('');
               }}
-              placeholder={isProd ? "https://gateway.yourdomain.com" : "http://localhost:8080"}
+              placeholder={isProd ? 'https://gateway.yourdomain.com' : 'http://localhost:8080'}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               autoFocus
             />

@@ -4,7 +4,7 @@ import { useGitStore } from '../../../stores/ide/gitStore';
 
 export function CommitInput() {
   const [message, setMessage] = useState('');
-  const currentRepository = useGitStore(s => s.currentRepository);
+  const currentRepository = useGitStore((s) => s.currentRepository);
 
   const handleCommit = async () => {
     if (!message.trim() || !currentRepository) return;
@@ -23,14 +23,14 @@ export function CommitInput() {
         placeholder="Message (Cmd+Enter to commit)"
         rows={3}
         value={message}
-        onChange={e => setMessage(e.target.value)}
-        onKeyDown={e => {
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
             handleCommit();
           }
         }}
       />
-      <button 
+      <button
         className="w-full py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm transition-colors"
         onClick={handleCommit}
         disabled={!message.trim()}

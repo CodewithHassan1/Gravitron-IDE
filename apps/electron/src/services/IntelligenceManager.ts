@@ -15,12 +15,15 @@ export class IntelligenceManager implements IService {
   public readonly dependencies: any[] = [];
 
   private workerProcess: ChildProcess | null = null;
-  private pendingRequests = new Map<string, { resolve: (value: any) => void, reject: (reason: any) => void, workspaceId?: string }>();
+  private pendingRequests = new Map<
+    string,
+    { resolve: (value: any) => void; reject: (reason: any) => void; workspaceId?: string }
+  >();
   private activeWorkspaces = new Map<string, string>(); // workspaceId -> workspacePath
   private isShuttingDown = false;
   private restartTimeout: NodeJS.Timeout | null = null;
 
-  constructor() { }
+  constructor() {}
 
   public async initialize(): Promise<void> {
     this.spawnWorker();
@@ -31,7 +34,10 @@ export class IntelligenceManager implements IService {
       // Handshake to verify worker is alive
       await this.handshake();
     } catch (e) {
-      logger.warn(logCtx, `Failed to handshake with worker-intelligence: ${e}. Intelligence features will be disabled.`);
+      logger.warn(
+        logCtx,
+        `Failed to handshake with worker-intelligence: ${e}. Intelligence features will be disabled.`
+      );
     }
   }
 
@@ -62,13 +68,16 @@ export class IntelligenceManager implements IService {
     );
 
     if (!fs.existsSync(workerPath)) {
-      logger.warn(logCtx, `worker-intelligence not found at ${workerPath}. Intelligence features will be disabled.`);
+      logger.warn(
+        logCtx,
+        `worker-intelligence not found at ${workerPath}. Intelligence features will be disabled.`
+      );
       return;
     }
 
     logger.info(logCtx, `Spawning worker-intelligence at ${workerPath}`);
     this.workerProcess = fork(workerPath, [], {
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
 
     this.workerProcess.on('message', (message: IntelligenceProtocol.AnyIntelligenceResponse) => {
@@ -94,10 +103,13 @@ export class IntelligenceManager implements IService {
           this.handshake()
             .then(() => {
               for (const [wsId, wsPath] of this.activeWorkspaces.entries()) {
-                this.sendRequest(IntelligenceProtocol.IntelligenceRequestType.WorkspaceOpen, wsId, { workspaceId: wsId, workspacePath: wsPath }).catch(err => logger.error(logCtx, err as any));
+                this.sendRequest(IntelligenceProtocol.IntelligenceRequestType.WorkspaceOpen, wsId, {
+                  workspaceId: wsId,
+                  workspacePath: wsPath,
+                }).catch((err) => logger.error(logCtx, err as any));
               }
             })
-            .catch(err => logger.error(logCtx, err as any));
+            .catch((err) => logger.error(logCtx, err as any));
         }, 2000);
       }
     });
@@ -115,8 +127,16 @@ export class IntelligenceManager implements IService {
       this.pendingRequests.delete(requestId);
 
       // Enforce cross-workspace isolation on responses
-      if ('workspaceId' in message && pending.workspaceId && message.workspaceId !== pending.workspaceId) {
-        pending.reject(new Error(`Security Error: Response workspaceId mismatch. Expected ${pending.workspaceId}, got ${message.workspaceId}`));
+      if (
+        'workspaceId' in message &&
+        pending.workspaceId &&
+        message.workspaceId !== pending.workspaceId
+      ) {
+        pending.reject(
+          new Error(
+            `Security Error: Response workspaceId mismatch. Expected ${pending.workspaceId}, got ${message.workspaceId}`
+          )
+        );
         return;
       }
 
@@ -142,9 +162,12 @@ export class IntelligenceManager implements IService {
     const requestId = randomUUID();
     const envelope: IntelligenceProtocol.AnyIntelligenceRequest = {
       requestId,
-      type: type as Exclude<IntelligenceProtocol.IntelligenceRequestType, IntelligenceProtocol.IntelligenceRequestType.Handshake>,
+      type: type as Exclude<
+        IntelligenceProtocol.IntelligenceRequestType,
+        IntelligenceProtocol.IntelligenceRequestType.Handshake
+      >,
       workspaceId,
-      payload
+      payload,
     };
 
     if (type === IntelligenceProtocol.IntelligenceRequestType.WorkspaceOpen) {
@@ -174,7 +197,7 @@ export class IntelligenceManager implements IService {
     const envelope: IntelligenceProtocol.HandshakeRequestEnvelope = {
       requestId,
       type: IntelligenceProtocol.IntelligenceRequestType.Handshake,
-      payload
+      payload,
     };
 
     return new Promise((resolve, reject) => {
@@ -190,11 +213,19 @@ export class IntelligenceManager implements IService {
 
   public async workspaceOpened(workspaceId: string, workspacePath: string): Promise<void> {
     const payload: IntelligenceProtocol.WorkspaceOpenPayload = { workspaceId, workspacePath };
-    await this.sendRequest(IntelligenceProtocol.IntelligenceRequestType.WorkspaceOpen, workspaceId, payload);
+    await this.sendRequest(
+      IntelligenceProtocol.IntelligenceRequestType.WorkspaceOpen,
+      workspaceId,
+      payload
+    );
   }
 
   public async workspaceClosed(workspaceId: string): Promise<void> {
     const payload: IntelligenceProtocol.WorkspaceClosePayload = { workspaceId };
-    await this.sendRequest(IntelligenceProtocol.IntelligenceRequestType.WorkspaceClose, workspaceId, payload);
+    await this.sendRequest(
+      IntelligenceProtocol.IntelligenceRequestType.WorkspaceClose,
+      workspaceId,
+      payload
+    );
   }
 }

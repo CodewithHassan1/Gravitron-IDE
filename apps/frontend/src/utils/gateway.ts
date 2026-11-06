@@ -3,7 +3,9 @@ import { createConnectTransport } from '@connectrpc/connect-web';
 import { AuthService } from '@ag/proto/gen/ts/auth/v1/auth_connect';
 
 export class GatewayNotConfiguredError extends Error {
-  constructor(message: string = 'Gateway URL is not configured. Please configure your server endpoint to continue.') {
+  constructor(
+    message: string = 'Gateway URL is not configured. Please configure your server endpoint to continue.'
+  ) {
     super(message);
     this.name = 'GatewayNotConfiguredError';
   }
@@ -27,7 +29,10 @@ export function isProductionRuntime(): boolean {
   return process.env.NODE_ENV === 'production';
 }
 
-export function validateGatewayUrl(input: string, isProduction: boolean = isProductionRuntime()): GatewayValidationResult {
+export function validateGatewayUrl(
+  input: string,
+  isProduction: boolean = isProductionRuntime()
+): GatewayValidationResult {
   if (!input || typeof input !== 'string' || input.trim().length === 0) {
     return { valid: false, error: 'Gateway URL cannot be empty.' };
   }
@@ -41,7 +46,10 @@ export function validateGatewayUrl(input: string, isProduction: boolean = isProd
   try {
     parsed = new URL(raw);
   } catch {
-    return { valid: false, error: 'Invalid URL format. Please enter a valid URL (e.g. https://gateway.domain.com).' };
+    return {
+      valid: false,
+      error: 'Invalid URL format. Please enter a valid URL (e.g. https://gateway.domain.com).',
+    };
   }
 
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
@@ -54,20 +62,28 @@ export function validateGatewayUrl(input: string, isProduction: boolean = isProd
   parsed.search = '';
   parsed.hash = '';
 
-  const isLocalHost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1' || parsed.hostname === '::1';
-  const hasValidHostname = isLocalHost || parsed.hostname.includes('.') || (!isProduction && Boolean(parsed.port));
+  const isLocalHost =
+    parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1' || parsed.hostname === '::1';
+  const hasValidHostname =
+    isLocalHost || parsed.hostname.includes('.') || (!isProduction && Boolean(parsed.port));
   if (!hasValidHostname) {
-    return { valid: false, error: 'Invalid hostname. Please enter a valid host or domain name (e.g. https://gateway.domain.com).' };
+    return {
+      valid: false,
+      error:
+        'Invalid hostname. Please enter a valid host or domain name (e.g. https://gateway.domain.com).',
+    };
   }
 
   if (isProduction && !isLocalHost && parsed.protocol !== 'https:') {
     return {
       valid: false,
-      error: 'Production Gateway endpoints must use HTTPS. Plain HTTP is only permitted for local development (localhost).'
+      error:
+        'Production Gateway endpoints must use HTTPS. Plain HTTP is only permitted for local development (localhost).',
     };
   }
 
-  const normalized = parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/+$/, ''));
+  const normalized =
+    parsed.origin + (parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/+$/, ''));
   return { valid: true, normalizedUrl: normalized };
 }
 
@@ -82,7 +98,11 @@ export function getGatewayUrl(): string | null {
     // 1. Runtime override from Electron preload API (if running inside Electron)
     if ((window as any).agApi?.getGatewayUrl) {
       const electronGateway = (window as any).agApi.getGatewayUrl();
-      if (electronGateway && typeof electronGateway === 'string' && electronGateway.trim().length > 0) {
+      if (
+        electronGateway &&
+        typeof electronGateway === 'string' &&
+        electronGateway.trim().length > 0
+      ) {
         const validated = validateGatewayUrl(electronGateway, isProd);
         if (validated.valid && validated.normalizedUrl) {
           return validated.normalizedUrl;
@@ -191,7 +211,7 @@ export function getConnectTransport(): Transport {
 
   cachedGatewayUrl = url;
   cachedTransport = createConnectTransport({
-    baseUrl: url
+    baseUrl: url,
   });
   cachedAuthClient = null;
 
@@ -212,5 +232,5 @@ export const dynamicTransport: Transport = {
   },
   stream: (service, method, signal, timeoutMs, header, input) => {
     return getConnectTransport().stream(service, method, signal, timeoutMs, header, input);
-  }
+  },
 };

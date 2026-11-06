@@ -3,25 +3,24 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { Empty } from "../../common/v1/common_pb.js";
-import { PingResponse } from "./gateway_pb.js";
-import { MethodKind } from "@bufbuild/protobuf";
+import { Empty } from '../../common/v1/common_pb.js';
+import { PingResponse } from './gateway_pb.js';
+import { MethodKind } from '@bufbuild/protobuf';
 
 /**
  * @generated from service gateway.v1.GatewayService
  */
 export const GatewayService = {
-  typeName: "gateway.v1.GatewayService",
+  typeName: 'gateway.v1.GatewayService',
   methods: {
     /**
      * @generated from rpc gateway.v1.GatewayService.Ping
      */
     ping: {
-      name: "Ping",
+      name: 'Ping',
       I: Empty,
       O: PingResponse,
       kind: MethodKind.Unary,
     },
-  }
+  },
 } as const;
-

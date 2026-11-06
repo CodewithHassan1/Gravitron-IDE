@@ -32,7 +32,7 @@ export interface QuickInputProvider {
 
   search(query: string, signal: AbortSignal): Promise<QuickInputItem[]>;
   execute(item: QuickInputItem): Promise<void>;
-  
+
   preview?(item: QuickInputItem): Promise<void>;
   clearPreview?(): Promise<void>;
 }

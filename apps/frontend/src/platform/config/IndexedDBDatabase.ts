@@ -1,10 +1,14 @@
 export class IndexedDBDatabase {
   private db: IDBDatabase | null = null;
-  
+
   constructor(
     private readonly dbName: string,
     private readonly version: number,
-    private readonly onUpgradeNeeded: (db: IDBDatabase, oldVersion: number, newVersion: number | null) => void
+    private readonly onUpgradeNeeded: (
+      db: IDBDatabase,
+      oldVersion: number,
+      newVersion: number | null
+    ) => void
   ) {}
 
   async connect(): Promise<IDBDatabase> {

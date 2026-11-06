@@ -31,8 +31,8 @@ export class ExplorerFilterService {
 
     const fuse = new Fuse(flatNodes, this.fuseOptions);
     const results = fuse.search(searchFilter);
-    
-    return new Set(results.map(r => r.item.id));
+
+    return new Set(results.map((r) => r.item.id));
   }
 }
 

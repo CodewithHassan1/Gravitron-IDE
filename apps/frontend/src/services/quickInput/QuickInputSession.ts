@@ -56,11 +56,16 @@ class QuickInputSessionImpl {
       }
       this.state.activeProvider = route.provider;
       if (route.provider) {
-        QuickInputEventBus.publish(QuickInputEventType.ProviderChanged, { providerId: route.provider.metadata.id });
+        QuickInputEventBus.publish(QuickInputEventType.ProviderChanged, {
+          providerId: route.provider.metadata.id,
+        });
       }
     }
 
-    QuickInputEventBus.publish(QuickInputEventType.QueryChanged, { query: route.strippedQuery, prefix: route.prefix });
+    QuickInputEventBus.publish(QuickInputEventType.QueryChanged, {
+      query: route.strippedQuery,
+      prefix: route.prefix,
+    });
 
     this.executeSearch(route.strippedQuery, route.provider);
   }
@@ -93,7 +98,7 @@ class QuickInputSessionImpl {
 
     // Debounce to prevent layout thrashing
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
-    
+
     this.debounceTimer = setTimeout(async () => {
       try {
         const items = await provider.search(strippedQuery, signal);
@@ -103,7 +108,7 @@ class QuickInputSessionImpl {
           QuickInputCache.set(cacheKey, items, 'search');
           QuickInputEventBus.publish(QuickInputEventType.LoadingFinished, undefined);
           QuickInputEventBus.publish(QuickInputEventType.ItemsUpdated, { count: items.length });
-          
+
           if (items.length > 0) {
             this.setSelectedIndex(0);
           }
@@ -113,7 +118,10 @@ class QuickInputSessionImpl {
           this.state.error = err;
           this.state.isLoading = false;
           QuickInputEventBus.publish(QuickInputEventType.LoadingFinished, undefined);
-          QuickInputEventBus.publish(QuickInputEventType.ProviderError, { error: err, providerId: provider.metadata.id });
+          QuickInputEventBus.publish(QuickInputEventType.ProviderError, {
+            error: err,
+            providerId: provider.metadata.id,
+          });
         }
       }
     }, 150);
@@ -123,24 +131,30 @@ class QuickInputSessionImpl {
     if (this.state.items.length === 0) return;
     this.state.selectedIndex = Math.max(0, Math.min(index, this.state.items.length - 1));
     const item = this.state.items[this.state.selectedIndex];
-    QuickInputEventBus.publish(QuickInputEventType.SelectionChanged, { index: this.state.selectedIndex, itemId: item.id });
-    
+    QuickInputEventBus.publish(QuickInputEventType.SelectionChanged, {
+      index: this.state.selectedIndex,
+      itemId: item.id,
+    });
+
     if (this.state.activeProvider?.preview) {
-      this.state.activeProvider.preview(item).catch(err => console.error("Preview failed:", err));
+      this.state.activeProvider.preview(item).catch((err) => console.error('Preview failed:', err));
     }
   }
 
   async executeSelected() {
     if (this.state.items.length === 0 || !this.state.activeProvider) return;
     const item = this.state.items[this.state.selectedIndex];
-    
+
     try {
       this.setOpen(false); // Close immediately upon execution
       await this.state.activeProvider.execute(item);
-      QuickInputEventBus.publish(QuickInputEventType.ItemExecuted, { itemId: item.id, providerId: this.state.activeProvider.metadata.id });
+      QuickInputEventBus.publish(QuickInputEventType.ItemExecuted, {
+        itemId: item.id,
+        providerId: this.state.activeProvider.metadata.id,
+      });
       QuickInputCache.addMru(this.state.activeProvider.metadata.id, item.id);
     } catch (err) {
-      console.error("Execution failed:", err);
+      console.error('Execution failed:', err);
     }
   }
 

@@ -1,13 +1,15 @@
-export type ExecutionBackendKind =
-  | 'local'
-  | 'docker'
-  | 'ssh'
-  | 'remote'
-  | 'cloud';
+export type ExecutionBackendKind = 'local' | 'docker' | 'ssh' | 'remote' | 'cloud';
 
-export type ExecutionTarget = 
+export type ExecutionTarget =
   | { kind: 'local'; cwd?: string }
-  | { kind: 'docker'; containerId: string; execCommand?: string; workingDirectory?: string; environment?: Record<string, string>; user?: string }
+  | {
+      kind: 'docker';
+      containerId: string;
+      execCommand?: string;
+      workingDirectory?: string;
+      environment?: Record<string, string>;
+      user?: string;
+    }
   | { kind: 'ssh'; host: string; user?: string }
   | { kind: 'remote'; workspaceId: string }
   | { kind: 'cloud'; sessionId: string };

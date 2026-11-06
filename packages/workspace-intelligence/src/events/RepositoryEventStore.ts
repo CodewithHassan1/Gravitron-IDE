@@ -21,8 +21,8 @@ export interface IRepositoryEventStore {
    * @param toSequenceNumber Inclusive upper bound for sequence numbers.
    */
   getEvents(
-    workspaceId: WorkspaceId, 
-    fromSequenceNumber: number, 
+    workspaceId: WorkspaceId,
+    fromSequenceNumber: number,
     toSequenceNumber?: number
   ): Promise<RepositoryEvent[]>;
 
@@ -53,12 +53,12 @@ export class MemoryEventStore implements IRepositoryEventStore {
   }
 
   async getEvents(
-    workspaceId: WorkspaceId, 
-    fromSequenceNumber: number, 
+    workspaceId: WorkspaceId,
+    fromSequenceNumber: number,
     toSequenceNumber?: number
   ): Promise<RepositoryEvent[]> {
     const list = this.eventsByWorkspace.get(workspaceId) || [];
-    return list.filter(e => {
+    return list.filter((e) => {
       if (e.sequenceNumber < fromSequenceNumber) return false;
       if (toSequenceNumber !== undefined && e.sequenceNumber > toSequenceNumber) return false;
       return true;

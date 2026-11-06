@@ -5,7 +5,9 @@ This document freezes the public API contracts for the Terminal subsystem. Every
 ## Interfaces
 
 ### `TerminalManager`
+
 Orchestrates terminal sessions without exposing underlying byte streams or runtime environments.
+
 ```typescript
 interface TerminalManager {
   createTerminal(options?: TerminalOptions): Promise<TerminalSession>;
@@ -15,7 +17,9 @@ interface TerminalManager {
 ```
 
 ### `TerminalRegistry`
+
 Manages the collection and lifecycle ordering of terminal sessions.
+
 ```typescript
 interface TerminalRegistry {
   getSessions(): ReadonlyArray<TerminalSession>;
@@ -28,26 +32,30 @@ interface TerminalRegistry {
 ```
 
 ### `TerminalSession`
+
 Represents a single terminal instance.
+
 ```typescript
 interface TerminalSession {
   readonly id: string;
   readonly state: TerminalSessionState; // e.g., 'Connecting', 'Running'
-  
+
   write(data: string | Uint8Array): Promise<void>;
   resize(cols: number, rows: number): Promise<void>;
   focus(): void;
   suspend(): Promise<void>;
   resume(): Promise<void>;
   close(): Promise<void>;
-  
+
   onData(listener: (data: Uint8Array) => void): IDisposable;
   onStateChanged(listener: (state: TerminalSessionState) => void): IDisposable;
 }
 ```
 
 ### `TerminalEvents`
+
 Global event bus for observing system-wide terminal lifecycle events.
+
 ```typescript
 interface TerminalEvents {
   on(event: 'created', listener: (e: TerminalCreated) => void): IDisposable;
@@ -58,7 +66,9 @@ interface TerminalEvents {
 ```
 
 ### `TerminalProvider`
+
 Abstraction for initializing streams from a given execution boundary.
+
 ```typescript
 interface TerminalProvider {
   readonly id: string;
@@ -68,7 +78,9 @@ interface TerminalProvider {
 ```
 
 ### `RuntimeProvider`
+
 Interacts with the execution environment to govern processes.
+
 ```typescript
 interface RuntimeProvider {
   readonly type: RuntimeType; // e.g., 'local', 'docker'
@@ -80,7 +92,9 @@ interface RuntimeProvider {
 ```
 
 ### `ProcessManager`
+
 Spawns and kills isolated execution instances.
+
 ```typescript
 interface ProcessManager {
   spawn(command: string, args: string[], cwd: string, env: Record<string, string>): Promise<number>;
@@ -90,7 +104,9 @@ interface ProcessManager {
 ```
 
 ### `ResourceMonitor`
+
 Tracks container or local limitations to ensure stability.
+
 ```typescript
 interface ResourceMonitor {
   getUsage(pid?: number): Promise<ResourceUsage>;
@@ -100,7 +116,9 @@ interface ResourceMonitor {
 ```
 
 ### `SessionPersistence`
+
 Persists core terminal metadata enabling layout restoration.
+
 ```typescript
 interface SessionPersistence {
   save(snapshot: TerminalSnapshot): Promise<void>;

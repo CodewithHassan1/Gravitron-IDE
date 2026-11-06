@@ -8,19 +8,19 @@ export const TerminalUIHelper = {
     const newGroup = {
       id: `group_${Date.now()}`,
       tabs: [],
-      activeTabId: null
+      activeTabId: null,
     };
     useTerminalStore.getState().addGroup(newGroup);
-    
+
     const cwd = WorkspaceManager.getNativeAbsolutePath();
     const workspaceId = WorkspaceManager.getWorkspaceId() ?? undefined;
     const session = await TerminalManager.createTerminal({ cwd, profileId, workspaceId });
-    
+
     useTerminalStore.getState().addTab(newGroup.id, {
       id: session.id,
       title: 'Terminal',
       cwd,
-      shellId: profileId || 'default'
+      shellId: profileId || 'default',
     });
   },
 
@@ -28,14 +28,14 @@ export const TerminalUIHelper = {
     const cwd = providedCwd || WorkspaceManager.getNativeAbsolutePath();
     const workspaceId = WorkspaceManager.getWorkspaceId() ?? undefined;
     const session = await TerminalManager.createTerminal({ cwd, profileId, workspaceId });
-    
+
     useTerminalStore.getState().addTab(groupId, {
       id: session.id,
       title: 'Terminal',
       cwd,
-      shellId: profileId || 'default'
+      shellId: profileId || 'default',
     });
-    
+
     return session;
   },
 
@@ -62,7 +62,7 @@ export const TerminalUIHelper = {
           const defaultGroup = {
             id: `group_${Date.now()}`,
             tabs: [],
-            activeTabId: null
+            activeTabId: null,
           };
           updatedState.addGroup(defaultGroup);
           await this.createTerminal(defaultGroup.id);
@@ -75,7 +75,7 @@ export const TerminalUIHelper = {
     if (WorkspaceManager.getState().lifecycleState === WorkspaceLifecycleState.Ready) {
       handleWorkspaceOpened();
     }
-    
+
     import('../../../services/workspace/WorkspaceEvents').then(({ WorkspaceEvents }) => {
       import('../../../services/workspace/types').then(({ WorkspaceEventType }) => {
         WorkspaceEvents.on(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
@@ -89,5 +89,5 @@ export const TerminalUIHelper = {
         });
       });
     };
-  }
+  },
 };

@@ -7,10 +7,10 @@ async function testTitle(shell: string, cmd: string) {
     cols: 80,
     rows: 30,
     cwd: process.cwd(),
-    env: process.env as any
+    env: process.env as any,
   });
 
-  p.onData(data => {
+  p.onData((data) => {
     // Check for OSC 0 title sequence: ESC ] 0 ; TITLE BEL
     const match = data.match(/\\x1b\\]0;(.*?)\\x07/);
     if (match) {
@@ -18,11 +18,11 @@ async function testTitle(shell: string, cmd: string) {
     }
   });
 
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000));
   console.log('Sending command:', cmd);
   p.write(cmd + '\r');
-  await new Promise(r => setTimeout(r, 4000)); // wait for command to run and finish
-  
+  await new Promise((r) => setTimeout(r, 4000)); // wait for command to run and finish
+
   p.kill();
 }
 

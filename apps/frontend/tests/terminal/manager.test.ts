@@ -10,9 +10,13 @@ import { TerminalSessionState } from '../../src/services/terminal/types';
 
 import { MockTransport } from '../../src/services/terminal/providers/transport/MockTransport';
 class TestProvider extends AbstractTerminalProvider {
-  constructor() { super(new MockTransport()); }
+  constructor() {
+    super(new MockTransport());
+  }
   public id = 'test';
-  public async createStream() { return new MemoryTerminalStream(); }
+  public async createStream() {
+    return new MemoryTerminalStream();
+  }
 }
 
 describe('TerminalManagerImpl', () => {
@@ -51,7 +55,7 @@ describe('TerminalManagerImpl', () => {
   it('destroys terminals properly', async () => {
     const session = await manager.createTerminal();
     expect(manager.getRegistry().getSessions().length).toBe(1);
-    
+
     await manager.destroyTerminal(session.id);
     expect(manager.getRegistry().getSessions().length).toBe(0);
     expect(session.state).toBe(TerminalSessionState.Disposed);
@@ -60,7 +64,7 @@ describe('TerminalManagerImpl', () => {
   it('is completely cleaned up on dispose', async () => {
     await manager.createTerminal();
     manager.dispose();
-    
+
     expect(manager.getRegistry().getSessions().length).toBe(0);
     await expect(manager.createTerminal()).rejects.toThrow('TerminalManager is disposed');
   });

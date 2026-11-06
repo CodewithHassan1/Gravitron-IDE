@@ -33,13 +33,7 @@ export class WorkspaceRepository {
         .returningAll()
         .executeTakeFirstOrThrow();
 
-      await publishOutboxEvent(
-        tx,
-        'Workspace',
-        id,
-        'workspace.created',
-        workspace
-      );
+      await publishOutboxEvent(tx, 'Workspace', id, 'workspace.created', workspace);
 
       return workspace;
     });
@@ -57,7 +51,11 @@ export class WorkspaceRepository {
     return await this.db
       .selectFrom('workspaces')
       .selectAll('workspaces')
-      .innerJoin('organization_members', 'organization_members.organization_id', 'workspaces.organization_id')
+      .innerJoin(
+        'organization_members',
+        'organization_members.organization_id',
+        'workspaces.organization_id'
+      )
       .where('workspaces.organization_id', '=', organization_id)
       .where('organization_members.user_id', '=', user_id)
       .limit(limit)
@@ -72,23 +70,24 @@ export class WorkspaceRepository {
       const workspace = await tx
         .deleteFrom('workspaces')
         .where('workspaces.id', '=', id)
-        .where((eb) => eb.exists(
-          tx.selectFrom('organization_members')
-            .select('organization_members.user_id')
-            .whereRef('organization_members.organization_id', '=', 'workspaces.organization_id' as any)
-            .where('organization_members.user_id', '=', user_id)
-        ))
+        .where((eb) =>
+          eb.exists(
+            tx
+              .selectFrom('organization_members')
+              .select('organization_members.user_id')
+              .whereRef(
+                'organization_members.organization_id',
+                '=',
+                'workspaces.organization_id' as any
+              )
+              .where('organization_members.user_id', '=', user_id)
+          )
+        )
         .returningAll()
         .executeTakeFirst();
 
       if (workspace) {
-        await publishOutboxEvent(
-          tx,
-          'Workspace',
-          id,
-          'workspace.deleted',
-          { id }
-        );
+        await publishOutboxEvent(tx, 'Workspace', id, 'workspace.deleted', { id });
       }
       return workspace;
     });

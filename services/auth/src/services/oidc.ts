@@ -10,7 +10,7 @@ export interface OIDCProfile {
  */
 export class OIDCClient {
   private useMock: boolean;
-  
+
   constructor() {
     this.useMock = !process.env.OIDC_ISSUER;
   }
@@ -18,16 +18,16 @@ export class OIDCClient {
   async exchangeCode(code: string): Promise<OIDCProfile> {
     if (this.useMock) {
       // Mock deterministic response for local dev
-      if (code === "invalid-code") throw new Error("Invalid OAuth Code");
-      
+      if (code === 'invalid-code') throw new Error('Invalid OAuth Code');
+
       return {
-        sub: "user-1234-abcd",
-        email: "admin@ag-ide.local",
+        sub: 'user-1234-abcd',
+        email: 'admin@ag-ide.local',
         email_verified: true,
       };
     }
 
     // Real implementation would hit process.env.OIDC_ISSUER + '/oauth/token'
-    throw new Error("Real OIDC exchange not yet implemented");
+    throw new Error('Real OIDC exchange not yet implemented');
   }
 }

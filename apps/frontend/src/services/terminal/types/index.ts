@@ -87,7 +87,10 @@ export interface ITerminalTransport extends IDisposable {
   readonly name: string;
   connect(): Promise<void>;
   createStream(config: TerminalDescriptor): Promise<ITerminalStream>;
-  attachStream(terminalId: string, sessionId: string): Promise<{ stream: ITerminalStream; history: Uint8Array }>;
+  attachStream(
+    terminalId: string,
+    sessionId: string
+  ): Promise<{ stream: ITerminalStream; history: Uint8Array }>;
   resize(terminalId: string, cols: number, rows: number): Promise<void>;
   kill(terminalId: string, signal?: string): Promise<void>;
   detach(terminalId: string): Promise<void>;

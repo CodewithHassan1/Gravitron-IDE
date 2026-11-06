@@ -7,7 +7,9 @@ class QuickInputRegistryImpl {
 
   registerProvider(provider: QuickInputProvider) {
     if (this.providers.has(provider.metadata.id)) {
-      console.log(`[QuickInputRegistry] Provider ${provider.metadata.id} is already registered. Ignoring.`);
+      console.log(
+        `[QuickInputRegistry] Provider ${provider.metadata.id} is already registered. Ignoring.`
+      );
       return;
     }
     this.providers.set(provider.metadata.id, provider);
@@ -27,7 +29,9 @@ class QuickInputRegistryImpl {
   }
 
   getAllProviders(): QuickInputProvider[] {
-    return Array.from(this.providers.values()).sort((a, b) => b.metadata.priority - a.metadata.priority);
+    return Array.from(this.providers.values()).sort(
+      (a, b) => b.metadata.priority - a.metadata.priority
+    );
   }
 }
 

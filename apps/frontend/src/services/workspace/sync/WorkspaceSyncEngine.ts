@@ -11,7 +11,7 @@ import { VirtualFileSystem } from '../vfs/VirtualFileSystem';
 import { WorkspacePersistence } from '../WorkspacePersistence';
 import { WorkspaceSerializer } from '../WorkspaceSerializer';
 import { WorkspaceHistory } from '../WorkspaceHistory';
-// We assume an event emitter is injected. 
+// We assume an event emitter is injected.
 
 export class WorkspaceSyncEngine {
   public readonly state: SyncStateManager;
@@ -88,7 +88,7 @@ export class WorkspaceSyncEngine {
           this.state.transition(SyncStateStatus.Conflict);
           this.eventEmitter.emit('ConflictDetected', conflict);
           // For now, we skip conflicted operations rather than halting entirely
-          continue; 
+          continue;
         }
 
         // Apply to VirtualFileSystem (REMOVED: Now handled optimistically by WorkspaceManager)
@@ -105,8 +105,10 @@ export class WorkspaceSyncEngine {
       }
       this.state.updatePendingCount(this.queue.size);
       this.state.transition(SyncStateStatus.Idle);
-      this.eventEmitter.emit('SyncCompleted', { timestamp: Date.now(), operationsProcessed: batchedOps.length });
-
+      this.eventEmitter.emit('SyncCompleted', {
+        timestamp: Date.now(),
+        operationsProcessed: batchedOps.length,
+      });
     } catch (error: any) {
       this.state.transition(SyncStateStatus.Failed, error);
       this.eventEmitter.emit('SyncFailed', { error: error.message });
@@ -120,7 +122,6 @@ export class WorkspaceSyncEngine {
       }
     }
   }
-
 
   public getSyncState(): Readonly<WorkspaceSyncState> {
     return this.state.getState();

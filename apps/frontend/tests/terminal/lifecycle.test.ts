@@ -11,7 +11,9 @@ import { TerminalEvents } from '../../src/services/terminal/events/TerminalEvent
 
 import { MockTransport } from '../../src/services/terminal/providers/transport/MockTransport';
 class TestProvider extends AbstractTerminalProvider {
-  constructor() { super(new MockTransport()); }
+  constructor() {
+    super(new MockTransport());
+  }
   public id = 'test';
   public stream: MemoryTerminalStream | null = null;
   public async createStream() {
@@ -45,10 +47,10 @@ describe('Terminal E2E Lifecycle', () => {
     expect(session.state).toBe(TerminalSessionState.Running);
 
     const received: string[] = [];
-    session.onData(data => received.push(new TextDecoder().decode(data)));
+    session.onData((data) => received.push(new TextDecoder().decode(data)));
 
     await session.write('hello');
-    
+
     // In-memory echoes immediately
     expect(received.length).toBe(1);
     expect(received[0]).toBe('hello');

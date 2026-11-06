@@ -26,25 +26,28 @@ interface ProcessStoreActions {
 
 export const useProcessStore = create<ProcessStoreState & ProcessStoreActions>((set) => ({
   processes: new Map(),
-  
-  addProcess: (process) => set((state) => {
-    const newProcesses = new Map(state.processes);
-    newProcesses.set(process.id, process);
-    return { processes: newProcesses };
-  }),
 
-  updateProcess: (id, updates) => set((state) => {
-    const newProcesses = new Map(state.processes);
-    const existing = newProcesses.get(id);
-    if (existing) {
-      newProcesses.set(id, { ...existing, ...updates });
-    }
-    return { processes: newProcesses };
-  }),
+  addProcess: (process) =>
+    set((state) => {
+      const newProcesses = new Map(state.processes);
+      newProcesses.set(process.id, process);
+      return { processes: newProcesses };
+    }),
 
-  removeProcess: (id) => set((state) => {
-    const newProcesses = new Map(state.processes);
-    newProcesses.delete(id);
-    return { processes: newProcesses };
-  }),
+  updateProcess: (id, updates) =>
+    set((state) => {
+      const newProcesses = new Map(state.processes);
+      const existing = newProcesses.get(id);
+      if (existing) {
+        newProcesses.set(id, { ...existing, ...updates });
+      }
+      return { processes: newProcesses };
+    }),
+
+  removeProcess: (id) =>
+    set((state) => {
+      const newProcesses = new Map(state.processes);
+      newProcesses.delete(id);
+      return { processes: newProcesses };
+    }),
 }));

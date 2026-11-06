@@ -25,7 +25,7 @@ export class BrowserCredentialProvider implements ICredentialProvider {
 
   async storeCredential(serviceId: string, token: string, metadata?: any): Promise<void> {
     const db = await this.getDB();
-    // In a real browser implementation, you'd want to encrypt `token` using Web Crypto API 
+    // In a real browser implementation, you'd want to encrypt `token` using Web Crypto API
     // before saving to IndexedDB. We simulate the interface here.
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, 'readwrite');

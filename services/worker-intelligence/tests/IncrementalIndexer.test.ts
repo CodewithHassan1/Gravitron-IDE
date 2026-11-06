@@ -61,7 +61,7 @@ describe('IncrementalIndexer (Gate 4A.4)', () => {
     indexer.queueUpdate('/fake/ws', 'test.ts', 'class A {}', 1);
     indexer.queueUpdate('/fake/ws', 'test.ts', 'class B {}', 2);
     indexer.queueUpdate('/fake/ws', 'test.ts', 'class C {}', 3);
-    
+
     await indexer.drain();
 
     // The scheduler processes synchronously in a loop using the queue, so it only processes the last one
@@ -76,11 +76,23 @@ describe('IncrementalIndexer (Gate 4A.4)', () => {
 
   it('Stale queued event cannot overwrite a newer file version (v1 vs v2 race condition)', async () => {
     // Process v2 first to completion
-    await indexer.processEvent({ type: 'update', workspaceRoot: '/fake/ws', filePath: 'race.ts', content: 'class V2 {}', version: 2 });
-    
+    await indexer.processEvent({
+      type: 'update',
+      workspaceRoot: '/fake/ws',
+      filePath: 'race.ts',
+      content: 'class V2 {}',
+      version: 2,
+    });
+
     // Now try to process v1 (it simulates a slow v1 that got dequeued or arrived late)
-    await indexer.processEvent({ type: 'update', workspaceRoot: '/fake/ws', filePath: 'race.ts', content: 'class V1 {}', version: 1 });
-    
+    await indexer.processEvent({
+      type: 'update',
+      workspaceRoot: '/fake/ws',
+      filePath: 'race.ts',
+      content: 'class V1 {}',
+      version: 1,
+    });
+
     const symbols = await store.getSymbols('race.ts');
     expect(symbols.length).toBe(1);
     // MUST NOT overwrite v2
@@ -89,20 +101,32 @@ describe('IncrementalIndexer (Gate 4A.4)', () => {
 
   it('Failed parsing never destroys the last known-good index', async () => {
     // 1. Known good
-    await indexer.processEvent({ type: 'update', workspaceRoot: '/fake/ws', filePath: 'bad.ts', content: 'class Good {}', version: 1 });
-    
+    await indexer.processEvent({
+      type: 'update',
+      workspaceRoot: '/fake/ws',
+      filePath: 'bad.ts',
+      content: 'class Good {}',
+      version: 1,
+    });
+
     const seq1 = await model.getLatestSequence();
 
     // 2. We can't really make TypeScriptParser throw unless we do path traversal, because ts.createSourceFile doesn't throw.
     // So we will cause an error in the indexer by passing an absolute path for path traversal check.
     // This will throw `Path traversal blocked`.
     try {
-      await indexer.processEvent({ type: 'update', workspaceRoot: '/fake/ws', filePath: '../outside.ts', content: 'class Bad {}', version: 2 });
-    } catch(e) {}
-    
+      await indexer.processEvent({
+        type: 'update',
+        workspaceRoot: '/fake/ws',
+        filePath: '../outside.ts',
+        content: 'class Bad {}',
+        version: 2,
+      });
+    } catch (e) {}
+
     const seq2 = await model.getLatestSequence();
     expect(seq2).toBe(seq1); // Did not increment sequence
-    
+
     const symbols = await store.getSymbols('bad.ts');
     expect(symbols.length).toBe(1);
     expect(symbols[0].name).toBe('Good'); // Still good
@@ -115,7 +139,7 @@ describe('IncrementalIndexer (Gate 4A.4)', () => {
 
     const sym1 = await store.getSymbols('node_modules/pkg/index.ts');
     const sym2 = await store.getSymbols('src/.DS_Store');
-    
+
     expect(sym1.length).toBe(0);
     expect(sym2.length).toBe(0);
   });

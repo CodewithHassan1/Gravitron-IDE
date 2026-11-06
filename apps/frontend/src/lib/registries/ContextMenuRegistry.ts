@@ -20,7 +20,7 @@ class ContextMenuRegistryImpl {
   }
 
   getActions(nodeIds: string[]): ContextMenuAction[] {
-    const visibleActions = Array.from(this.actions.values()).filter(action => 
+    const visibleActions = Array.from(this.actions.values()).filter((action) =>
       action.isVisible ? action.isVisible(nodeIds) : true
     );
 

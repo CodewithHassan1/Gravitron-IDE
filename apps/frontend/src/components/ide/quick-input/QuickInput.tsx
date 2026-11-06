@@ -2,7 +2,10 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { QuickInputSession } from '../../../services/quickInput/QuickInputSession';
-import { QuickInputEventBus, QuickInputEventType } from '../../../services/quickInput/QuickInputEventBus';
+import {
+  QuickInputEventBus,
+  QuickInputEventType,
+} from '../../../services/quickInput/QuickInputEventBus';
 import { QuickInputItem } from '../../../types/quickInput';
 import { Highlighter } from '../../../services/quickInput/search/Highlighter';
 
@@ -12,7 +15,7 @@ export function QuickInput() {
   const [items, setItems] = useState<QuickInputItem[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const parentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -34,18 +37,27 @@ export function QuickInput() {
       setItems([...QuickInputSession.getState().items]);
     });
 
-    const unsubSelection = QuickInputEventBus.subscribe(QuickInputEventType.SelectionChanged, (payload) => {
-      setSelectedIndex(payload.index);
-      virtualizer.scrollToIndex(payload.index, { align: 'auto' });
-    });
+    const unsubSelection = QuickInputEventBus.subscribe(
+      QuickInputEventType.SelectionChanged,
+      (payload) => {
+        setSelectedIndex(payload.index);
+        virtualizer.scrollToIndex(payload.index, { align: 'auto' });
+      }
+    );
 
-    const unsubLoadingStarted = QuickInputEventBus.subscribe(QuickInputEventType.LoadingStarted, () => {
-      setIsLoading(true);
-    });
+    const unsubLoadingStarted = QuickInputEventBus.subscribe(
+      QuickInputEventType.LoadingStarted,
+      () => {
+        setIsLoading(true);
+      }
+    );
 
-    const unsubLoadingFinished = QuickInputEventBus.subscribe(QuickInputEventType.LoadingFinished, () => {
-      setIsLoading(false);
-    });
+    const unsubLoadingFinished = QuickInputEventBus.subscribe(
+      QuickInputEventType.LoadingFinished,
+      () => {
+        setIsLoading(false);
+      }
+    );
 
     return () => {
       unsubOpened();
@@ -131,14 +143,14 @@ export function QuickInput() {
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] bg-black/50 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Quick Input"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="w-[600px] max-w-[90vw] bg-card border border-border rounded-lg shadow-2xl overflow-hidden flex flex-col"
         role="document"
       >
@@ -150,7 +162,9 @@ export function QuickInput() {
             value={query}
             onChange={handleQueryChange}
             onKeyDown={handleKeyDown}
-            aria-activedescendant={items.length > 0 ? `quick-input-item-${selectedIndex}` : undefined}
+            aria-activedescendant={
+              items.length > 0 ? `quick-input-item-${selectedIndex}` : undefined
+            }
             aria-controls="quick-input-listbox"
             aria-autocomplete="list"
             role="combobox"
@@ -160,7 +174,7 @@ export function QuickInput() {
             {isLoading && (
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-primary"></div>
             )}
-            <button 
+            <button
               className="text-xs text-muted-foreground hover:text-foreground"
               onClick={() => QuickInputSession.setOpen(false)}
             >
@@ -168,19 +182,17 @@ export function QuickInput() {
             </button>
           </div>
         </div>
-        
-        <div 
+
+        <div
           ref={parentRef}
           className="max-h-[300px] overflow-y-auto custom-scrollbar"
           role="listbox"
           id="quick-input-listbox"
         >
           {items.length === 0 && !isLoading && query && (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              No results found.
-            </div>
+            <div className="py-6 text-center text-sm text-muted-foreground">No results found.</div>
           )}
-          
+
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,
@@ -191,18 +203,28 @@ export function QuickInput() {
             {virtualizer.getVirtualItems().map((virtualItem) => {
               const item = items[virtualItem.index];
               const isSelected = virtualItem.index === selectedIndex;
-              const strippedQuery = QuickInputSession.getState().query.replace(/^[@>#:?]/, '').trim();
+              const strippedQuery = QuickInputSession.getState()
+                .query.replace(/^[@>#:?]/, '')
+                .trim();
               const highlights = Highlighter.highlight(strippedQuery, item.label);
-              
+
               // Helper to render highlights
               let lastEnd = 0;
               const labelNodes: React.ReactNode[] = [];
               highlights.forEach((h, i) => {
-                if (h.start > lastEnd) labelNodes.push(<span key={`t-${i}`}>{item.label.substring(lastEnd, h.start)}</span>);
-                labelNodes.push(<span key={`h-${i}`} className="text-primary font-bold">{item.label.substring(h.start, h.end)}</span>);
+                if (h.start > lastEnd)
+                  labelNodes.push(
+                    <span key={`t-${i}`}>{item.label.substring(lastEnd, h.start)}</span>
+                  );
+                labelNodes.push(
+                  <span key={`h-${i}`} className="text-primary font-bold">
+                    {item.label.substring(h.start, h.end)}
+                  </span>
+                );
                 lastEnd = h.end;
               });
-              if (lastEnd < item.label.length) labelNodes.push(<span key={`t-end`}>{item.label.substring(lastEnd)}</span>);
+              if (lastEnd < item.label.length)
+                labelNodes.push(<span key={`t-end`}>{item.label.substring(lastEnd)}</span>);
 
               return (
                 <div
@@ -224,8 +246,12 @@ export function QuickInput() {
                   }}
                 >
                   <div className="flex-1 flex items-center overflow-hidden">
-                    {item.icon && <span className="mr-2 flex-shrink-0 opacity-70">{item.icon}</span>}
-                    <span className="truncate">{highlights.length > 0 ? labelNodes : item.label}</span>
+                    {item.icon && (
+                      <span className="mr-2 flex-shrink-0 opacity-70">{item.icon}</span>
+                    )}
+                    <span className="truncate">
+                      {highlights.length > 0 ? labelNodes : item.label}
+                    </span>
                     {item.description && (
                       <span className="ml-2 text-xs opacity-60 truncate">{item.description}</span>
                     )}

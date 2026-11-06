@@ -20,7 +20,7 @@ export function registerEditorCommands(registry: any) {
     const editor = EditorManager.getActiveEditor();
     if (editor) {
       editor.getAction('editor.action.formatDocument')?.run();
-      
+
       // Save via new WorkspaceManager
       const model = editor.getModel();
       if (model) {
@@ -30,11 +30,11 @@ export function registerEditorCommands(registry: any) {
         const content = model.getValue();
         import('../../services/workspace/WorkspaceManager').then(({ WorkspaceManager }) => {
           WorkspaceManager.writeFile(path, content);
-          
+
           // Clear dirty state
           const state = useEditorLayoutStore.getState();
           if (state.activeGroupId) {
-            const group = state.groups.find(g => g.id === state.activeGroupId);
+            const group = state.groups.find((g) => g.id === state.activeGroupId);
             if (group && group.activeTabId) {
               state.updateTabDirtyState(group.id, group.activeTabId, false);
             }

@@ -15,7 +15,7 @@ class QuickInputCacheImpl {
   get<T>(key: string, type: 'provider' | 'search', ttl: number = this.DEFAULT_TTL): T | null {
     const cacheMap = type === 'provider' ? this.providerCache : this.searchCache;
     const entry = cacheMap.get(key);
-    
+
     if (entry) {
       if (performance.now() - entry.timestamp <= ttl) {
         QuickInputTelemetry.trackCacheHit(true);
@@ -24,7 +24,7 @@ class QuickInputCacheImpl {
         cacheMap.delete(key); // TTL expired
       }
     }
-    
+
     QuickInputTelemetry.trackCacheHit(false);
     return null;
   }
@@ -47,7 +47,7 @@ class QuickInputCacheImpl {
   // MRU Logic
   addMru(providerId: string, itemId: string) {
     let mru = this.mruList.get(providerId) || [];
-    mru = [itemId, ...mru.filter(id => id !== itemId)].slice(0, 100);
+    mru = [itemId, ...mru.filter((id) => id !== itemId)].slice(0, 100);
     this.mruList.set(providerId, mru);
   }
 

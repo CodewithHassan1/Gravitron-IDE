@@ -10,7 +10,7 @@ export function EditorArea() {
   const isBootstrapped = useBootstrapStore((state) => state.isBootstrapped);
   const bootstrapStage = useBootstrapStore((state) => state.bootstrapStage);
 
-  const hasAnyTabs = groups.some(g => g.tabs.length > 0);
+  const hasAnyTabs = groups.some((g) => g.tabs.length > 0);
 
   if (!isBootstrapped) {
     return (
@@ -26,7 +26,7 @@ export function EditorArea() {
 
   return (
     <div className="flex-1 flex flex-row h-full bg-background overflow-hidden">
-      {groups.map(group => (
+      {groups.map((group) => (
         <EditorGroup key={group.id} group={group} />
       ))}
     </div>

@@ -3,6 +3,7 @@
 The Terminal Architecture enforces strict, downward unidirectional dependency structures. Circular dependencies are explicitly prohibited.
 
 ## Dependency Direction
+
 Outer layers may depend on inner layers, but inner layers must remain completely unaware of the layers above them.
 
 `React UI`

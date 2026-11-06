@@ -6,13 +6,17 @@ export class WorkspaceReconciler {
 
   public start(): void {
     if (typeof window !== 'undefined' && (window as any).agApi) {
-      (window as any).agApi.workspace.subscribe((events: WorkspaceProtocol.WorkspaceExternalEvent[]) => {
-        this.handleExternalEvents(events);
-      });
+      (window as any).agApi.workspace.subscribe(
+        (events: WorkspaceProtocol.WorkspaceExternalEvent[]) => {
+          this.handleExternalEvents(events);
+        }
+      );
     }
   }
 
-  private async handleExternalEvents(events: WorkspaceProtocol.WorkspaceExternalEvent[]): Promise<void> {
+  private async handleExternalEvents(
+    events: WorkspaceProtocol.WorkspaceExternalEvent[]
+  ): Promise<void> {
     for (const event of events) {
       // 1. Check if this event was initiated by us
       if (event.mutationId) {

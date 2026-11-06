@@ -18,6 +18,8 @@ export class VirtualDocumentProvider {
   }
 
   static isVirtualDocument(uri: string): boolean {
-    return this.providers.has(uri) || Array.from(this.providers.keys()).some(k => uri.startsWith(k));
+    return (
+      this.providers.has(uri) || Array.from(this.providers.keys()).some((k) => uri.startsWith(k))
+    );
   }
 }

@@ -1,5 +1,9 @@
 // src/services/quickInput/providers/FileProvider.ts
-import { QuickInputProvider, QuickInputItem, QuickInputProviderMetadata } from '../../../types/quickInput';
+import {
+  QuickInputProvider,
+  QuickInputItem,
+  QuickInputProviderMetadata,
+} from '../../../types/quickInput';
 import { WorkspaceManager } from '../../workspace/WorkspaceManager';
 import { NavigationEngine } from '../../navigation/NavigationEngine';
 import { FileIcon } from 'lucide-react';
@@ -27,16 +31,18 @@ export class FileProvider implements QuickInputProvider {
     if (!searchEngine) return [];
 
     // Search via new engine
-    const results = await searchEngine.search(new SearchQuery(query, {
-      maxResults: 50
-    }));
+    const results = await searchEngine.search(
+      new SearchQuery(query, {
+        maxResults: 50,
+      })
+    );
 
-    return results.map(item => ({
+    return results.map((item) => ({
       id: item.nodeId,
       label: item.path.split('/').pop() || item.path,
       description: item.path,
       icon: React.createElement(FileIcon, { size: 16 }),
-      metadata: { path: item.path }
+      metadata: { path: item.path },
     }));
   }
 

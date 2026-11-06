@@ -9,5 +9,9 @@ export interface ToolResult {
 
 export interface ToolImplementation {
   definition: ToolDefinition;
-  execute(args: any, bridge: AgentProtocol.IAgentCapabilityBridge, context: AgentProtocol.AgentCapabilityContext): Promise<ToolResult>;
+  execute(
+    args: any,
+    bridge: AgentProtocol.IAgentCapabilityBridge,
+    context: AgentProtocol.AgentCapabilityContext
+  ): Promise<ToolResult>;
 }

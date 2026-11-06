@@ -7,28 +7,28 @@ export enum SymbolKind {
   Constant = 'Constant',
   Enum = 'Enum',
   TypeAlias = 'TypeAlias',
-  Property = 'Property'
+  Property = 'Property',
 }
 
 export interface FileDTO {
-  id: string;            // Primary key, unique per workspace
+  id: string; // Primary key, unique per workspace
   workspaceId: string;
-  filePath: string;      // Relative to workspace root
-  hash: string;          // Hash of file contents to check if changed
+  filePath: string; // Relative to workspace root
+  hash: string; // Hash of file contents to check if changed
   updatedAt: number;
 }
 
 export interface SymbolDTO {
-  id: string;            // Unique identifier
+  id: string; // Unique identifier
   workspaceId: string;
-  fileId: string;        // Foreign key to FileDTO
+  fileId: string; // Foreign key to FileDTO
   name: string;
   kind: SymbolKind;
   line: number;
   column: number;
   startOffset?: number;
   endOffset?: number;
-  snippet?: string;      // Optional brief snippet of the signature
+  snippet?: string; // Optional brief snippet of the signature
 }
 
 export interface ReferenceDTO {
@@ -46,16 +46,16 @@ export interface ImportDTO {
   id: string;
   workspaceId: string;
   fileId: string;
-  sourceId?: string;     // The file this imports, if resolvable locally
-  moduleName: string;    // e.g. '@ag/protocol' or './MyClass'
-  symbolName?: string;   // Optional specific symbol imported
+  sourceId?: string; // The file this imports, if resolvable locally
+  moduleName: string; // e.g. '@ag/protocol' or './MyClass'
+  symbolName?: string; // Optional specific symbol imported
   startOffset?: number;
   endOffset?: number;
 }
 
 export interface SnapshotDTO {
   workspaceId: string;
-  sequence: number;      // Monotonically increasing
+  sequence: number; // Monotonically increasing
   createdAt: number;
 }
 

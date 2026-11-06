@@ -1,7 +1,10 @@
 import { IConfigurationPropertySchema } from './ConfigurationSchema';
 
 export class ConfigurationValidator {
-  static validate(schema: IConfigurationPropertySchema, value: any): { valid: boolean; error?: string } {
+  static validate(
+    schema: IConfigurationPropertySchema,
+    value: any
+  ): { valid: boolean; error?: string } {
     if (schema.validator) {
       const result = schema.validator(value);
       if (typeof result === 'string') {
@@ -17,7 +20,8 @@ export class ConfigurationValidator {
         if (typeof value !== 'boolean') return { valid: false, error: 'Value must be a boolean.' };
         break;
       case 'number':
-        if (typeof value !== 'number' || isNaN(value)) return { valid: false, error: 'Value must be a valid number.' };
+        if (typeof value !== 'number' || isNaN(value))
+          return { valid: false, error: 'Value must be a valid number.' };
         break;
       case 'string':
       case 'color':

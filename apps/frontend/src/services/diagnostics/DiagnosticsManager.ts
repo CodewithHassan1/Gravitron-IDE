@@ -46,8 +46,8 @@ export class DiagnosticsManagerImpl {
       if (model) {
         const fileUri = model.uri.path;
         const fileDiagnostics = grouped.get(fileUri) || [];
-        
-        const markers = fileDiagnostics.map(d => ({
+
+        const markers = fileDiagnostics.map((d) => ({
           severity: this.mapSeverity(monaco, d.severity),
           message: d.message,
           startLineNumber: d.line,
@@ -55,7 +55,7 @@ export class DiagnosticsManagerImpl {
           endLineNumber: d.endLine || d.line,
           endColumn: d.endColumn || d.column + 1,
           source: d.source,
-          code: d.code ? String(d.code) : undefined
+          code: d.code ? String(d.code) : undefined,
         }));
 
         monaco.editor.setModelMarkers(model, 'ide-diagnostics', markers);
@@ -65,10 +65,14 @@ export class DiagnosticsManagerImpl {
 
   private mapSeverity(monaco: any, severity: string) {
     switch (severity) {
-      case 'error': return monaco.MarkerSeverity.Error;
-      case 'warning': return monaco.MarkerSeverity.Warning;
-      case 'info': return monaco.MarkerSeverity.Info;
-      default: return monaco.MarkerSeverity.Hint;
+      case 'error':
+        return monaco.MarkerSeverity.Error;
+      case 'warning':
+        return monaco.MarkerSeverity.Warning;
+      case 'info':
+        return monaco.MarkerSeverity.Info;
+      default:
+        return monaco.MarkerSeverity.Hint;
     }
   }
 }

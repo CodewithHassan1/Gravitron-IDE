@@ -1,17 +1,17 @@
-import * as React from "react"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { cn } from "@/lib/utils"
-import { Button } from "./button"
+import * as React from 'react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { cn } from '@/lib/utils';
+import { Button } from './button';
 
 export interface ConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description?: string
-  confirmText?: string
-  cancelText?: string
-  onConfirm: () => void
-  variant?: 'default' | 'destructive'
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: () => void;
+  variant?: 'default' | 'destructive';
 }
 
 export function ConfirmDialog({
@@ -19,10 +19,10 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   onConfirm,
-  variant = 'default'
+  variant = 'default',
 }: ConfirmDialogProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -43,11 +43,11 @@ export function ConfirmDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               {cancelText}
             </Button>
-            <Button 
-              variant={variant} 
+            <Button
+              variant={variant}
               onClick={() => {
-                onConfirm()
-                onOpenChange(false)
+                onConfirm();
+                onOpenChange(false);
               }}
             >
               {confirmText}
@@ -56,5 +56,5 @@ export function ConfirmDialog({
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
+  );
 }

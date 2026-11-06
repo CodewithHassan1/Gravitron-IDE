@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 
 export class LocalBackend implements IExecutionBackend {
   public readonly kind: ExecutionBackendKind = 'local';
-  
+
   public readonly capabilities: ExecutionBackendCapabilities = {
     supportsResize: true,
     supportsSignals: true,
@@ -22,24 +22,27 @@ export class LocalBackend implements IExecutionBackend {
     supportsBinaryStreams: true,
     supportsDetach: false,
     supportsAttach: false,
-    supportsTitleEvents: true
+    supportsTitleEvents: true,
   };
 
   private processes = new Map<string, IProcess>();
 
   constructor() {}
 
-  private prepareShellIntegration(executable: string, originalArgs: readonly string[]): { executable: string; args: string[] } {
+  private prepareShellIntegration(
+    executable: string,
+    originalArgs: readonly string[]
+  ): { executable: string; args: string[] } {
     const execLower = executable.toLowerCase();
-    
+
     if (execLower.includes('powershell') || execLower.includes('pwsh')) {
       const integrationDir = path.join(os.tmpdir(), 'ag-ide-integration');
       if (!fs.existsSync(integrationDir)) {
         fs.mkdirSync(integrationDir, { recursive: true });
       }
-      
+
       const ps1Path = path.join(integrationDir, `ps-${randomUUID()}.ps1`);
-      
+
       const psScript = `
 $e = [char]27
 $a = [char]7
@@ -69,7 +72,7 @@ if (Get-Module PSReadLine) {
 }
 `;
       fs.writeFileSync(ps1Path, psScript, 'utf8');
-      
+
       // Inject integration script
       const newArgs = ['-NoLogo', '-NoExit', '-Command', `. '${ps1Path}'`];
       return { executable, args: newArgs };
@@ -86,9 +89,9 @@ if (Get-Module PSReadLine) {
       if (!fs.existsSync(integrationDir)) {
         fs.mkdirSync(integrationDir, { recursive: true });
       }
-      
+
       const bashrcPath = path.join(integrationDir, `bash-${randomUUID()}.sh`);
-      
+
       const bashScript = `
 if [ -f ~/.bashrc ]; then
   source ~/.bashrc
@@ -99,7 +102,7 @@ export PROMPT_COMMAND='echo -ne "\\033]7;file://localhost$PWD\\007\\033]0;bash\\
 trap 'echo -ne "\\033]0;$BASH_COMMAND\\007"' DEBUG
 `;
       fs.writeFileSync(bashrcPath, bashScript, 'utf8');
-      
+
       return { executable, args: ['--init-file', bashrcPath] };
     }
 
@@ -113,7 +116,7 @@ trap 'echo -ne "\\033]0;$BASH_COMMAND\\007"' DEBUG
     }
 
     const { executable, args } = this.prepareShellIntegration(
-      context.shell.executable, 
+      context.shell.executable,
       context.shell.args
     );
 
@@ -123,12 +126,12 @@ trap 'echo -ne "\\033]0;$BASH_COMMAND\\007"' DEBUG
       rows: context.rows,
       cwd: context.cwd,
       env: context.environment as Record<string, string>,
-      useConpty: process.env.NODE_ENV !== 'test'
+      useConpty: process.env.NODE_ENV !== 'test',
     });
 
     const nativeProcessId = ptyProcess.pid.toString();
     const adapter = new NodePTYAdapter(ptyProcess);
-    
+
     this.processes.set(nativeProcessId, adapter);
 
     adapter.onExit(() => {
@@ -149,4 +152,3 @@ trap 'echo -ne "\\033]0;$BASH_COMMAND\\007"' DEBUG
     this.processes.clear();
   }
 }
-

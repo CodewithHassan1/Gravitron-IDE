@@ -19,7 +19,10 @@ interface SessionState {
 
 export class TerminalService implements ITerminalService {
   public readonly id = ServiceIds.Terminal;
-  public readonly dependencies: readonly ServiceId[] = [ServiceIds.Window, ServiceIds.WorkspaceExecution];
+  public readonly dependencies: readonly ServiceId[] = [
+    ServiceIds.Window,
+    ServiceIds.WorkspaceExecution,
+  ];
 
   private sessionMap = new Map<string, SessionState>();
 
@@ -29,17 +32,19 @@ export class TerminalService implements ITerminalService {
   constructor(
     private windowServiceFactory?: () => IWindowService,
     private executionServiceFactory?: () => IWorkspaceExecutionService
-  ) { }
+  ) {}
 
-  public async initialize(): Promise<void> { }
+  public async initialize(): Promise<void> {}
 
-  public async start(): Promise<void> { }
+  public async start(): Promise<void> {}
 
-  public async stop(): Promise<void> { }
+  public async stop(): Promise<void> {}
 
-  public async dispose(): Promise<void> { }
+  public async dispose(): Promise<void> {}
 
-  public async health(): Promise<boolean> { return true; }
+  public async health(): Promise<boolean> {
+    return true;
+  }
 
   private get windowService(): IWindowService {
     if (!this.windowServiceFactory) throw new Error('WindowService not injected');
@@ -51,20 +56,26 @@ export class TerminalService implements ITerminalService {
     return this.executionServiceFactory();
   }
 
-  public async createTerminal(options: TerminalProtocol.TerminalCreateRequestOptions): Promise<string> {
+  public async createTerminal(
+    options: TerminalProtocol.TerminalCreateRequestOptions
+  ): Promise<string> {
     const target = options.target || { kind: 'local' };
 
     const request: ExecutionRequest = {
-      workspaceId: (options as any).workspaceId || (target.kind === 'remote' ? target.workspaceId : 'local-workspace'),
+      workspaceId:
+        (options as any).workspaceId ||
+        (target.kind === 'remote' ? target.workspaceId : 'local-workspace'),
       target,
       profileId: options.profileId,
       cwdOverride: options.cwd,
       environmentOverride: options.env,
-      shellOverride: options.executable ? { executable: options.executable, args: options.args || [] } : undefined,
+      shellOverride: options.executable
+        ? { executable: options.executable, args: options.args || [] }
+        : undefined,
       terminalOptions: {
         cols: 80,
         rows: 24,
-      }
+      },
     };
 
     const session = await this.executionService.execute(request);
@@ -85,30 +96,34 @@ export class TerminalService implements ITerminalService {
       terminalId: options.id,
       session: session,
       capabilities: session.capabilities,
-      state: 'running'
+      state: 'running',
     });
 
     const metricsTracker = new TerminalMetricsTracker();
     this.metrics.set(sessionId, metricsTracker);
 
-    const buffer = new TerminalBuffer(DefaultBufferPolicy, (chunk) => {
-      metricsTracker.recordFlush(chunk.length);
-      metricsTracker.recordBytesSent(chunk.length);
-      this.windowService.broadcast(Channels.Terminal.OnEvent, {
-        category: 'data',
-        kind: 'output',
-        sessionId: sessionId,
-        data: chunk
-      } as TerminalProtocol.TerminalEvent);
-    }, (warning) => {
-      metricsTracker.recordDrop();
-      this.windowService.broadcast(Channels.Terminal.OnEvent, {
-        category: 'diagnostic',
-        kind: 'warning',
-        sessionId: sessionId,
-        warning
-      } as TerminalProtocol.TerminalEvent);
-    });
+    const buffer = new TerminalBuffer(
+      DefaultBufferPolicy,
+      (chunk) => {
+        metricsTracker.recordFlush(chunk.length);
+        metricsTracker.recordBytesSent(chunk.length);
+        this.windowService.broadcast(Channels.Terminal.OnEvent, {
+          category: 'data',
+          kind: 'output',
+          sessionId: sessionId,
+          data: chunk,
+        } as TerminalProtocol.TerminalEvent);
+      },
+      (warning) => {
+        metricsTracker.recordDrop();
+        this.windowService.broadcast(Channels.Terminal.OnEvent, {
+          category: 'diagnostic',
+          kind: 'warning',
+          sessionId: sessionId,
+          warning,
+        } as TerminalProtocol.TerminalEvent);
+      }
+    );
     this.buffers.set(sessionId, buffer);
 
     if (process) {
@@ -123,7 +138,7 @@ export class TerminalService implements ITerminalService {
           category: 'lifecycle',
           kind: 'exit',
           sessionId: sessionId,
-          exitCode
+          exitCode,
         } as TerminalProtocol.TerminalEvent);
       });
     }
@@ -156,7 +171,7 @@ export class TerminalService implements ITerminalService {
       kind: 'resizeAck',
       sessionId,
       cols,
-      rows
+      rows,
     } as TerminalProtocol.TerminalEvent);
 
     console.log(`[TerminalService] Resized session ${sessionId} to ${cols}x${rows}`);
@@ -205,21 +220,21 @@ export class TerminalService implements ITerminalService {
           const stateEntry = this.sessionMap.get(sessionId)!;
           return {
             sessionId,
-            capabilities: stateEntry.capabilities
+            capabilities: stateEntry.capabilities,
           } as TerminalProtocol.TerminalCreateResponse;
-        }
+        },
       },
       {
         channel: Channels.Terminal.DestroyRequest,
         handler: async (payload: string) => {
           await this.closeTerminal(payload);
-        }
+        },
       },
       {
         channel: Channels.Terminal.ResizeRequest,
         handler: async (payload: { sessionId: string; cols: number; rows: number }) => {
           await this.resizeTerminal(payload.sessionId, payload.cols, payload.rows);
-        }
+        },
       },
       {
         channel: Channels.Terminal.WriteRequest,
@@ -233,7 +248,7 @@ export class TerminalService implements ITerminalService {
             data = new Uint8Array(data);
           }
           await this.writeTerminal(payload.sessionId, data);
-        }
+        },
       },
       {
         channel: Channels.Terminal.ListSessionsRequest,
@@ -242,30 +257,30 @@ export class TerminalService implements ITerminalService {
             sessionId,
             terminalId: stateEntry.terminalId,
             state: stateEntry.state,
-            capabilities: stateEntry.capabilities
+            capabilities: stateEntry.capabilities,
           }));
           return { sessions } as TerminalProtocol.TerminalListResponse;
-        }
+        },
       },
       {
         channel: Channels.Terminal.AttachSessionRequest,
         handler: async (payload: string) => {
           const history = await this.attachSession(payload);
           return { history };
-        }
+        },
       },
       {
         channel: Channels.Terminal.DetachSessionRequest,
         handler: async (payload: string) => {
           await this.detachSession(payload);
-        }
+        },
       },
       {
         channel: Channels.Terminal.GetProfilesRequest,
         handler: async () => {
           return this.getProfiles();
-        }
-      }
+        },
+      },
     ];
   }
 }

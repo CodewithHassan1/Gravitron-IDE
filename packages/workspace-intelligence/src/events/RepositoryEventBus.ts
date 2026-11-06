@@ -4,7 +4,9 @@ import { RepositoryEvent } from './RepositoryEvent';
 export class RepositoryEventBus implements IRepositoryEventBus {
   private listeners = new Set<(event: RepositoryEvent, mode: EventDeliveryMode) => void>();
 
-  public subscribe(callback: (event: RepositoryEvent, mode: EventDeliveryMode) => void): () => void {
+  public subscribe(
+    callback: (event: RepositoryEvent, mode: EventDeliveryMode) => void
+  ): () => void {
     this.listeners.add(callback);
     return () => this.listeners.delete(callback);
   }

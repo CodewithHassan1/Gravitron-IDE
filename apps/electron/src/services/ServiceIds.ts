@@ -20,4 +20,4 @@ export const ServiceIds = {
   WebSocketTerminal: Symbol.for('WebSocketTerminal'),
 } as const;
 
-export type ServiceId = typeof ServiceIds[keyof typeof ServiceIds];
+export type ServiceId = (typeof ServiceIds)[keyof typeof ServiceIds];

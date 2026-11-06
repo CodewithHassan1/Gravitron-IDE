@@ -53,7 +53,7 @@ class ViewRegistryImpl {
   }
 
   getByPlacement(placement: ViewPlacement): ViewDefinition[] {
-    return Array.from(this.views.values()).filter(view => view.placement === placement);
+    return Array.from(this.views.values()).filter((view) => view.placement === placement);
   }
 
   getAll(): ViewDefinition[] {

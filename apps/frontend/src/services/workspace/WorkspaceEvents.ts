@@ -12,7 +12,10 @@ class WorkspaceEventsImpl {
    * @param callback The callback to invoke when the event is emitted.
    * @returns A disposable function to unsubscribe.
    */
-  public on<T extends keyof WorkspaceEventPayloads>(eventType: T, callback: EventCallback<T>): () => void {
+  public on<T extends keyof WorkspaceEventPayloads>(
+    eventType: T,
+    callback: EventCallback<T>
+  ): () => void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, new Set());
     }
@@ -26,7 +29,10 @@ class WorkspaceEventsImpl {
    * @param eventType The type of event.
    * @param callback The callback to remove.
    */
-  public off<T extends keyof WorkspaceEventPayloads>(eventType: T, callback: EventCallback<T>): void {
+  public off<T extends keyof WorkspaceEventPayloads>(
+    eventType: T,
+    callback: EventCallback<T>
+  ): void {
     const callbacks = this.listeners.get(eventType);
     if (callbacks) {
       callbacks.delete(callback);
@@ -41,7 +47,10 @@ class WorkspaceEventsImpl {
    * @param eventType The type of the event.
    * @param payload Optional data associated with the event.
    */
-  public emit<T extends keyof WorkspaceEventPayloads>(eventType: T, payload?: WorkspaceEventPayloads[T]): void {
+  public emit<T extends keyof WorkspaceEventPayloads>(
+    eventType: T,
+    payload?: WorkspaceEventPayloads[T]
+  ): void {
     const callbacks = this.listeners.get(eventType);
     if (callbacks) {
       const event: WorkspaceEvent<T> = Object.freeze({

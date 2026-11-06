@@ -16,5 +16,5 @@ export const useCommitStore = create<CommitState>((set) => ({
   page: 1,
   setHistory: (commits) => set({ history: commits }),
   setSelection: (oid) => set({ selection: oid }),
-  setPage: (page) => set({ page })
+  setPage: (page) => set({ page }),
 }));

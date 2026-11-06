@@ -20,8 +20,8 @@ export class TreeControllerImpl {
     // We would need to ensure children are loaded for everything recursively,
     // but in practice, expansion will only show what's already loaded,
     // and children that aren't loaded will render as empty directories or triggers.
-    // For a true "expand all", we should probably trigger a recursive load, 
-    // but that's very expensive for large workspaces. 
+    // For a true "expand all", we should probably trigger a recursive load,
+    // but that's very expensive for large workspaces.
     // We will leave the lazy loading for when they scroll into view or expand individually.
   }
 
@@ -96,7 +96,8 @@ export class TreeControllerImpl {
       if (!sourcePath) continue;
 
       const nodeName = sourcePath.split('/').pop()!;
-      const destinationPath = parentPath === '/' || !parentPath ? `/${nodeName}` : `${parentPath}/${nodeName}`;
+      const destinationPath =
+        parentPath === '/' || !parentPath ? `/${nodeName}` : `${parentPath}/${nodeName}`;
 
       if (sourcePath === destinationPath) continue;
 

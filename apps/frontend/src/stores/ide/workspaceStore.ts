@@ -35,12 +35,12 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>((set)
   setWorkspaceName: (workspaceName) => set({ workspaceName }),
   setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
   setLifecycleState: (lifecycleState) => set({ lifecycleState }),
-  
+
   toggleNodeExpansion: (nodeId: string) => {
     set((state) => {
       // Recursive function to find and toggle the node
       const toggleNode = (nodes: WorkspaceNode[]): WorkspaceNode[] => {
-        return nodes.map(node => {
+        return nodes.map((node) => {
           if (node.id === nodeId) {
             return { ...node, expanded: !node.expanded };
           }
@@ -53,5 +53,5 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>((set)
 
       return { tree: toggleNode(state.tree) };
     });
-  }
+  },
 }));

@@ -23,7 +23,15 @@ describe('Multi Consumer Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-consumers', name: 'ConsumersWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-consumers',
+        name: 'ConsumersWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
@@ -79,7 +87,7 @@ describe('Multi Consumer Test', () => {
     await manager.createFile('/new_file.ts');
 
     // Wait for event loop to clear just in case (though fileEvent is sync)
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
 
     expect(explorerLog.length).toBe(1);
     expect(searchLog.length).toBe(1);
@@ -99,7 +107,7 @@ describe('Multi Consumer Test', () => {
     unsubscribeSearch();
     unsubscribeGit();
     unsubscribeAi();
-    
+
     await (manager as any).syncEngine.executeSyncCycle();
   });
 });

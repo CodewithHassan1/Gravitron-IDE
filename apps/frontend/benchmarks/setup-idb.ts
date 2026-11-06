@@ -9,7 +9,7 @@ const mockIdb = {
       mockDbStore.set(`${storeName}:${actualKey}`, val);
     },
     delete: async (storeName: string, key: string) => mockDbStore.delete(`${storeName}:${key}`),
-  })
+  }),
 };
 
 (global as any).indexedDB = mockIdb;

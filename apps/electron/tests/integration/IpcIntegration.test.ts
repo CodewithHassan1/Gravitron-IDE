@@ -37,7 +37,7 @@ class FakeIpcBridge {
   public async invoke(channel: string, envelope: any) {
     const handler = this.handlers.get(channel);
     if (!handler) throw new Error(`No handler for ${channel}`);
-    
+
     // Simulate IPC serialization
     const serialized = structuredClone(envelope);
     const response = await handler(TRUSTED_SENDER_EVENT as any, serialized);
@@ -64,7 +64,7 @@ class FakeIpcBridge {
     const subs = this.listeners.get(channel);
     if (subs) {
       const serialized = structuredClone(payload);
-      subs.forEach(cb => cb({}, serialized));
+      subs.forEach((cb) => cb({}, serialized));
     }
   }
 }
@@ -81,8 +81,8 @@ const TRUSTED_SENDER_EVENT = {
 // Mock ipcMain.handle to wire into our bridge
 vi.mock('electron', () => ({
   ipcMain: {
-    handle: (ch: string, fn: Function) => bridge.handle(ch, fn)
-  }
+    handle: (ch: string, fn: Function) => bridge.handle(ch, fn),
+  },
 }));
 
 describe('IPC Integration: Frontend Transport <-> Main Process', () => {
@@ -95,7 +95,7 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
     // Setup Main Process
     const { ipcMain } = await import('electron');
     host = new ApplicationHost();
-    
+
     // Mock WindowService so we don't spawn actual UI windows in tests
     const mockWindowService = {
       id: Symbol.for('Window'),
@@ -106,9 +106,9 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
       dispose: async () => {},
       health: async () => true,
       createMainWindow: async () => {},
-      broadcast: (ch: string, payload: any) => bridge.send(ch, payload)
+      broadcast: (ch: string, payload: any) => bridge.send(ch, payload),
     };
-    
+
     // Setup Execution Layer
     const backendRegistry = new ExecutionBackendRegistry();
     backendRegistry.register(new LocalBackend());
@@ -123,14 +123,20 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
     );
 
     const policyPipeline = new ExecutionPolicyPipeline();
-    const executionService = new WorkspaceExecutionService(contextResolver, policyPipeline, backendRegistry);
+    const executionService = new WorkspaceExecutionService(
+      contextResolver,
+      policyPipeline,
+      backendRegistry
+    );
     host.getServiceContainer().register(mockWindowService as any);
     host.getServiceContainer().register(executionService);
 
-    host.getServiceContainer().register(new TerminalService(
-      () => host.getServiceContainer().get(mockWindowService.id as any),
-      () => host.getServiceContainer().get(executionService.id as any)
-    ));
+    host.getServiceContainer().register(
+      new TerminalService(
+        () => host.getServiceContainer().get(mockWindowService.id as any),
+        () => host.getServiceContainer().get(executionService.id as any)
+      )
+    );
     await host.start();
 
     // Setup Fake Preload agApi
@@ -140,7 +146,7 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
           const res = await bridge.invoke(Channels.Terminal.CreateRequest, {
             version: ProtocolVersion.V1,
             requestId: randomUUID(),
-            payload: config
+            payload: config,
           });
           return res.payload.sessionId;
         },
@@ -148,42 +154,43 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
           await bridge.invoke(Channels.Terminal.ResizeRequest, {
             version: ProtocolVersion.V1,
             requestId: randomUUID(),
-            payload: { sessionId, cols, rows }
+            payload: { sessionId, cols, rows },
           });
         },
         kill: async (sessionId: string) => {
           await bridge.invoke(Channels.Terminal.DestroyRequest, {
             version: ProtocolVersion.V1,
             requestId: randomUUID(),
-            payload: sessionId
+            payload: sessionId,
           });
         },
-        attach: (sessionId: string) => ({
-          send: async (data: string) => {
-            await bridge.invoke(Channels.Terminal.WriteRequest, {
-              version: ProtocolVersion.V1,
-              requestId: randomUUID(),
-              payload: { sessionId, data }
-            });
-          },
-          subscribe: (cb: Function) => {
-            const handler = (_e: any, payload: any) => {
-              if (payload?.sessionId === sessionId) {
-                cb(payload);
-              }
-            };
-            bridge.on(Channels.Terminal.OnEvent, handler);
-            return { dispose: () => bridge.removeListener(Channels.Terminal.OnEvent, handler) };
-          },
-          dispose: async () => {
-            await bridge.invoke(Channels.Terminal.DestroyRequest, {
-              version: ProtocolVersion.V1,
-              requestId: randomUUID(),
-              payload: sessionId
-            });
-          }
-        } as IMessageChannel<string, string>)
-      }
+        attach: (sessionId: string) =>
+          ({
+            send: async (data: string) => {
+              await bridge.invoke(Channels.Terminal.WriteRequest, {
+                version: ProtocolVersion.V1,
+                requestId: randomUUID(),
+                payload: { sessionId, data },
+              });
+            },
+            subscribe: (cb: Function) => {
+              const handler = (_e: any, payload: any) => {
+                if (payload?.sessionId === sessionId) {
+                  cb(payload);
+                }
+              };
+              bridge.on(Channels.Terminal.OnEvent, handler);
+              return { dispose: () => bridge.removeListener(Channels.Terminal.OnEvent, handler) };
+            },
+            dispose: async () => {
+              await bridge.invoke(Channels.Terminal.DestroyRequest, {
+                version: ProtocolVersion.V1,
+                requestId: randomUUID(),
+                payload: sessionId,
+              });
+            },
+          }) as IMessageChannel<string, string>,
+      },
     };
 
     transport = new ElectronTerminalTransport(agApi.terminal);
@@ -200,9 +207,9 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
       debugLabel: 'test',
       name: 'test',
       args: [],
-      env: process.env as Record<string, string>
+      env: process.env as Record<string, string>,
     },
-    layout: {}
+    layout: {},
   };
 
   it('can create a terminal, resize, write, and kill cleanly', async () => {
@@ -211,7 +218,7 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
 
     // We can't actually get output in mock yet, but we can call it without throwing
     stream.write(new TextEncoder().encode('ls\n'));
-    
+
     // Not testing stream.onData yet since the Mock TerminalService doesn't echo anything natively
     // We just ensure no IPC errors
     await transport.resize('dummy', 80, 24).catch(() => {}); // Will throw because sessionId is internal to transport? Wait, transport uses its own ID?
@@ -231,18 +238,20 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
 
   it('handles 10 concurrent creates safely (Concurrency Check)', async () => {
     const promises = [];
-    for(let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
       promises.push(transport.createStream(mockConfig));
     }
     const streams = await Promise.all(promises);
     expect(streams.length).toBe(10);
-    
+
     const ts = host.getServiceContainer().get<TerminalService>(Symbol.for('Terminal'));
     expect(ts.listSessions().length).toBe(10);
   });
 
   it('rejects malformed envelopes gracefully', async () => {
-    const badPromise = bridge.invoke(Channels.Terminal.CreateRequest, { payload: 'missing-version-and-id' });
+    const badPromise = bridge.invoke(Channels.Terminal.CreateRequest, {
+      payload: 'missing-version-and-id',
+    });
     await expect(badPromise).rejects.toThrow('Invalid Request Envelope');
   });
 
@@ -253,13 +262,23 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
 
     const cb = vi.fn();
     const sub = stream.onData(cb);
-    
+
     // Simulate main process pushing data
-    bridge.send(Channels.Terminal.OnEvent, { category: 'data', kind: 'output', sessionId, data: new TextEncoder().encode('hello') });
+    bridge.send(Channels.Terminal.OnEvent, {
+      category: 'data',
+      kind: 'output',
+      sessionId,
+      data: new TextEncoder().encode('hello'),
+    });
     expect(cb).toHaveBeenCalledTimes(1);
 
     sub.dispose();
-    bridge.send(Channels.Terminal.OnEvent, { category: 'data', kind: 'output', sessionId, data: new TextEncoder().encode('world') });
+    bridge.send(Channels.Terminal.OnEvent, {
+      category: 'data',
+      kind: 'output',
+      sessionId,
+      data: new TextEncoder().encode('world'),
+    });
     expect(cb).toHaveBeenCalledTimes(1); // Not called again
   });
 
@@ -284,12 +303,21 @@ describe('IPC Integration: Frontend Transport <-> Main Process', () => {
     const stream = await transport.createStream(mockConfig);
     const cb = vi.fn();
     stream.onData(cb);
-    
+
     // Should safely ignore events for other sessions or bad formats
-    bridge.send(Channels.Terminal.OnEvent, { category: 'data', kind: 'output', sessionId: 'wrong-id', data: 'hello' });
-    bridge.send(Channels.Terminal.OnEvent, { category: 'data', kind: 'output', data: 'missing-id' });
+    bridge.send(Channels.Terminal.OnEvent, {
+      category: 'data',
+      kind: 'output',
+      sessionId: 'wrong-id',
+      data: 'hello',
+    });
+    bridge.send(Channels.Terminal.OnEvent, {
+      category: 'data',
+      kind: 'output',
+      data: 'missing-id',
+    });
     bridge.send(Channels.Terminal.OnEvent, null);
-    
+
     expect(cb).not.toHaveBeenCalled();
   });
 });

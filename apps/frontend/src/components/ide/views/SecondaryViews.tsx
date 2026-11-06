@@ -2,12 +2,24 @@ import React from 'react';
 import { ViewRegistry } from '../../../lib/registries/ViewRegistry';
 import { Bot, MessageSquare, ListTodo, Brain, FileSearch, TerminalSquare } from 'lucide-react';
 
-export function AIChatView() { return <div className="p-4 text-sm text-muted-foreground">AI Chat Context</div>; }
-export function AgentTasksView() { return <div className="p-4 text-sm text-muted-foreground">Agent Tasks Context</div>; }
-export function MemoryView() { return <div className="p-4 text-sm text-muted-foreground">Memory Context</div>; }
-export function PlanningView() { return <div className="p-4 text-sm text-muted-foreground">Planning Context</div>; }
-export function ContextView() { return <div className="p-4 text-sm text-muted-foreground">Active Context</div>; }
-export function LogsView() { return <div className="p-4 text-sm text-muted-foreground">Agent Logs</div>; }
+export function AIChatView() {
+  return <div className="p-4 text-sm text-muted-foreground">AI Chat Context</div>;
+}
+export function AgentTasksView() {
+  return <div className="p-4 text-sm text-muted-foreground">Agent Tasks Context</div>;
+}
+export function MemoryView() {
+  return <div className="p-4 text-sm text-muted-foreground">Memory Context</div>;
+}
+export function PlanningView() {
+  return <div className="p-4 text-sm text-muted-foreground">Planning Context</div>;
+}
+export function ContextView() {
+  return <div className="p-4 text-sm text-muted-foreground">Active Context</div>;
+}
+export function LogsView() {
+  return <div className="p-4 text-sm text-muted-foreground">Agent Logs</div>;
+}
 
 export function registerSecondaryViews() {
   ViewRegistry.register({

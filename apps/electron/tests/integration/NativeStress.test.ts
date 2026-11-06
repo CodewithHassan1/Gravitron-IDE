@@ -14,12 +14,12 @@ describe('Native PTY Stress Tests', () => {
       environment: { ...process.env, NODE_ENV: 'test' } as Record<string, string>,
       shell: {
         executable: process.platform === 'win32' ? 'cmd.exe' : 'sh',
-        args: []
+        args: [],
       },
       cols: 80,
       rows: 24,
       profiles: [],
-      policies: []
+      policies: [],
     };
 
     for (let i = 0; i < 100; i++) {
@@ -28,22 +28,22 @@ describe('Native PTY Stress Tests', () => {
       const ptyProcess = backend.getProcess(nativeProcessId);
       expect(ptyProcess).toBeDefined();
 
-      const exitPromise = new Promise<void>(resolve => {
+      const exitPromise = new Promise<void>((resolve) => {
         ptyProcess!.onExit(() => resolve());
       });
 
       // Write a simple command to ensure process is active
       ptyProcess!.write('echo ' + i + '\n');
-      
+
       // Kill
       ptyProcess!.kill();
-      
+
       // Ensure it cleans up locally in backend on exit callback
       await exitPromise;
 
       expect(backend.getProcess(nativeProcessId)).toBeUndefined();
     }
-    
+
     backend.dispose();
   }, 30000); // 30 second timeout for 100 cycles
 });

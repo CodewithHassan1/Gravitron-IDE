@@ -1,8 +1,15 @@
 import { ISQLiteStore } from './ISQLiteStore';
-import { SnapshotDTO, FileDTO, SymbolDTO, ReferenceDTO, ImportDTO, EmbeddingDTO } from '../domain/IndexDTOs';
+import {
+  SnapshotDTO,
+  FileDTO,
+  SymbolDTO,
+  ReferenceDTO,
+  ImportDTO,
+  EmbeddingDTO,
+} from '../domain/IndexDTOs';
 
 export class SnapshotModel {
-  constructor(private readonly store: ISQLiteStore) { }
+  constructor(private readonly store: ISQLiteStore) {}
 
   public async getLatestSequence(): Promise<number> {
     const snapshot = await this.store.getLatestSnapshot();

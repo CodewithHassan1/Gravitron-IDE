@@ -8,7 +8,7 @@ import {
   getConnectTransport,
   getAuthClient,
   GatewayNotConfiguredError,
-  dynamicTransport
+  dynamicTransport,
 } from './gateway';
 import { getErrorMessage } from './errors';
 
@@ -37,12 +37,12 @@ describe('Gateway Configuration and Transport Suite', () => {
   describe('isProductionRuntime', () => {
     it('detects production from window.agApi.isPackaged', () => {
       (global as any).window = {
-        agApi: { isPackaged: () => true }
+        agApi: { isPackaged: () => true },
       };
       expect(isProductionRuntime()).toBe(true);
 
       (global as any).window = {
-        agApi: { isPackaged: () => false }
+        agApi: { isPackaged: () => false },
       };
       expect(isProductionRuntime()).toBe(false);
     });
@@ -65,7 +65,10 @@ describe('Gateway Configuration and Transport Suite', () => {
     });
 
     it('strips trailing slashes, search params, and hash fragments', () => {
-      const res = validateGatewayUrl('https://gateway.example.com:8443/api/?token=secret#section', true);
+      const res = validateGatewayUrl(
+        'https://gateway.example.com:8443/api/?token=secret#section',
+        true
+      );
       expect(res.valid).toBe(true);
       expect(res.normalizedUrl).toBe('https://gateway.example.com:8443/api');
     });
@@ -116,7 +119,7 @@ describe('Gateway Configuration and Transport Suite', () => {
     it('returns null in production when unconfigured (never silently falls back to localhost)', () => {
       (global as any).window = {
         agApi: { isPackaged: () => true, getGatewayUrl: () => null },
-        localStorage: { getItem: () => null }
+        localStorage: { getItem: () => null },
       };
       expect(getGatewayUrl()).toBeNull();
     });
@@ -125,24 +128,24 @@ describe('Gateway Configuration and Transport Suite', () => {
       (global as any).window = {
         agApi: {
           isPackaged: () => true,
-          getGatewayUrl: () => 'https://electron-gateway.company.com'
+          getGatewayUrl: () => 'https://electron-gateway.company.com',
         },
         localStorage: {
-          getItem: () => 'https://localstorage-gateway.company.com'
-        }
+          getItem: () => 'https://localstorage-gateway.company.com',
+        },
       };
       expect(getGatewayUrl()).toBe('https://electron-gateway.company.com');
     });
 
     it('uses localStorage when agApi returns null or is absent', () => {
       const store: Record<string, string> = {
-        ag_gateway_url: 'https://stored-gateway.company.com'
+        ag_gateway_url: 'https://stored-gateway.company.com',
       };
       (global as any).window = {
         agApi: { isPackaged: () => true, getGatewayUrl: () => null },
         localStorage: {
-          getItem: (key: string) => store[key] || null
-        }
+          getItem: (key: string) => store[key] || null,
+        },
       };
       expect(getGatewayUrl()).toBe('https://stored-gateway.company.com');
     });
@@ -163,19 +166,25 @@ describe('Gateway Configuration and Transport Suite', () => {
             }),
             clearGatewayUrl: vi.fn(async () => {
               electronSaved = '';
-            })
-          }
+            }),
+          },
         },
         localStorage: {
-          setItem: (k: string, v: string) => { localStore[k] = v; },
+          setItem: (k: string, v: string) => {
+            localStore[k] = v;
+          },
           getItem: (k: string) => localStore[k] || null,
-          removeItem: (k: string) => { delete localStore[k]; }
-        }
+          removeItem: (k: string) => {
+            delete localStore[k];
+          },
+        },
       };
 
       const result = await setGatewayUrl('https://api.gateway.org:8443/');
       expect(result).toBe('https://api.gateway.org:8443');
-      expect((global as any).window.agApi.config.setGatewayUrl).toHaveBeenCalledWith('https://api.gateway.org:8443');
+      expect((global as any).window.agApi.config.setGatewayUrl).toHaveBeenCalledWith(
+        'https://api.gateway.org:8443'
+      );
       expect(localStore['ag_gateway_url']).toBe('https://api.gateway.org:8443');
 
       // Now clear
@@ -189,7 +198,7 @@ describe('Gateway Configuration and Transport Suite', () => {
     it('throws GatewayNotConfiguredError if transport is requested in unconfigured production', () => {
       (global as any).window = {
         agApi: { isPackaged: () => true, getGatewayUrl: () => null },
-        localStorage: { getItem: () => null }
+        localStorage: { getItem: () => null },
       };
 
       expect(() => getConnectTransport()).toThrow(GatewayNotConfiguredError);
@@ -203,14 +212,16 @@ describe('Gateway Configuration and Transport Suite', () => {
           isPackaged: () => true,
           getGatewayUrl: () => activeUrl,
           config: {
-            setGatewayUrl: async (u: string) => { activeUrl = u; }
-          }
+            setGatewayUrl: async (u: string) => {
+              activeUrl = u;
+            },
+          },
         },
         localStorage: {
           setItem: () => {},
           getItem: () => null,
-          removeItem: () => {}
-        }
+          removeItem: () => {},
+        },
       };
 
       const transport1 = getConnectTransport();
@@ -236,15 +247,21 @@ describe('Gateway Configuration and Transport Suite', () => {
   describe('Error handling (getErrorMessage)', () => {
     it('returns clear message for GatewayNotConfiguredError', () => {
       const err = new GatewayNotConfiguredError();
-      expect(getErrorMessage(err)).toBe('Gateway URL is not configured. Please configure your server endpoint to continue.');
+      expect(getErrorMessage(err)).toBe(
+        'Gateway URL is not configured. Please configure your server endpoint to continue.'
+      );
     });
 
     it('returns user-friendly message for network failure / connection refused', () => {
       const err1 = new Error('fetch failed');
-      expect(getErrorMessage(err1)).toBe('Authentication service unavailable or network failure. Please try again.');
+      expect(getErrorMessage(err1)).toBe(
+        'Authentication service unavailable or network failure. Please try again.'
+      );
 
       const err2 = new Error('TypeError: Failed to fetch');
-      expect(getErrorMessage(err2)).toBe('Authentication service unavailable or network failure. Please try again.');
+      expect(getErrorMessage(err2)).toBe(
+        'Authentication service unavailable or network failure. Please try again.'
+      );
     });
 
     it('strips Connect error code brackets', () => {

@@ -7,11 +7,11 @@ async function testShell(shell: string, args: string[], cmd: string) {
     cols: 80,
     rows: 30,
     cwd: process.cwd(),
-    env: process.env as any
+    env: process.env as any,
   });
 
   let out = '';
-  p.onData(data => {
+  p.onData((data) => {
     out += data;
     // Log any OSC sequences
     if (data.includes('\x1b]')) {
@@ -19,11 +19,11 @@ async function testShell(shell: string, args: string[], cmd: string) {
     }
   });
 
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1000));
   console.log('Sending command:', cmd);
   p.write(cmd + '\r');
-  await new Promise(r => setTimeout(r, 1000));
-  
+  await new Promise((r) => setTimeout(r, 1000));
+
   p.kill();
   console.log(`Output length: ${out.length}`);
 }
@@ -31,7 +31,11 @@ async function testShell(shell: string, args: string[], cmd: string) {
 async function run() {
   await testShell('powershell.exe', [], 'cd ..');
   await testShell('cmd.exe', [], 'cd ..');
-  await testShell('C:\\Users\\Hassan Haider Chotu\\AppData\\Local\\Programs\\Git\\bin\\bash.exe', [], 'cd ..');
+  await testShell(
+    'C:\\Users\\Hassan Haider Chotu\\AppData\\Local\\Programs\\Git\\bin\\bash.exe',
+    [],
+    'cd ..'
+  );
 }
 
 run().catch(console.error);

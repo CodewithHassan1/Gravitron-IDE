@@ -13,7 +13,9 @@ import { PlatformFactory, ElectronPlatform, WebPlatform } from '@ag/platform';
 // Boot platform
 if (typeof window !== 'undefined' && (window as any).agApi) {
   const electronPlatform = new ElectronPlatform();
-  electronPlatform.registerTerminalTransportFactory(() => new ElectronTerminalTransport((window as any).agApi.terminal));
+  electronPlatform.registerTerminalTransportFactory(
+    () => new ElectronTerminalTransport((window as any).agApi.terminal)
+  );
   PlatformFactory.register(electronPlatform);
 } else {
   const webPlatform = new WebPlatform();
@@ -21,14 +23,14 @@ if (typeof window !== 'undefined' && (window as any).agApi) {
 }
 
 const platform = PlatformFactory.getPlatform();
-const transport = platform.capabilities.supportsTerminal() 
-  ? platform.createTerminalTransport() 
+const transport = platform.capabilities.supportsTerminal()
+  ? platform.createTerminalTransport()
   : new WebSocketTerminalTransport('ws://localhost:8081');
 
 // Placeholder Provider until Phase 4.4 / 4.2
 class DefaultTerminalProvider extends AbstractTerminalProvider {
   public readonly id = 'default-browser-provider';
-  
+
   public async validateEnvironment() {
     return true;
   }

@@ -25,17 +25,25 @@ describe('Persistence Recovery', () => {
   it('Reloads identical structure with preserved UUIDs from snapshot', async () => {
     const manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-recovery', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-recovery',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 
     // Setup files
     await manager.createFolder('/src');
     await manager.createFile('/src/index.ts');
-    
+
     const rootIdBefore = manager.getRoot()?.id;
     const indexIdBefore = (manager as any).vfs.resolve('/src/index.ts');
-    
+
     expect(rootIdBefore).toBeDefined();
     expect(indexIdBefore).toBeDefined();
 
@@ -43,8 +51,11 @@ describe('Persistence Recovery', () => {
     const persistence = new WorkspacePersistence();
     await (persistence as any).initDB();
     const snapshot = (manager as any).vfs.snapshot();
-    const saveSuccess = await persistence.saveSnapshot('ws-recovery', { version: 1, nodes: snapshot });
-    
+    const saveSuccess = await persistence.saveSnapshot('ws-recovery', {
+      version: 1,
+      nodes: snapshot,
+    });
+
     // We expect undefined because saveSnapshot returns void
     expect(saveSuccess).toBeUndefined();
 
@@ -52,7 +63,15 @@ describe('Persistence Recovery', () => {
     await manager.closeWorkspace();
     const newManager = new WorkspaceManagerImpl();
     await newManager.openWorkspace(
-      { id: 'ws-recovery', name: 'Test', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-recovery',
+        name: 'Test',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
 

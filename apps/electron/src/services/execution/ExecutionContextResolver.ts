@@ -1,11 +1,16 @@
-import { ExecutionRequest, ExecutionContext, ExecutionProfile, ShellDescriptor } from '@ag/protocol';
-import { 
-  IContextResolver, 
-  IProfileResolver, 
-  IEnvironmentResolver, 
-  IWorkingDirectoryResolver, 
-  IShellResolver, 
-  ICapabilityResolver 
+import {
+  ExecutionRequest,
+  ExecutionContext,
+  ExecutionProfile,
+  ShellDescriptor,
+} from '@ag/protocol';
+import {
+  IContextResolver,
+  IProfileResolver,
+  IEnvironmentResolver,
+  IWorkingDirectoryResolver,
+  IShellResolver,
+  ICapabilityResolver,
 } from './IResolvers';
 
 export class ExecutionContextResolver implements IContextResolver {

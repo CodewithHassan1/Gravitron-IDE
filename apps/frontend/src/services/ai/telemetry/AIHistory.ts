@@ -9,7 +9,7 @@ export class AIHistory {
 
   async exportHistoryJSON(): Promise<string> {
     // Stub
-    return "[]";
+    return '[]';
   }
 }
 

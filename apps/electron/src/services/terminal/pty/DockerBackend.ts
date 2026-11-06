@@ -7,7 +7,7 @@ import * as child_process from 'child_process';
 import * as util from 'util';
 export class DockerBackend implements IExecutionBackend {
   public readonly kind: ExecutionBackendKind = 'docker';
-  
+
   public readonly capabilities: ExecutionBackendCapabilities = {
     supportsResize: true,
     supportsSignals: false,
@@ -19,7 +19,7 @@ export class DockerBackend implements IExecutionBackend {
     supportsBinaryStreams: true,
     supportsDetach: true,
     supportsAttach: true,
-    supportsTitleEvents: false
+    supportsTitleEvents: false,
   };
 
   private processes = new Map<string, IProcess>();
@@ -52,15 +52,17 @@ export class DockerBackend implements IExecutionBackend {
     try {
       await execFileAsync('docker', ['inspect', context.target.containerId]);
     } catch (e: any) {
-      throw new Error(`Target container '${context.target.containerId}' does not exist or is unavailable.`);
+      throw new Error(
+        `Target container '${context.target.containerId}' does not exist or is unavailable.`
+      );
     }
 
     const args: string[] = ['exec', '-it'];
-    
+
     if (context.target.user) {
       args.push('--user', context.target.user);
     }
-    
+
     // We use context.cwd instead of target.workingDirectory, because context.cwd is the resolved directory
     if (context.cwd && context.cwd !== '/') {
       args.push('--workdir', context.cwd);
@@ -81,12 +83,12 @@ export class DockerBackend implements IExecutionBackend {
       cols: context.cols,
       rows: context.rows,
       env: process.env as any, // local environment for docker CLI
-      useConpty: process.env.NODE_ENV !== 'test'
+      useConpty: process.env.NODE_ENV !== 'test',
     });
 
     const nativeProcessId = ptyProcess.pid.toString();
     const adapter = new NodePTYAdapter(ptyProcess);
-    
+
     this.processes.set(nativeProcessId, adapter);
 
     adapter.onExit(() => {

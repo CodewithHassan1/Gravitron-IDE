@@ -6,7 +6,7 @@ export interface Tool {
   name: string;
   description: string;
   requiredPermissions: ToolPermission[];
-  
+
   schema(): any;
   validate(args: any): boolean;
   describe(args: any): string;

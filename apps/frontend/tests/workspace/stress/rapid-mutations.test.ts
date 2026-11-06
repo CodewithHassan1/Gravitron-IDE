@@ -18,14 +18,22 @@ describe('Rapid Mutations Stress Test', () => {
     WorkspaceEvents.clearAllListeners();
     manager = new WorkspaceManagerImpl();
     await manager.openWorkspace(
-      { id: 'ws-rapid', name: 'RapidWS', uri: 'file:///', provider: 'memory' as any, lastOpened: Date.now(), type: 'directory' as any, capabilities: {} as any },
+      {
+        id: 'ws-rapid',
+        name: 'RapidWS',
+        uri: 'file:///',
+        provider: 'memory' as any,
+        lastOpened: Date.now(),
+        type: 'directory' as any,
+        capabilities: {} as any,
+      },
       { nativeHandle: {} as any }
     );
   });
 
   afterEach(async () => {
     await manager.closeWorkspace();
-    
+
     // Validation Requirements:
     // Verify: listeners = 0, timers = 0, queues flushed
     expect((WorkspaceEvents as any).listeners?.size || 0).toBe(0);
@@ -55,20 +63,20 @@ describe('Rapid Mutations Stress Test', () => {
 
     const syncEngine = (manager as any).syncEngine;
     const queuedOps = syncEngine.queue.getOperations();
-    
+
     // Queue should contain exactly 2000 operations (1000 create, 1000 delete)
     expect(queuedOps.length).toBe(RUNS * 2);
-    
+
     // No orphaned nodes in VFS
     const index = (manager as any).vfs.index;
     expect(index.nodes.size).toBe(1); // Only root node left
-    
+
     syncEngine.queue.clear();
   });
 
   it('Rapid Rename Chain', async () => {
     await manager.createFile('/file.ts');
-    
+
     const events: any[] = [];
     const unsubscribe = WorkspaceEvents.on('fileEvent', (event: any) => {
       if (event.payload.type === 'renamed') {
@@ -160,7 +168,7 @@ describe('Rapid Mutations Stress Test', () => {
 
     const syncEngine = (manager as any).syncEngine;
     const queuedOps = syncEngine.queue.getOperations();
-    
+
     // The number of operations should exactly match the number of successful VFS mutation calls
     expect(queuedOps.length).toBeGreaterThan(0);
     syncEngine.queue.clear();

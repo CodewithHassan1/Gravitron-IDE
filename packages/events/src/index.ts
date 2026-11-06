@@ -5,7 +5,7 @@ export enum WorkspaceSagaState {
   DEPENDENCIES_INSTALLED = 'DEPENDENCIES_INSTALLED',
   INDEXING = 'INDEXING',
   READY = 'READY',
-  FAILED = 'FAILED'
+  FAILED = 'FAILED',
 }
 
 export interface BaseEvent {
@@ -50,7 +50,7 @@ export interface SagaFailedEvent extends BaseEvent {
   failedAtState: WorkspaceSagaState;
 }
 
-export type SagaEvent = 
+export type SagaEvent =
   | WorkspaceCreatedEvent
   | ExecutionRuntimeStartedEvent
   | GitRepositoryClonedEvent

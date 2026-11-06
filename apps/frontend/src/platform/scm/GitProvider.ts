@@ -39,7 +39,11 @@ export interface IGitProvider {
   /**
    * Creates, lists, or deletes branches.
    */
-  branch(workspaceId: string, action: 'list' | 'create' | 'delete', name?: string): Promise<GitBranch[] | void>;
+  branch(
+    workspaceId: string,
+    action: 'list' | 'create' | 'delete',
+    name?: string
+  ): Promise<GitBranch[] | void>;
 
   /**
    * Fetches from remote.

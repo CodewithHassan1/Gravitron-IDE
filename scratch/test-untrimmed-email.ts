@@ -5,7 +5,7 @@ dotenv.config({ path: path.resolve(__dirname, '../services/auth/.env') });
 
 async function main() {
   const transporter = nodemailer.createTransport(process.env.SMTP_URL!);
-  
+
   // Test with spaces in to:
   try {
     console.log('Testing sendMail with untrimmed email...');
@@ -13,7 +13,7 @@ async function main() {
       from: process.env.FROM_EMAIL,
       to: '  ' + process.env.FROM_EMAIL + '  ',
       subject: 'Test untrimmed email',
-      text: 'hello'
+      text: 'hello',
     });
     console.log('Untrimmed email send succeeded!');
   } catch (err: any) {
