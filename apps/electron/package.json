@@ -42,7 +42,9 @@
     },
     "files": [
       "dist/main/**/*",
-      "dist/preload/**/*"
+      "dist/preload/**/*",
+      "!**/.env*",
+      "!**/*.env*"
     ],
     "extraResources": [
       {
