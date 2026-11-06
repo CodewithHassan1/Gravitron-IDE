@@ -10,21 +10,22 @@ export class MonacoEditorAdapter implements EditorAdapter {
 
     try {
       // 1. Get the language features service
-      // @ts-expect-error - Internal Monaco API
       const StandaloneServices = (
+        // @ts-ignore - Internal Monaco API
         await import('monaco-editor/esm/vs/editor/standalone/browser/standaloneServices.js')
       ).StandaloneServices;
-      // @ts-expect-error - Internal Monaco API
       const ILanguageFeaturesService = (
+        // @ts-ignore - Internal Monaco API
         await import('monaco-editor/esm/vs/editor/common/services/languageFeatures.js')
       ).ILanguageFeaturesService;
-      // @ts-expect-error - Internal Monaco API
       const OutlineModel = (
+        // @ts-ignore - Internal Monaco API
         await import('monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/outlineModel.js')
       ).OutlineModel;
-      // @ts-expect-error - Internal Monaco API
-      const CancellationToken = (await import('monaco-editor/esm/vs/base/common/cancellation.js'))
-        .CancellationToken;
+      const CancellationToken = (
+        // @ts-ignore - Internal Monaco API
+        await import('monaco-editor/esm/vs/base/common/cancellation.js')
+      ).CancellationToken;
 
       const { documentSymbolProvider } = StandaloneServices.get(ILanguageFeaturesService);
 
