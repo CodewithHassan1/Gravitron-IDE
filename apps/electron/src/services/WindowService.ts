@@ -9,6 +9,7 @@ import { ServiceId, ServiceIds } from './ServiceIds';
 export interface IWindowService extends ILifecycleService {
   createMainWindow(): Promise<void>;
   broadcast(channel: string, payload: any): void;
+  getMainWindow(): BrowserWindow | undefined;
 }
 
 export class WindowService implements IWindowService {
@@ -16,6 +17,10 @@ export class WindowService implements IWindowService {
   public readonly dependencies: readonly ServiceId[] = [];
   private windows = new Map<string, BrowserWindow>();
   private devServerPort: number = 3000;
+
+  public getMainWindow(): BrowserWindow | undefined {
+    return this.windows.get('main');
+  }
 
   public async initialize(): Promise<void> {
     await app.whenReady();

@@ -55,6 +55,7 @@ describe('Gateway Auth Boundary Constraints', () => {
   it('allows exact /auth.v1.AuthService/VerifyEmail, ForgotPassword, ResetPassword, Refresh while rejecting unauthorized routes', () => {
     const PUBLIC_AUTH_ROUTES = [
       '/.well-known/jwks.json',
+      '/verify-email',
       '/api/v1/auth/register',
       '/api/v1/auth/passwordLogin',
       '/api/v1/auth/refresh',
@@ -79,6 +80,8 @@ describe('Gateway Auth Boundary Constraints', () => {
     };
 
     expect(isRoutePublic('/.well-known/jwks.json')).toBe(true);
+    expect(isRoutePublic('/verify-email')).toBe(true);
+    expect(isRoutePublic('/verify-email?token=xyz')).toBe(true);
     expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail')).toBe(true);
     expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail?token=abc')).toBe(true);
     expect(isRoutePublic('/auth.v1.AuthService/VerifyEmail/')).toBe(true);
@@ -553,5 +556,35 @@ describe('Gateway-Level Distributed Authentication Rate Limiting (SEC-AUTH-05)',
     });
 
     expect(blocked.statusCode).toBe(429);
+  });
+
+  describe('GET /verify-email Web Handler', () => {
+    it('returns 400 HTML error when token query parameter is missing', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/verify-email',
+      });
+      expect(res.statusCode).toBe(400);
+      expect(res.headers['content-type']).toContain('text/html');
+      expect(res.body).toContain('Verification Link Invalid');
+      expect(res.body).toContain('No verification token was provided');
+    });
+
+    it('verifies token against auth service and returns 200 HTML on success', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/verify-email?token=valid_token_12345',
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.headers['content-type']).toContain('text/html');
+      expect(res.body).toContain('Email Verified Successfully');
+      expect(res.body).toContain('Gravitron IDE');
+
+      // Verify that the call was forwarded to AuthService.VerifyEmail
+      const lastCall = upstreamCalls[upstreamCalls.length - 1];
+      expect(lastCall.url).toBe('/auth.v1.AuthService/VerifyEmail');
+      expect(lastCall.method).toBe('POST');
+      expect(lastCall.body).toEqual({ token: 'valid_token_12345' });
+    });
   });
 });

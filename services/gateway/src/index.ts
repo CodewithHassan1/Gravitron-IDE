@@ -117,6 +117,7 @@ fastify.get('/.well-known/jwks.json', async (request: FastifyRequest, reply: Fas
 
 const PUBLIC_AUTH_ROUTES = [
   '/.well-known/jwks.json',
+  '/verify-email',
   '/api/v1/auth/register',
   '/api/v1/auth/passwordLogin',
   '/api/v1/auth/refresh',
@@ -203,6 +204,336 @@ fastify.register(httpProxy, {
       await authenticateAndInjectS2S(request, reply);
     }
   },
+});
+
+// Web Browser Link for Email Verification (clicked directly from user's email client)
+fastify.get('/verify-email', async (request: FastifyRequest, reply: FastifyReply) => {
+  const query = (request.query || {}) as Record<string, string | undefined>;
+  const token = query?.token;
+
+  const renderHtml = (title: string, message: string, isSuccess: boolean, currentToken?: string) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} — Gravitron IDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #06080e;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Ambient radiant backdrop glows */
+    .glow-top {
+      position: absolute;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.12) 40%, rgba(6, 8, 14, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-bottom {
+      position: absolute;
+      bottom: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 350px;
+      background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.12) 0%, rgba(6, 8, 14, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Glassmorphism card */
+    .auth-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      background: rgba(13, 17, 28, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.08);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      text-align: center;
+      animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    /* Antigravity floating logo */
+    .logo-container {
+      margin: 0 auto 1.75rem;
+      width: 76px;
+      height: 76px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-glow {
+      position: absolute;
+      inset: -6px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.4), rgba(6, 182, 212, 0.5));
+      border-radius: 22px;
+      filter: blur(14px);
+      opacity: 0.75;
+      animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes pulseGlow {
+      from { opacity: 0.5; filter: blur(12px); transform: scale(0.96); }
+      to { opacity: 0.85; filter: blur(18px); transform: scale(1.04); }
+    }
+    .logo-icon {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #182032, #0d121f);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+    .logo-svg {
+      width: 40px;
+      height: 40px;
+    }
+    /* Status pill badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.25rem;
+      background: ${isSuccess ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)'};
+      border: 1px solid ${isSuccess ? 'rgba(34, 197, 94, 0.28)' : 'rgba(239, 68, 68, 0.28)'};
+      color: ${isSuccess ? '#4ade80' : '#f87171'};
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: ${isSuccess ? '#22c55e' : '#ef4444'};
+      box-shadow: 0 0 8px ${isSuccess ? '#22c55e' : '#ef4444'};
+      animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 0.6rem;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 2rem;
+    }
+    /* Action Button */
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #7c3aed 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-launch:hover {
+      background: linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #6d28d9 100%);
+      box-shadow: 0 6px 22px rgba(79, 70, 229, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      transform: translateY(-1px);
+    }
+    .btn-launch:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    }
+    /* Helper information */
+    .helper-box {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+    }
+    .helper-text {
+      color: #64748b;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+    .helper-text strong {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    .footer-note {
+      margin-top: 1.25rem;
+      font-size: 0.78rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+
+  <div class="auth-card">
+    <div class="logo-container">
+      <div class="logo-glow"></div>
+      <div class="logo-icon">
+        <svg class="logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#38bdf8"/>
+              <stop offset="0.5" stop-color="#818cf8"/>
+              <stop offset="1" stop-color="#c084fc"/>
+            </linearGradient>
+            <linearGradient id="g2" x1="10" y1="12" x2="30" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#60a5fa"/>
+              <stop offset="1" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 4L34 12V28L20 36L6 28V12L20 4Z" stroke="url(#g1)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M20 12L28 17V27L20 32L12 27V17L20 12Z" fill="url(#g2)" fill-opacity="0.35" stroke="url(#g1)" stroke-width="2"/>
+          <circle cx="20" cy="22" r="3.5" fill="#ffffff" filter="drop-shadow(0 0 6px #818cf8)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>${isSuccess ? 'Email Verified Successfully' : 'Verification Notice'}</span>
+    </div>
+
+    <h1>${title}</h1>
+    <p class="subtitle">${message}</p>
+
+    ${isSuccess ? `
+    <button id="launchBtn" class="btn-launch" onclick="launchApp()">
+      <span>Open Gravitron IDE</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+      </svg>
+    </button>
+
+    <div class="helper-box">
+      <p class="helper-text">
+        A browser pop-up prompt should appear asking to open <strong>Gravitron IDE</strong>.<br>
+        Click <strong>Open</strong> in the prompt to continue directly to your workspace.
+      </p>
+      <p class="footer-note">You can safely close this browser window once the application launches.</p>
+    </div>
+
+    <script>
+      const deepLink = 'gravitron://auth/callback?token=' + encodeURIComponent('${currentToken || ''}') + '&verified=true';
+      function launchApp() {
+        window.location.href = deepLink;
+      }
+      // Auto-trigger browser launch prompt
+      setTimeout(launchApp, 500);
+    </script>
+    ` : `
+    <div class="helper-box">
+      <p class="helper-text">
+        If you have already verified this account, return to the <strong>Gravitron IDE</strong> desktop application and sign in with your email and password.
+      </p>
+    </div>
+    `}
+  </div>
+</body>
+</html>`;
+
+  if (!token) {
+    reply.type('text/html').status(400);
+    return renderHtml(
+      'Verification Link Invalid',
+      'No verification token was provided in the link. Please check your email and try again.',
+      false
+    );
+  }
+
+  try {
+    const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+    const verifyRes = await fetch(`${authServiceUrl}/auth.v1.AuthService/VerifyEmail`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Connect-Protocol-Version': '1',
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    if (verifyRes.ok) {
+      reply.type('text/html').status(200);
+      return renderHtml(
+        'Welcome to Gravitron IDE',
+        'Your email has been verified. Launching the desktop application...',
+        true,
+        token
+      );
+    }
+
+    const errJson = await verifyRes.json().catch(() => ({}));
+    const message = (errJson as any)?.message || 'Invalid or expired verification link.';
+    reply.type('text/html').status(400);
+    return renderHtml(
+      'Verification Notice',
+      message.includes('expired') || message.includes('Invalid')
+        ? 'This verification link is invalid or has already been used. If your account is active, please sign in via Gravitron IDE.'
+        : message,
+      false
+    );
+  } catch (err) {
+    reply.type('text/html').status(500);
+    return renderHtml(
+      'Verification Error',
+      'The authentication service is temporarily unavailable. Please try again shortly.',
+      false
+    );
+  }
 });
 
 fastify.register(httpProxy, {

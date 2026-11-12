@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export type AuthStatus =
   | 'UNAUTHENTICATED'
@@ -17,11 +18,18 @@ interface AuthState {
   setStatus: (status: AuthStatus) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  status: 'UNAUTHENTICATED',
-  accessToken: null,
-  user: null,
-  login: (accessToken, user, status) => set({ accessToken, user, status }),
-  logout: () => set({ accessToken: null, user: null, status: 'UNAUTHENTICATED' }),
-  setStatus: (status) => set({ status }),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      status: 'UNAUTHENTICATED',
+      accessToken: null,
+      user: null,
+      login: (accessToken, user, status) => set({ accessToken, user, status }),
+      logout: () => set({ accessToken: null, user: null, status: 'UNAUTHENTICATED' }),
+      setStatus: (status) => set({ status }),
+    }),
+    {
+      name: 'ag_auth_session',
+    }
+  )
+);

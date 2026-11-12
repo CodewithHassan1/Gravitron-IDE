@@ -511,4 +511,17 @@ contextBridge.exposeInMainWorld('agApi', {
       };
     },
   },
+  auth: {
+    onDeepLink: (callback: (url: string) => void) => {
+      const handler = (_event: any, payload: string) => {
+        callback(payload);
+      };
+      ipcRenderer.on('ag:deep-link', handler);
+      return {
+        dispose: () => {
+          ipcRenderer.removeListener('ag:deep-link', handler);
+        },
+      };
+    },
+  },
 });

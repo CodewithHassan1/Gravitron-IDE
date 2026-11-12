@@ -18,9 +18,16 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentGatewayUrl, setCurrentGatewayUrl] = useState<string | null>(null);
+  const [justVerified, setJustVerified] = useState(false);
 
   useEffect(() => {
     setCurrentGatewayUrl(getGatewayUrl());
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('verified') === 'true') {
+        setJustVerified(true);
+      }
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,6 +74,13 @@ export default function LoginPage() {
             >
               Configure Gateway
             </button>
+          </div>
+        )}
+
+        {justVerified && (
+          <div className="rounded-md bg-green-500/10 border border-green-500/20 p-3 text-xs text-green-500 space-y-1">
+            <p className="font-semibold">Email Verified Successfully</p>
+            <p>Your account is ready. Please sign in to launch your workspace.</p>
           </div>
         )}
 

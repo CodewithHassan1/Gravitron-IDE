@@ -21,6 +21,28 @@ export function AppBootstrapProvider({ children }: { children: React.ReactNode }
       }
     }
     init();
+
+    // Listen for incoming gravitron:// deep-links from browser authentication redirects
+    let unsubscribeDeepLink: (() => void) | undefined;
+    if (typeof window !== 'undefined' && (window as any).agApi?.auth?.onDeepLink) {
+      const sub = (window as any).agApi.auth.onDeepLink((deepLinkUrl: string) => {
+        try {
+          const parsed = new URL(deepLinkUrl);
+          if (parsed.protocol === 'gravitron:') {
+            if (parsed.searchParams.get('verified') === 'true') {
+              window.location.href = '/login?verified=true';
+            }
+          }
+        } catch (err) {
+          console.warn('[deep-link] Failed to handle incoming deep link:', err);
+        }
+      });
+      unsubscribeDeepLink = () => sub?.dispose?.();
+    }
+
+    return () => {
+      unsubscribeDeepLink?.();
+    };
   }, []);
 
   if (!isReady) {

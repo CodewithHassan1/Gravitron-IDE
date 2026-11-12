@@ -56,6 +56,12 @@
     "win": {
       "target": "nsis"
     },
+    "protocols": [
+      {
+        "name": "Gravitron IDE",
+        "schemes": ["gravitron"]
+      }
+    ],
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,

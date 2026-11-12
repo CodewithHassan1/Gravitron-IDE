@@ -33,6 +33,22 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true } },
 ]);
 
+// Single instance lock for gravitron:// deep-linking support
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient('gravitron', process.execPath, [
+        path.resolve(process.argv[1]),
+      ]);
+    }
+  } else {
+    app.setAsDefaultProtocolClient('gravitron');
+  }
+}
+
 // Set up the application host
 const host = new ApplicationHost();
 
@@ -166,6 +182,26 @@ app.whenReady().then(() => {
   });
 
   host.start();
+
+  // Forward cold-start deep-link if launched via gravitron:// protocol
+  const initialDeepLink = process.argv.find((arg) => arg.startsWith('gravitron://'));
+  if (initialDeepLink) {
+    setTimeout(() => {
+      windowService.broadcast('ag:deep-link', initialDeepLink);
+    }, 1500);
+  }
+});
+
+app.on('second-instance', (_event, commandLine) => {
+  const mainWindow = windowService.getMainWindow();
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+    const deepLink = commandLine.find((arg) => arg.startsWith('gravitron://'));
+    if (deepLink) {
+      windowService.broadcast('ag:deep-link', deepLink);
+    }
+  }
 });
 
 app.on('window-all-closed', () => {
