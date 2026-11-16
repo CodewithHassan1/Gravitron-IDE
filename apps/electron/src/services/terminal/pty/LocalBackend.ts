@@ -27,7 +27,7 @@ export class LocalBackend implements IExecutionBackend {
 
   private processes = new Map<string, IProcess>();
 
-  constructor() {}
+  constructor() { }
 
   private prepareShellIntegration(
     executable: string,
@@ -55,26 +55,11 @@ function prompt {
     Write-Host -NoNewline "$e]0;PowerShell$a"
     return "PS $p> "
 }
-
-# Hook command execution for Active Title if PSReadLine is available
-if (Get-Module PSReadLine) {
-    Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
-        $line = $null
-        $cursor = $null
-        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
-        $cmd = $line.Trim()
-        if ($cmd) {
-            $first = $cmd.Split(' ')[0]
-            Write-Host -NoNewline "$e]0;$first$a"
-        }
-        [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
-    }
-}
 `;
       fs.writeFileSync(ps1Path, psScript, 'utf8');
 
-      // Inject integration script
-      const newArgs = ['-NoLogo', '-NoExit', '-Command', `. '${ps1Path}'`];
+      // Inject integration script with ExecutionPolicy Bypass to allow script on restricted systems
+      const newArgs = ['-NoLogo', '-NoExit', '-ExecutionPolicy', 'Bypass', '-Command', `. '${ps1Path}'`];
       return { executable, args: newArgs };
     }
 

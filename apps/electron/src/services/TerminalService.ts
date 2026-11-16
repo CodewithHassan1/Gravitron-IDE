@@ -239,13 +239,17 @@ export class TerminalService implements ITerminalService {
       {
         channel: Channels.Terminal.WriteRequest,
         handler: async (payload: { sessionId: string; data: Uint8Array | string }) => {
-          let data = payload.data;
+          let data: Uint8Array | string = payload.data;
           if (typeof data === 'string') {
             data = new TextEncoder().encode(data);
           } else if (Buffer.isBuffer(data)) {
-            data = new Uint8Array(data);
+            data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
           } else if (data instanceof Array) {
             data = new Uint8Array(data);
+          } else if (data && typeof data === 'object' && 'buffer' in data && (data as any).byteLength !== undefined) {
+            data = new Uint8Array((data as any).buffer, (data as any).byteOffset || 0, (data as any).byteLength);
+          } else if (data && typeof data === 'object') {
+            data = new Uint8Array(Object.values(data));
           }
           await this.writeTerminal(payload.sessionId, data);
         },

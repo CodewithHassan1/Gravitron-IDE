@@ -31,12 +31,16 @@ export class NodePTYAdapter implements IProcess {
 
   public write(data: string | Uint8Array): void {
     if (this.disposed) return;
-    if (data instanceof Uint8Array) {
-      this.ptyProcess.write(Buffer.from(data).toString('utf-8')); // pty write accepts string. Note: binary writes are tricky in node-pty, we'll toString utf-8 for now
-    } else {
-      this.ptyProcess.write(data);
+      if (typeof data === 'string') {
+        this.ptyProcess.write(data);
+      } else if (data instanceof Uint8Array || Buffer.isBuffer(data)) {
+        this.ptyProcess.write(Buffer.from(data).toString('utf-8'));
+      } else if (data && typeof data === 'object' && 'buffer' in data) {
+        this.ptyProcess.write(Buffer.from((data as any).buffer).toString('utf-8'));
+      } else {
+        this.ptyProcess.write(String(data));
+      }
     }
-  }
 
   public resize(cols: number, rows: number): void {
     if (this.disposed) return;

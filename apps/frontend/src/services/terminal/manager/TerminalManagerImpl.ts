@@ -58,15 +58,17 @@ export class TerminalManagerImpl implements TerminalManager {
       metadata: metadata, // metadata is already readonly
     });
 
-    try {
-      await session.connect();
-    } catch (e) {
-      console.error(`[TerminalManager] Failed to connect session ${metadata.id}:`, e);
-      // Even if connect fails, we return the session so UI can show error state
-    }
+      if (options.autoConnect) {
+        try {
+          await session.connect();
+        } catch (e) {
+          console.error(`[TerminalManager] Failed to connect session ${metadata.id}:`, e);
+          // Even if connect fails, we return the session so UI can show error state
+        }
+      }
 
-    return session;
-  }
+      return session;
+    }
 
   public async destroyTerminal(id: string): Promise<void> {
     if (this.isDisposed) throw new Error('TerminalManager is disposed');

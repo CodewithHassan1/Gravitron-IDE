@@ -157,6 +157,9 @@ export class TerminalSessionImpl implements TerminalSession {
   }
 
   public async connect(): Promise<void> {
+    if (this._state === TerminalSessionState.Running) {
+      return;
+    }
     if (
       this._state === TerminalSessionState.Created ||
       this._state === TerminalSessionState.Suspended

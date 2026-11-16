@@ -4,6 +4,25 @@ import { WorkspaceManager } from '../../../services/workspace/WorkspaceManager';
 import { WorkspaceLifecycleState } from '../../../services/workspace/types';
 
 export const TerminalUIHelper = {
+  getSafeCwd(providedCwd?: string): string | undefined {
+    if (providedCwd && providedCwd.trim()) {
+      return providedCwd.trim();
+    }
+    try {
+      const native = WorkspaceManager.getNativeAbsolutePath();
+      if (native && native.trim()) {
+        return native.trim();
+      }
+    } catch {
+      // Ignored if no active workspace is open
+    }
+    const wsId = WorkspaceManager.getWorkspaceId();
+    if (wsId && (wsId.includes(':') || wsId.startsWith('/'))) {
+      return wsId.trim();
+    }
+    return undefined;
+  },
+
   async splitTerminal(sourceGroupId: string, profileId?: string) {
     const newGroup = {
       id: `group_${Date.now()}`,
@@ -12,82 +31,108 @@ export const TerminalUIHelper = {
     };
     useTerminalStore.getState().addGroup(newGroup);
 
-    const cwd = WorkspaceManager.getNativeAbsolutePath();
+    const cwd = this.getSafeCwd();
     const workspaceId = WorkspaceManager.getWorkspaceId() ?? undefined;
-    const session = await TerminalManager.createTerminal({ cwd, profileId, workspaceId });
+    const session = await TerminalManager.createTerminal({
+      cwd,
+      profileId,
+      workspaceId,
+      autoConnect: true,
+    });
 
     useTerminalStore.getState().addTab(newGroup.id, {
       id: session.id,
       title: 'Terminal',
-      cwd,
+      cwd: cwd || '',
       shellId: profileId || 'default',
     });
   },
 
   async createTerminal(groupId: string, providedCwd?: string, profileId?: string) {
-    const cwd = providedCwd || WorkspaceManager.getNativeAbsolutePath();
+    const cwd = this.getSafeCwd(providedCwd);
     const workspaceId = WorkspaceManager.getWorkspaceId() ?? undefined;
-    const session = await TerminalManager.createTerminal({ cwd, profileId, workspaceId });
+    const session = await TerminalManager.createTerminal({
+      cwd,
+      profileId,
+      workspaceId,
+      autoConnect: true,
+    });
 
     useTerminalStore.getState().addTab(groupId, {
       id: session.id,
       title: 'Terminal',
-      cwd,
+      cwd: cwd || '',
       shellId: profileId || 'default',
     });
 
     return session;
   },
 
-  initialize(workspaceId: string): () => void {
-    let _isRestoring = false;
+    initialize(initialWorkspaceId ?: string): () => void {
+      let _isRestoring = false;
+      let trackedWorkspaceId = initialWorkspaceId || WorkspaceManager.getWorkspaceId();
 
-    const handleWorkspaceOpened = async () => {
-      if (_isRestoring) return;
-      _isRestoring = true;
-      try {
-        const currentWorkspaceId = WorkspaceManager.getWorkspaceId();
-        // Check if the workspace changed while we were waiting
-        if (!currentWorkspaceId || currentWorkspaceId !== workspaceId) return;
+        const handleWorkspaceOpened = async (event?: any) => {
+          if (_isRestoring) return;
+          _isRestoring = true;
+          try {
+            const currentWorkspaceId = event?.payload?.workspaceId || WorkspaceManager.getWorkspaceId();
+            if (!currentWorkspaceId) return;
 
-        const state = useTerminalStore.getState();
-        if (state.workspaceId !== currentWorkspaceId) {
-          state.clearAll(currentWorkspaceId);
-        }
+            trackedWorkspaceId = currentWorkspaceId;
 
-        await TerminalManager.restoreSessions(currentWorkspaceId);
+            const state = useTerminalStore.getState();
+            if (state.workspaceId !== currentWorkspaceId) {
+              state.clearAll(currentWorkspaceId);
+            }
 
-        const updatedState = useTerminalStore.getState();
-        if (updatedState.groups.length === 0) {
-          const defaultGroup = {
-            id: `group_${Date.now()}`,
-            tabs: [],
-            activeTabId: null,
-          };
-          updatedState.addGroup(defaultGroup);
-          await this.createTerminal(defaultGroup.id);
-        }
-      } finally {
-        _isRestoring = false;
-      }
+            await TerminalManager.restoreSessions(currentWorkspaceId);
+
+            const updatedState = useTerminalStore.getState();
+            if (updatedState.groups.length === 0) {
+              const defaultGroup = {
+                id: `group_${Date.now()}`,
+                tabs: [],
+                activeTabId: null,
+              };
+              updatedState.addGroup(defaultGroup);
+              await this.createTerminal(defaultGroup.id);
+            }
+          } catch (err) {
+            console.error('[TerminalUIHelper] Failed to handle workspace opened:', err);
+          } finally {
+            _isRestoring = false;
+          }
+        };
+
+          if (
+            trackedWorkspaceId &&
+            trackedWorkspaceId !== 'unknown' &&
+            WorkspaceManager.getState().lifecycleState === WorkspaceLifecycleState.Ready
+          ) {
+            handleWorkspaceOpened();
+          }
+
+          let unsubscribe: (() => void) | undefined;
+          import('../../../services/workspace/WorkspaceEvents').then(({ WorkspaceEvents }) => {
+            import('../../../services/workspace/types').then(({ WorkspaceEventType }) => {
+              WorkspaceEvents.on(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
+              unsubscribe = () => {
+                WorkspaceEvents.off(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
+              };
+            });
+          });
+
+          return () => {
+                if (unsubscribe) {
+                  unsubscribe();
+                } else {
+                  import('../../../services/workspace/WorkspaceEvents').then(({ WorkspaceEvents }) => {
+                    import('../../../services/workspace/types').then(({ WorkspaceEventType }) => {
+                      WorkspaceEvents.off(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
+                    });
+                  });
+            }
     };
-
-    if (WorkspaceManager.getState().lifecycleState === WorkspaceLifecycleState.Ready) {
-      handleWorkspaceOpened();
-    }
-
-    import('../../../services/workspace/WorkspaceEvents').then(({ WorkspaceEvents }) => {
-      import('../../../services/workspace/types').then(({ WorkspaceEventType }) => {
-        WorkspaceEvents.on(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
-      });
-    });
-
-    return () => {
-      import('../../../services/workspace/WorkspaceEvents').then(({ WorkspaceEvents }) => {
-        import('../../../services/workspace/types').then(({ WorkspaceEventType }) => {
-          WorkspaceEvents.off(WorkspaceEventType.WorkspaceOpened, handleWorkspaceOpened);
-        });
-      });
-    };
-  },
-};
+        },
+      };

@@ -14,6 +14,7 @@ export interface TerminalOptions {
   debugLabel?: string;
   profileId?: string;
   workspaceId?: string;
+  autoConnect?: boolean;
 }
 
 export interface TerminalManager extends IDisposable {

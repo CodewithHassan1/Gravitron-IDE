@@ -63,7 +63,20 @@ export class WindowService implements IWindowService {
 
     if (isDev) {
       await mainWindow.webContents.session.clearCache();
-      await mainWindow.loadURL(`http://localhost:${this.devServerPort}`);
+      const devUrl = `http://localhost:${this.devServerPort}`;
+      const maxRetries = 30;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          await mainWindow.loadURL(devUrl);
+          break;
+        } catch (err: any) {
+          if (attempt === maxRetries) {
+            console.error(`[WindowService] Failed to load dev URL ${devUrl} after ${maxRetries} attempts:`, err);
+            throw err;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
     } else {
       await mainWindow.loadURL('app://-/index.html');
     }

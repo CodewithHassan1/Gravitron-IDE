@@ -12,6 +12,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
+    "incremental": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
