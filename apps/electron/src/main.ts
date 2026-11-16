@@ -30,7 +30,16 @@ import { ConfigService } from './services/ConfigService';
 
 // Register custom protocol for loading Next.js static export files securely
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true, supportFetchAPI: true } },
+  {
+    scheme: 'app',
+    privileges: {
+      secure: true,
+      standard: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      allowServiceWorkers: true,
+    },
+  },
 ]);
 
 // Single instance lock for gravitron:// deep-linking support
