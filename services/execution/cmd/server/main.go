@@ -10,6 +10,7 @@ import (
 	"github.com/gravitron/execution-engine/internal/delegation"
 	"github.com/gravitron/execution-engine/internal/docker"
 	agrpc "github.com/gravitron/execution-engine/internal/grpc"
+	"github.com/gravitron/execution-engine/internal/runtime"
 	"github.com/gravitron/execution-engine/internal/terminal"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -26,29 +27,10 @@ type executeRequest struct {
 	Prompt      string `json:"prompt"`
 }
 
-func main() {
-	mux := http.NewServeMux()
-	
-	// 1. Initialize the Runtime Abstraction (Docker)
-	rt := docker.NewDockerRuntime()
-	
-	// 2. Initialize the Terminal Streaming Server
-	termServer := terminal.NewTerminalServer(rt)
-	termServer.RegisterRoutes(mux)
-	
-	// 3. Initialize the gRPC/Connect Service
-	execServer := agrpc.NewExecutionServer(rt)
-	path, handler := executionv1connect.NewExecutionServiceHandler(execServer)
-	mux.Handle(path, handler)
-
-	// 4. Initialize the delegation verifier (verification-only, public key).
-	verifier, err := delegation.NewVerifierFromEnv()
-	if err != nil {
-		log.Fatalf("Execution-Service cannot start: %v", err)
-	}
-	log.Printf("Delegation verifier initialized (issuer=%s audience=%s)", delegation.Issuer, delegation.Audience)
-
-	mux.HandleFunc("/api/v1/execute", func(w http.ResponseWriter, r *http.Request) {
+// NewExecuteHandler constructs an http.HandlerFunc that verifies agent delegation
+// tokens and delegates execution to the provided runtime abstraction.
+func NewExecuteHandler(rt runtime.Runtime, verifier *delegation.Verifier) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
 		if auth == "" || !strings.HasPrefix(auth, "Bearer ") {
 			http.Error(w, "Unauthorized: Missing Delegation Token", http.StatusUnauthorized)
@@ -103,9 +85,9 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		if execErr != nil {
 			json.NewEncoder(w).Encode(map[string]interface{}{
-				"success": false,
+				"success":     false,
 				"executionId": claims.ExecutionID,
-				"error": execErr.Error(),
+				"error":       execErr.Error(),
 			})
 			return
 		}
@@ -118,7 +100,32 @@ func main() {
 				"stderr":   string(stderr),
 			},
 		})
-	})
+	}
+}
+
+func main() {
+	mux := http.NewServeMux()
+
+	// 1. Initialize the Runtime Abstraction (Docker)
+	rt := docker.NewDockerRuntime()
+
+	// 2. Initialize the Terminal Streaming Server
+	termServer := terminal.NewTerminalServer(rt)
+	termServer.RegisterRoutes(mux)
+
+	// 3. Initialize the gRPC/Connect Service
+	execServer := agrpc.NewExecutionServer(rt)
+	path, handler := executionv1connect.NewExecutionServiceHandler(execServer)
+	mux.Handle(path, handler)
+
+	// 4. Initialize the delegation verifier (verification-only, public key).
+	verifier, err := delegation.NewVerifierFromEnv()
+	if err != nil {
+		log.Fatalf("Execution-Service cannot start: %v", err)
+	}
+	log.Printf("Delegation verifier initialized (issuer=%s audience=%s)", delegation.Issuer, delegation.Audience)
+
+	mux.HandleFunc("/api/v1/execute", NewExecuteHandler(rt, verifier))
 	
 	// Start Server with HTTP/2 support (required by Connect gRPC)
 	log.Println("Execution Engine starting on :8083")
