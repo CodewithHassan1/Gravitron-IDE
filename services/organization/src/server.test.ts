@@ -91,7 +91,7 @@ import { db, OrganizationRepository, publishOutboxEvent } from '@ag/database';
 import { organizationRoutes } from './server';
 
 describe('Organization Membership Management RPC Handlers (SEC-AUTH-04)', () => {
-  let handlers: Record<string, Function> = {};
+  const handlers: Record<string, (...args: any[]) => any> = {};
   let mockTx: any;
   let orgRepoInstance: any;
 
