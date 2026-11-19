@@ -11,7 +11,9 @@ export class DefaultWorkingDirectoryResolver implements IWorkingDirectoryResolve
       clean = clean.replace(/^file:\/+(localhost\/)?/i, '');
       try {
         clean = decodeURIComponent(clean);
-      } catch { }
+      } catch {
+        // Ignore malformed URI sequences and keep raw candidate
+      }
     }
 
     const isWindows = os.platform() === 'win32';
