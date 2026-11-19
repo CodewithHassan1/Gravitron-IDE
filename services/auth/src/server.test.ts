@@ -85,7 +85,7 @@ import crypto from 'crypto';
 import Redis from 'ioredis';
 
 describe('Auth Service Error Handling Boundaries', () => {
-  let handlers: Record<string, Function> = {};
+  const handlers: Record<string, (...args: any[]) => any> = {};
   let redis: Redis;
   let mockTx: any;
 

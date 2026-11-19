@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 // Setup environment for jwt.ts
 let privateKeyStr: string;
-let kid = 'test-kid';
+const kid = 'test-kid';
 
 test('verifyAccessToken cryptographic checks', async () => {
   // Generate real ES256 keypair
