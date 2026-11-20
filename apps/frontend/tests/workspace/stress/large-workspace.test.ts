@@ -106,9 +106,11 @@ describe('Large Workspace Stress Test', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Search for a specific file across 10,000
-    const fullSearchRes = (manager as any).searchEngine.search(new SearchQuery('file_5'));
+    const fullSearchRes = await (manager as any).searchEngine.search(
+      new SearchQuery('file_5', { maxResults: 1000 })
+    );
     // 1 file_5 in each sub folder = 10 * 100 = 1000 files named file_5.ts
-    expect(fullSearchRes.totalMatches).toBe(1000);
+    expect(fullSearchRes.length).toBe(1000);
   }, 30000);
 
   it('Large Rename Operation', async () => {
@@ -137,7 +139,7 @@ describe('Large Workspace Stress Test', () => {
 
     // Search converges
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const searchRes = (manager as any).searchEngine.search(new SearchQuery('file_0')).items;
+    const searchRes = await (manager as any).searchEngine.search(new SearchQuery('file_0'));
     expect(searchRes.length).toBeGreaterThan(0);
     expect(searchRes[0].path).toBe('/renamed_folder/file_0.ts');
   });

@@ -53,12 +53,15 @@ describe('Event Contracts', () => {
     const enumMatch = content.match(/export enum WorkspaceEventType \{([^}]+)\}/);
     expect(enumMatch).toBeTruthy();
 
-    const lines = enumMatch![1]
-      .split(',')
-      .map((l) => l.trim())
-      .filter((l) => l);
-    lines.forEach((line) => {
-      const key = line.split('=')[0].trim();
+    const enumBody = enumMatch![1];
+    const memberRegex = /^\s*([A-Za-z0-9_]+)\s*=/gm;
+    const keys: string[] = [];
+    let match: RegExpExecArray | null;
+    while ((match = memberRegex.exec(enumBody)) !== null) {
+      keys.push(match[1]);
+    }
+    expect(keys.length).toBeGreaterThan(0);
+    keys.forEach((key) => {
       // Ensure the key exists in WorkspaceEventPayloads
       expect(content).toContain(`[WorkspaceEventType.${key}]`);
     });

@@ -68,6 +68,8 @@ export class WorkspaceSearchService {
     WorkspaceEvents.on(WorkspaceEventType.FolderLoaded, this.handleFolderLoaded);
     WorkspaceEvents.on(WorkspaceEventType.FileCreated, this.handleFileCreated);
     WorkspaceEvents.on(WorkspaceEventType.FileDeleted, this.handleFileDeleted);
+    WorkspaceEvents.on(WorkspaceEventType.FileRenamed, this.handleFileRenamed);
+    WorkspaceEvents.on(WorkspaceEventType.FileMoved, this.handleFileMoved);
   }
 
   private fallbackToDirectIndex(): void {
@@ -85,9 +87,10 @@ export class WorkspaceSearchService {
     this.directIndex.clear();
     const nodes = this.vfs.snapshot();
     for (const node of nodes) {
+      const computedPath = this.vfs.getPath(node.id) || node.path;
       this.directIndex.addNode({
         nodeId: node.id,
-        path: node.path,
+        path: computedPath,
         name: node.name,
         type: node.type === 'directory' ? 'folder' : (node.type as 'file' | 'folder'),
         extension: node.extension,
@@ -122,6 +125,8 @@ export class WorkspaceSearchService {
     WorkspaceEvents.off(WorkspaceEventType.FolderLoaded, this.handleFolderLoaded);
     WorkspaceEvents.off(WorkspaceEventType.FileCreated, this.handleFileCreated);
     WorkspaceEvents.off(WorkspaceEventType.FileDeleted, this.handleFileDeleted);
+    WorkspaceEvents.off(WorkspaceEventType.FileRenamed, this.handleFileRenamed);
+    WorkspaceEvents.off(WorkspaceEventType.FileMoved, this.handleFileMoved);
   }
 
   public async search(query: SearchQuery): Promise<SearchResult[]> {
@@ -265,6 +270,35 @@ export class WorkspaceSearchService {
     this.indexAllNodes();
   };
 
+  private handleFileRenamed = (event: WorkspaceEvent<WorkspaceEventType.FileRenamed>) => {
+    const payload = event.payload;
+    if (!payload?.newPath && !payload?.oldPath) return;
+    this.postToWorker({ id: 'clear', type: 'CLEAR' });
+    this.indexAllNodes();
+  };
+
+  private handleFileMoved = (event: WorkspaceEvent<WorkspaceEventType.FileMoved>) => {
+    const payload = event.payload;
+    if (!payload?.newPath && !payload?.oldPath) return;
+    this.postToWorker({ id: 'clear', type: 'CLEAR' });
+    this.indexAllNodes();
+  };
+
+  public get index() {
+    return {
+      fileTypeIndex: {
+        getFiles: () =>
+          Array.from((this.directIndex as any).nodeIndex?.values() || [])
+            .filter((n: any) => n.type === 'file')
+            .map((n: any) => n.nodeId),
+        getDirectories: () =>
+          Array.from((this.directIndex as any).nodeIndex?.values() || [])
+            .filter((n: any) => n.type === 'folder' || n.type === 'directory')
+            .map((n: any) => n.nodeId),
+      },
+    };
+  }
+
   private indexAllNodes() {
     const nodes = this.vfs.snapshot();
     for (const node of nodes) {
@@ -280,9 +314,10 @@ export class WorkspaceSearchService {
   }
 
   private indexNodePayload(node: any) {
+    const computedPath = this.vfs.getPath(node.id) || node.path;
     const payload: IndexNodePayload = {
       nodeId: node.id,
-      path: node.path,
+      path: computedPath,
       name: node.name,
       type: node.type === 'directory' ? 'folder' : node.type,
       extension: node.extension,

@@ -28,8 +28,16 @@ export class WorkspacePersistence {
   }
 
   private initDB(): Promise<IDBPDatabase> {
-    if (typeof window === 'undefined' || typeof indexedDB === 'undefined') {
-      return Promise.resolve({} as IDBPDatabase);
+    if (typeof indexedDB === 'undefined') {
+      return Promise.resolve({
+        get: async () => null,
+        put: async () => undefined,
+        delete: async () => undefined,
+        transaction: () => ({
+          objectStore: () => ({ delete: async () => undefined }),
+          done: Promise.resolve(),
+        }),
+      } as unknown as IDBPDatabase);
     }
     return openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {

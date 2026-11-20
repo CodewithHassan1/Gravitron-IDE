@@ -1,8 +1,8 @@
 import { EditorAdapter, DocumentSymbol, Position } from './EditorAdapter';
-import { EditorManager } from '../EditorManager';
 import { EditorServiceRegistry } from '../EditorServiceRegistry';
 
 export class MonacoEditorAdapter implements EditorAdapter {
+  constructor(private getActiveEditor?: () => any) {}
   async getDocumentSymbols(uri: string): Promise<DocumentSymbol[]> {
     const monaco = EditorServiceRegistry.monacoService.getMonaco();
     const model = monaco.editor.getModel(monaco.Uri.parse(uri));
@@ -42,7 +42,7 @@ export class MonacoEditorAdapter implements EditorAdapter {
   }
 
   revealSymbol(uri: string, symbol: DocumentSymbol): void {
-    const activeEditor = EditorManager.getActiveEditor();
+    const activeEditor = this.getActiveEditor ? this.getActiveEditor() : null;
     if (!activeEditor) return;
 
     const currentModel = activeEditor.getModel();
@@ -64,7 +64,7 @@ export class MonacoEditorAdapter implements EditorAdapter {
   }
 
   getCurrentCursor(): { uri: string; position: Position } | null {
-    const activeEditor = EditorManager.getActiveEditor();
+    const activeEditor = this.getActiveEditor ? this.getActiveEditor() : null;
     if (!activeEditor) return null;
 
     const position = activeEditor.getPosition();
@@ -82,7 +82,7 @@ export class MonacoEditorAdapter implements EditorAdapter {
   }
 
   getActiveEditorUri(): string | null {
-    const activeEditor = EditorManager.getActiveEditor();
+    const activeEditor = this.getActiveEditor ? this.getActiveEditor() : null;
     if (!activeEditor) return null;
 
     const model = activeEditor.getModel();

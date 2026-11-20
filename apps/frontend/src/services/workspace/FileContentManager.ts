@@ -1,18 +1,8 @@
 // src/services/workspace/FileContentManager.ts
 
-import { WorkspaceManagerImpl } from './WorkspaceManager';
 import { WorkspaceEvents } from './WorkspaceEvents';
-import { WorkspaceEventType } from './types';
-
-export interface OpenFileBuffer {
-  nodeId: string;
-  path: string;
-  content: string;
-  dirty: boolean;
-  lastSaved: number;
-  lastSavedHash: string;
-  lastDiskHash: string;
-}
+import { WorkspaceEventType, IWorkspaceContentHost, OpenFileBuffer } from './types';
+export type { OpenFileBuffer };
 
 import { FileConflictManager } from './sync/FileConflictManager';
 
@@ -22,7 +12,7 @@ export class FileContentManager {
   private isSaving: boolean = false;
   private conflictManager: FileConflictManager;
 
-  constructor(private workspaceManager: WorkspaceManagerImpl) {
+  constructor(private workspaceManager: IWorkspaceContentHost) {
     this.conflictManager = new FileConflictManager(workspaceManager);
     this.setupEventListeners();
   }

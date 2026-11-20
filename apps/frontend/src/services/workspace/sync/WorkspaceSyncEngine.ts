@@ -6,7 +6,8 @@ import { WorkspaceOperationQueue } from './WorkspaceOperationQueue';
 import { WorkspaceBatcher } from './WorkspaceBatcher';
 import { WorkspaceConflictDetector } from './WorkspaceConflictDetector';
 import { SyncStateManager, SyncStateStatus, WorkspaceSyncState } from './WorkspaceSyncState';
-import { WorkspaceOperation, WorkspaceOperationType } from './WorkspaceOperation';
+import { WorkspaceOperation, WorkspaceOperationType, createOperationId } from './WorkspaceOperation';
+import { WorkspaceEventType, WorkspaceEvent } from '../types';
 import { VirtualFileSystem } from '../vfs/VirtualFileSystem';
 import { WorkspacePersistence } from '../WorkspacePersistence';
 import { WorkspaceSerializer } from '../WorkspaceSerializer';
@@ -38,6 +39,7 @@ export class WorkspaceSyncEngine {
    */
   public start(nativeHandle: any): void {
     this.watcher.watch(nativeHandle, (op) => this.enqueueOperation(op));
+    this.attachWorkspaceListeners();
     this.state.transition(SyncStateStatus.Idle);
   }
 
@@ -45,9 +47,106 @@ export class WorkspaceSyncEngine {
    * Stops the synchronization engine, clearing all timers and active watchers.
    */
   public stop(): void {
+    this.detachWorkspaceListeners();
     this.watcher.stop();
     this.scheduler.cancel();
     this.state.transition(SyncStateStatus.Offline);
+  }
+
+  private isListening = false;
+
+  private handleFileCreated = (event: WorkspaceEvent<WorkspaceEventType.FileCreated>): void => {
+    const payload = event.payload;
+    if (!payload?.path) return;
+    if (payload.nodeId && !this.vfs.find(payload.nodeId) && !(this.vfs as any).index?.get(payload.nodeId)) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.CreateFile,
+      timestamp: Date.now(),
+      path: payload.path,
+    });
+  };
+
+  private handleFolderCreated = (event: WorkspaceEvent<WorkspaceEventType.FolderCreated>): void => {
+    const payload = event.payload;
+    if (!payload?.path) return;
+    if (payload.nodeId && !this.vfs.find(payload.nodeId) && !(this.vfs as any).index?.get(payload.nodeId)) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.CreateFolder,
+      timestamp: Date.now(),
+      path: payload.path,
+    });
+  };
+
+  private handleFileDeleted = (event: WorkspaceEvent<WorkspaceEventType.FileDeleted>): void => {
+    const payload = event.payload;
+    if (!payload?.path) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.DeleteFile,
+      timestamp: Date.now(),
+      path: payload.path,
+    });
+  };
+
+  private handleFolderDeleted = (event: WorkspaceEvent<WorkspaceEventType.FolderDeleted>): void => {
+    const payload = event.payload;
+    if (!payload?.path) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.DeleteFile,
+      timestamp: Date.now(),
+      path: payload.path,
+    });
+  };
+
+  private handleFileRenamed = (event: WorkspaceEvent<WorkspaceEventType.FileRenamed>): void => {
+    const payload = event.payload;
+    if (!payload?.oldPath || !payload?.newPath) return;
+    if (payload.nodeId && !this.vfs.find(payload.nodeId) && !(this.vfs as any).index?.get(payload.nodeId)) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.Rename,
+      timestamp: Date.now(),
+      sourcePath: payload.oldPath,
+      newName: payload.newPath.split('/').pop() || payload.newPath,
+    });
+  };
+
+  private handleFileMoved = (event: WorkspaceEvent<WorkspaceEventType.FileMoved>): void => {
+    const payload = event.payload;
+    if (!payload?.oldPath || !payload?.newPath) return;
+    if (payload.nodeId && !this.vfs.find(payload.nodeId) && !(this.vfs as any).index?.get(payload.nodeId)) return;
+    this.enqueueOperation({
+      id: createOperationId(),
+      type: WorkspaceOperationType.Move,
+      timestamp: Date.now(),
+      sourcePath: payload.oldPath,
+      destinationPath: payload.newPath,
+    });
+  };
+
+  private attachWorkspaceListeners(): void {
+    if (this.isListening || !this.eventEmitter?.on) return;
+    this.isListening = true;
+    this.eventEmitter.on(WorkspaceEventType.FileCreated, this.handleFileCreated);
+    this.eventEmitter.on(WorkspaceEventType.FolderCreated, this.handleFolderCreated);
+    this.eventEmitter.on(WorkspaceEventType.FileDeleted, this.handleFileDeleted);
+    this.eventEmitter.on(WorkspaceEventType.FolderDeleted, this.handleFolderDeleted);
+    this.eventEmitter.on(WorkspaceEventType.FileRenamed, this.handleFileRenamed);
+    this.eventEmitter.on(WorkspaceEventType.FileMoved, this.handleFileMoved);
+  }
+
+  private detachWorkspaceListeners(): void {
+    if (!this.isListening || !this.eventEmitter?.off) return;
+    this.isListening = false;
+    this.eventEmitter.off(WorkspaceEventType.FileCreated, this.handleFileCreated);
+    this.eventEmitter.off(WorkspaceEventType.FolderCreated, this.handleFolderCreated);
+    this.eventEmitter.off(WorkspaceEventType.FileDeleted, this.handleFileDeleted);
+    this.eventEmitter.off(WorkspaceEventType.FolderDeleted, this.handleFolderDeleted);
+    this.eventEmitter.off(WorkspaceEventType.FileRenamed, this.handleFileRenamed);
+    this.eventEmitter.off(WorkspaceEventType.FileMoved, this.handleFileMoved);
   }
 
   /**

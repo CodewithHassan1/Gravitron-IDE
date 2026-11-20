@@ -36,6 +36,18 @@ describe('Public API Surface', () => {
       'getWorkspaceId',
       'onEvent', // Documented implicitly via the event handling API section
       'getSearchEngine', // Optional but historically present
+      'ensureChildrenLoaded',
+      'searchText',
+      'refresh',
+      'copy',
+      'uploadFiles',
+      'undo',
+      'redo',
+      'getActiveWorkspaceId',
+      'getNativeAbsolutePath',
+      'updateSetting',
+      'handleExternalCreate',
+      'handleExternalDelete',
     ]);
 
     const manager = new WorkspaceManagerImpl();

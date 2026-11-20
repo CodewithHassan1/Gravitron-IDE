@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --exclude '**/sync-queue-massive.test.ts' --exclude '**/soak/**'",
+    "test:stress": "vitest run tests/workspace/stress/sync-queue-massive.test.ts",
+    "test:soak": "vitest run tests/workspace/soak"
   },
   "dependencies": {
     "@ag/core": "workspace:*",

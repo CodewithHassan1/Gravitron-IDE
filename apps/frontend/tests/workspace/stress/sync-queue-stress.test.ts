@@ -54,45 +54,6 @@ describe('Sync Queue Stress Test', () => {
     }
   });
 
-  it('Massive Queue', async () => {
-    const OPS_COUNT = 50000;
-    const syncEngine = (manager as any).syncEngine;
-
-    // We enqueue directly instead of using manager because manager has vfs bounds that would
-    // be extremely slow if we're just testing the sync queue itself.
-    // However, the test requirement is to generate 50,000 WorkspaceOperations.
-    for (let i = 0; i < OPS_COUNT; i++) {
-      syncEngine.enqueueOperation({
-        id: `op-${i}`,
-        type: WorkspaceOperationType.WriteFile,
-        timestamp: Date.now() + i,
-        path: `/file_${i}.ts`,
-        content: 'content',
-      });
-    }
-
-    const queuedOps = syncEngine.queue.getOperations();
-    expect(queuedOps.length).toBe(OPS_COUNT);
-
-    // Validate ordering preserved
-    for (let i = 0; i < OPS_COUNT; i++) {
-      expect(queuedOps[i].id).toBe(`op-${i}`);
-    }
-
-    // Validate no dropped operations
-    expect(queuedOps.length).toBe(OPS_COUNT);
-
-    // Validate no duplicate operation IDs
-    const idSet = new Set(queuedOps.map((op: any) => op.id));
-    expect(idSet.size).toBe(OPS_COUNT);
-
-    // Complete queue draining
-    // executeSyncCycle will drain it
-    await syncEngine.executeSyncCycle();
-
-    expect(syncEngine.queue.size).toBe(0);
-  }, 60000);
-
   it('Debounce Stress', async () => {
     const syncEngine = (manager as any).syncEngine;
     let executionCycles = 0;

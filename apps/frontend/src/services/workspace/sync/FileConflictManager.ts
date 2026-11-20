@@ -1,5 +1,4 @@
-import { FileContentManager, OpenFileBuffer } from '../FileContentManager';
-import { WorkspaceManagerImpl } from '../WorkspaceManager';
+import { IWorkspaceConflictHost, OpenFileBuffer } from '../types';
 
 export enum ConflictState {
   None,
@@ -9,7 +8,7 @@ export enum ConflictState {
 }
 
 export class FileConflictManager {
-  constructor(private workspaceManager: WorkspaceManagerImpl) {}
+  constructor(private workspaceManager: IWorkspaceConflictHost) {}
 
   public async checkConflict(
     buffer: OpenFileBuffer,

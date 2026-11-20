@@ -1,8 +1,8 @@
-import { WorkspaceManagerImpl } from '../WorkspaceManager';
+import { IWorkspaceReconcilerHost } from '../types';
 import { WorkspaceProtocol } from '@ag/protocol';
 
 export class WorkspaceReconciler {
-  constructor(private workspaceManager: WorkspaceManagerImpl) {}
+  constructor(private workspaceManager: IWorkspaceReconcilerHost) {}
 
   public start(): void {
     if (typeof window !== 'undefined' && (window as any).agApi) {

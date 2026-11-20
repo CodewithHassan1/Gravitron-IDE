@@ -57,7 +57,7 @@ export class EditorManagerImpl {
   public adapter: EditorAdapter;
 
   constructor() {
-    this.adapter = new MonacoEditorAdapter();
+    this.adapter = new MonacoEditorAdapter(() => this.getActiveEditor());
   }
 
   async initialize() {

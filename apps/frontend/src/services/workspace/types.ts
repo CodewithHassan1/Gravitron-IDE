@@ -139,3 +139,47 @@ export interface WorkspaceEvent<
   timestamp: number;
   payload?: WorkspaceEventPayloads[T];
 }
+
+export interface OpenFileBuffer {
+  nodeId: string;
+  path: string;
+  content: string;
+  dirty: boolean;
+  lastSaved: number;
+  lastSavedHash: string;
+  lastDiskHash: string;
+}
+
+export interface IWorkspaceContentHost {
+  getNode(nodeId: string): any;
+  getPath(nodeId: string): string | undefined;
+  resolvePath(path: string): string | undefined | null;
+  readFile(path: string): Promise<string>;
+  writeFile(path: string, content: string | Uint8Array): Promise<any>;
+  contentManager: {
+    getBuffer(nodeId: string): OpenFileBuffer | undefined;
+    silentReload(nodeId: string, newContent: string): void;
+  };
+}
+
+export interface IWorkspaceConflictHost {
+  resolvePath(path: string): string | undefined | null;
+  readFile(path: string): Promise<string>;
+  contentManager: {
+    getBuffer(nodeId: string): OpenFileBuffer | undefined;
+    silentReload(nodeId: string, newContent: string): void;
+  };
+}
+
+export interface IWorkspaceReconcilerHost {
+  mutationTracker: {
+    hasMutationForPath(path: string): boolean;
+    resolveMutation(mutationId: string): void;
+  };
+  handleExternalCreate(path: string): Promise<void>;
+  handleExternalDelete(path: string): void;
+  contentManager: {
+    handleExternalModification(path: string): void;
+  };
+  refresh(path?: string): Promise<void>;
+}

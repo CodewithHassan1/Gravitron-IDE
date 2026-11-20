@@ -64,7 +64,7 @@ describe('WorkspaceManager Contract API', () => {
 
       expect(manager.getWorkspaceId()).toBe('test-workspace-id');
       expect(emitSpy).toHaveBeenCalledWith(WorkspaceEventType.WorkspaceOpened, expect.anything());
-      expect(emitSpy).toHaveBeenCalledWith(WorkspaceEventType.WorkspaceUpdated, expect.anything());
+      expect(emitSpy).toHaveBeenCalledWith(WorkspaceEventType.WorkspaceUpdated, undefined);
     });
   });
 

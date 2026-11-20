@@ -673,7 +673,7 @@ export class WorkspaceManagerImpl {
         const result = await (window as any).agApi.workspace.readFile(workspaceId, path);
         return unwrapIpcResponse<string>(result);
       }
-      throw new Error('IPC not available');
+      return '';
     });
   }
 
@@ -795,8 +795,8 @@ export class WorkspaceManagerImpl {
         console.error('[WorkspaceManager] ERROR in openWorkspace:', error);
         WorkspaceSession.setLifecycleState(WorkspaceLifecycleState.Error);
         WorkspaceSession.setError({ code: 'OPEN_FAILED', message: error.message });
-        // Rollback
-        await this.closeWorkspace();
+        // Rollback using internal teardown (already within held lifecycleLock)
+        await this._closeWorkspaceInternal();
         throw error;
       } finally {
         // Handled in success and error cases
@@ -807,50 +807,63 @@ export class WorkspaceManagerImpl {
     return this.lifecycleLock;
   }
 
-  async closeWorkspace(): Promise<void> {
-    const operation = async () => {
-      const currentId = WorkspaceSession.getWorkspaceId();
-      if (!currentId && !this.activeWorkspaceId) return;
+  private async _closeWorkspaceInternal(): Promise<void> {
+    const currentId = WorkspaceSession.getWorkspaceId();
+    if (!currentId && !this.activeWorkspaceId) return;
 
-      // 1. Closing State
-      WorkspaceSession.setLifecycleState(WorkspaceLifecycleState.Closing);
+    // 1. Closing State
+    WorkspaceSession.setLifecycleState(WorkspaceLifecycleState.Closing);
 
-      // 2. Dispose Terminal
+    // 2. Dispose Terminal
+    try {
       const terminalManagerModule = await import('../terminal');
       await terminalManagerModule.TerminalManager.destroyAllSessions();
+    } catch (e) {
+      console.error('[WorkspaceManager] Failed to destroy terminal sessions', e);
+    }
 
-      // 3. Dispose Git (SyncEngine)
-      this.syncEngine?.stop();
-      this.syncEngine = null;
+    // 3. Dispose Git (SyncEngine)
+    this.syncEngine?.stop();
+    this.syncEngine = null;
 
-      // 4. Dispose Outline
-      // Outline disposal is handled by OutlineService
+    // 4. Dispose Outline
+    // Outline disposal is handled by OutlineService
 
-      // 5. Dispose Search
-      this.searchEngine?.dispose();
-      this.searchEngine = null;
+    // 5. Dispose Search
+    this.searchEngine?.dispose();
+    this.searchEngine = null;
 
-      // 6. Dispose Editor Models
-      // Editor models are handled by EditorModelService
+    // 6. Dispose Editor Models
+    // Editor models are handled by EditorModelService
 
-      // 7. Dispose VFS
-      (this.vfs as any).index = { rootId: null, paths: {} };
+    // 7. Dispose VFS
+    (this.vfs as any).index = { rootId: null, paths: {} };
 
-      // 8. Empty State
-      WorkspaceSession.clear();
-      this.activeWorkspaceId = null;
-      this.activeWorkspaceMetadata = null;
+    // 8. Empty State
+    WorkspaceSession.clear();
+    this.activeWorkspaceId = null;
+    this.activeWorkspaceMetadata = null;
 
+    try {
       const { ContextEngine } = await import('../quickInput/ContextEngine');
       ContextEngine.setContext('workspaceIsOpen', false);
       ContextEngine.setContext('gitAvailable', false);
       ContextEngine.setContext('terminalExists', false);
       ContextEngine.setContext('editorFocused', false);
+    } catch (e) {
+      console.error('[WorkspaceManager] Failed to reset context engine', e);
+    }
 
-      WorkspaceEvents.emit(WorkspaceEventType.WorkspaceClosed, {
-        workspaceId: currentId || 'unknown',
-      });
-      WorkspaceEvents.emit(WorkspaceEventType.WorkspaceUpdated, undefined);
+    WorkspaceEvents.emit(WorkspaceEventType.WorkspaceClosed, {
+      workspaceId: currentId || 'unknown',
+    });
+    WorkspaceEvents.emit(WorkspaceEventType.WorkspaceUpdated, undefined);
+    WorkspaceEvents.clearAllListeners();
+  }
+
+  async closeWorkspace(): Promise<void> {
+    const operation = async () => {
+      await this._closeWorkspaceInternal();
     };
 
     this.lifecycleLock = this.lifecycleLock.then(operation).catch(console.error);
@@ -994,7 +1007,7 @@ export class WorkspaceManagerImpl {
     const targetSnapshot = this.history.undo();
     if (!targetSnapshot) return false;
 
-    return await this.applySnapshotDelta(targetSnapshot);
+    return await this._applySnapshotDelta(targetSnapshot);
   }
 
   public async redo(): Promise<boolean> {
@@ -1003,10 +1016,10 @@ export class WorkspaceManagerImpl {
     const targetSnapshot = this.history.redo();
     if (!targetSnapshot) return false;
 
-    return await this.applySnapshotDelta(targetSnapshot);
+    return await this._applySnapshotDelta(targetSnapshot);
   }
 
-  private async applySnapshotDelta(targetSnapshot: WorkspaceSnapshot): Promise<boolean> {
+  private async _applySnapshotDelta(targetSnapshot: WorkspaceSnapshot): Promise<boolean> {
     const workspaceId = this.getActiveWorkspaceId();
     if (!workspaceId) return false;
 

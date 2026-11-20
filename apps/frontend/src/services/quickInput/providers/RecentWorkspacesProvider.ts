@@ -3,7 +3,6 @@ import {
   QuickInputItem,
   QuickInputProviderMetadata,
 } from '../../../types/quickInput';
-import { WorkspaceManager } from '../../workspace/WorkspaceManager';
 import { Folder } from 'lucide-react';
 import React from 'react';
 

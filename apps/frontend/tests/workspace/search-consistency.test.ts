@@ -40,7 +40,7 @@ describe('Search Consistency', () => {
     // Allow microtasks to clear since indexer responds to events
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    let searchRes = searchEngine.search(new SearchQuery('hello')).items;
+    let searchRes = await searchEngine.search(new SearchQuery('hello'));
     expect(searchRes.length).toBeGreaterThan(0);
     expect(searchRes[0].path).toBe('/hello.ts');
 
@@ -48,10 +48,10 @@ describe('Search Consistency', () => {
     await manager.rename('/hello.ts', 'world.ts');
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    searchRes = searchEngine.search(new SearchQuery('hello')).items;
+    searchRes = await searchEngine.search(new SearchQuery('hello'));
     expect(searchRes.length).toBe(0);
 
-    searchRes = searchEngine.search(new SearchQuery('world')).items;
+    searchRes = await searchEngine.search(new SearchQuery('world'));
     expect(searchRes.length).toBeGreaterThan(0);
     expect(searchRes[0].path).toBe('/world.ts');
 
@@ -60,7 +60,7 @@ describe('Search Consistency', () => {
     await manager.move('/world.ts', '/lib');
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    searchRes = searchEngine.search(new SearchQuery('world')).items;
+    searchRes = await searchEngine.search(new SearchQuery('world'));
     expect(searchRes.length).toBeGreaterThan(0);
     expect(searchRes[0].path).toBe('/lib/world.ts');
 
@@ -68,7 +68,7 @@ describe('Search Consistency', () => {
     await manager.delete('/lib/world.ts');
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    searchRes = searchEngine.search(new SearchQuery('world')).items;
+    searchRes = await searchEngine.search(new SearchQuery('world'));
     expect(searchRes.length).toBe(0);
   });
 });
