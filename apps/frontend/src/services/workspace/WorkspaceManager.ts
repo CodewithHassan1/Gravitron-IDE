@@ -803,8 +803,21 @@ export class WorkspaceManagerImpl {
       }
     };
 
-    this.lifecycleLock = this.lifecycleLock.then(operation).catch(console.error);
-    return this.lifecycleLock;
+    const currentLock = this.lifecycleLock;
+    const task = (async () => {
+      try {
+        await currentLock;
+      } catch {
+        // Do not deadlock subsequent operations if previous lifecycle task failed
+      }
+      return await operation();
+    })();
+
+    this.lifecycleLock = task.then(
+      () => {},
+      () => {}
+    );
+    return task;
   }
 
   private async _closeWorkspaceInternal(): Promise<void> {
@@ -836,8 +849,8 @@ export class WorkspaceManagerImpl {
     // 6. Dispose Editor Models
     // Editor models are handled by EditorModelService
 
-    // 7. Dispose VFS
-    (this.vfs as any).index = { rootId: null, paths: {} };
+    // 7. Dispose VFS (Reset cleanly maintaining full TreeIndex contract)
+    this.vfs = new VirtualFileSystem();
 
     // 8. Empty State
     WorkspaceSession.clear();
@@ -866,8 +879,21 @@ export class WorkspaceManagerImpl {
       await this._closeWorkspaceInternal();
     };
 
-    this.lifecycleLock = this.lifecycleLock.then(operation).catch(console.error);
-    return this.lifecycleLock;
+    const currentLock = this.lifecycleLock;
+    const task = (async () => {
+      try {
+        await currentLock;
+      } catch {
+        // Do not deadlock subsequent operations if previous lifecycle task failed
+      }
+      return await operation();
+    })();
+
+    this.lifecycleLock = task.then(
+      () => {},
+      () => {}
+    );
+    return task;
   }
 
   public getActiveWorkspaceId(): string | null {
