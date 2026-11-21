@@ -7,10 +7,13 @@ export class ContextEngineImpl {
   private parsedExpressions: Map<string, ContextExpression> = new Map();
 
   constructor() {
-    // Default context values
-    this.context.set('isMac', navigator.userAgent.includes('Mac'));
-    this.context.set('isWindows', navigator.userAgent.includes('Win'));
-    this.context.set('isLinux', navigator.userAgent.includes('Linux'));
+    // Default context values with safe environment detection
+    const userAgent = typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : '';
+    const platform = typeof process !== 'undefined' && process.platform ? process.platform : '';
+
+    this.context.set('isMac', userAgent ? userAgent.includes('Mac') : platform === 'darwin');
+    this.context.set('isWindows', userAgent ? userAgent.includes('Win') : platform === 'win32');
+    this.context.set('isLinux', userAgent ? userAgent.includes('Linux') : platform === 'linux');
   }
 
   setContext(key: string, value: any) {
