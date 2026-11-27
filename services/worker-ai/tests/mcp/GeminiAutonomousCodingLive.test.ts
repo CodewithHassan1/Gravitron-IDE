@@ -159,15 +159,18 @@ console.log('ALL TOKEN BUCKET TESTS PASSED');
           }
         },
         searchWorkspace: async () => ({ workspaceId: 'ws', snapshotSequence: 1, results: [] }),
-        findDefinitions: async () => ({ definitions: [] }),
-        findReferences: async () => ({ references: [] }),
+        findDefinition: async () => ({ workspaceId: 'ws', snapshotSequence: 1, results: [] }),
+        findReferences: async () => ({ workspaceId: 'ws', snapshotSequence: 1, results: [] }),
         getRepositoryMap: async () => ({
-          files: ['package.json', 'src/tokenBucket.js', 'test.js'],
+          workspaceId: 'ws',
+          snapshotSequence: 1,
+          results: [{ content: 'package.json\nsrc/tokenBucket.js\ntest.js' }],
         }),
-        getSemanticContext: async () => ({ entries: [] }),
+        semanticSearch: async () => ({ workspaceId: 'ws', snapshotSequence: 1, results: [] }),
         getEpisodicMemory: async () => [],
         addEpisodicMemory: async () => {},
-        recordEpisodicMemory: async () => {},
+        addLongTermMemory: async () => {},
+        getLongTermMemory: async () => [],
         searchLongTermMemory: async () => [],
       };
 
