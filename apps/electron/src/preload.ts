@@ -407,6 +407,50 @@ contextBridge.exposeInMainWorld('agApi', {
       };
       return ipcRenderer.invoke(Channels.Agent.ApproveToolRequest, envelope);
     },
+    getTimeoutPolicy: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.GetTimeoutPolicyRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    setTimeoutPolicy: async (policy: any) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: policy,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.SetTimeoutPolicyRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    extendCommandTimeout: async (
+      agentId: string,
+      commandId: string,
+      additionalMs: number,
+      reason?: string
+    ) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { agentId, commandId, additionalMs, reason },
+      };
+      const response = await ipcRenderer.invoke(
+        Channels.Agent.ExtendCommandTimeoutRequest,
+        envelope
+      );
+      return unwrapIpcResponse<any>(response);
+    },
+    cancelCommand: async (agentId: string, commandId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { agentId, commandId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.CancelCommandRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
     subscribe: (callback: (event: any) => void) => {
       const handler = (_event: any, payload: any) => {
         callback(payload);

@@ -48,6 +48,10 @@ export const Channels = {
     GetProviderConfigRequest: 'agent/getProviderConfigRequest',
     SetProviderConfigRequest: 'agent/setProviderConfigRequest',
     TestProviderConfigRequest: 'agent/testProviderConfigRequest',
+    GetTimeoutPolicyRequest: 'agent/getTimeoutPolicyRequest',
+    SetTimeoutPolicyRequest: 'agent/setTimeoutPolicyRequest',
+    ExtendCommandTimeoutRequest: 'agent/extendCommandTimeoutRequest',
+    CancelCommandRequest: 'agent/cancelCommandRequest',
   },
   Lifecycle: {
     ReadyEvent: 'lifecycle/readyEvent',

@@ -1,4 +1,4 @@
-import { IService, IIpcService } from './IService';
+import { IService, ILifecycleService, IIpcService } from './IService';
 import { ServiceIds } from './ServiceIds';
 import { AgentRuntime, verifyDelegationWithPublicKey } from '@ag/worker-ai';
 import type { DelegationContext } from '@ag/worker-ai';
@@ -16,6 +16,7 @@ import { IWorkspaceExecutionService } from './execution/IWorkspaceExecutionServi
 import { AgentCapabilityBridgeImpl } from './AgentCapabilityBridgeImpl';
 import { IntelligenceManager } from './IntelligenceManager';
 import { SecureCredentialStore } from './security/SecureCredentialStore';
+import { AgentTimeoutSettingsStore } from './security/AgentTimeoutSettingsStore';
 
 interface StartRequestPayload {
   workspaceId: string;
@@ -33,7 +34,7 @@ interface StartRequestPayload {
   orgId?: string;
 }
 
-export class AgentIpcService implements IService, IIpcService {
+export class AgentIpcService implements IService, ILifecycleService, IIpcService {
   public readonly id = ServiceIds.AgentIpc;
   public readonly dependencies = [
     ServiceIds.Window,
@@ -44,22 +45,41 @@ export class AgentIpcService implements IService, IIpcService {
   private runtime: AgentRuntime;
   private windowService: WindowService;
   private credentialStore: SecureCredentialStore;
+  private timeoutSettingsStore: AgentTimeoutSettingsStore;
+  private capabilityBridge: AgentCapabilityBridgeImpl;
 
   constructor(
     windowService: WindowService,
     workspaceService: IWorkspaceService,
     workspaceExecutionService: IWorkspaceExecutionService,
     intelligenceManager: IntelligenceManager,
-    credentialStore?: SecureCredentialStore
+    credentialStore?: SecureCredentialStore,
+    timeoutSettingsStore?: AgentTimeoutSettingsStore
   ) {
-    const capabilityBridge = new AgentCapabilityBridgeImpl(
+    this.timeoutSettingsStore = timeoutSettingsStore || new AgentTimeoutSettingsStore();
+    this.capabilityBridge = new AgentCapabilityBridgeImpl(
       workspaceService,
       workspaceExecutionService,
-      intelligenceManager
+      intelligenceManager,
+      this.timeoutSettingsStore
     );
-    this.runtime = new AgentRuntime({ capabilityBridge });
+    this.runtime = new AgentRuntime({ capabilityBridge: this.capabilityBridge });
     this.windowService = windowService;
     this.credentialStore = credentialStore || new SecureCredentialStore();
+  }
+
+  public async initialize(): Promise<void> {}
+  public async start(): Promise<void> {}
+  public async stop(): Promise<void> {
+    this.runtime.cancelAll?.();
+    await this.capabilityBridge.dispose();
+  }
+  public async dispose(): Promise<void> {
+    this.runtime.cancelAll?.();
+    await this.capabilityBridge.dispose();
+  }
+  public async health(): Promise<boolean> {
+    return true;
   }
 
   private getGatewayUrl(): string {
@@ -325,6 +345,73 @@ export class AgentIpcService implements IService, IIpcService {
             payload: snapshot,
           };
           return response;
+        },
+      },
+      {
+        channel: Channels.Agent.GetTimeoutPolicyRequest,
+        handler: async () => {
+          return this.timeoutSettingsStore.getPolicy();
+        },
+      },
+      {
+        channel: Channels.Agent.SetTimeoutPolicyRequest,
+        handler: async (payload: Partial<AgentProtocol.AgentTimeoutPolicy>) => {
+          return this.timeoutSettingsStore.setPolicy(payload || {});
+        },
+      },
+      {
+        channel: Channels.Agent.ExtendCommandTimeoutRequest,
+        handler: async (payload: {
+          agentId: string;
+          commandId: string;
+          additionalMs: number;
+          reason?: string;
+        }) => {
+          if (!payload?.agentId || !payload?.commandId) {
+            throw new Error('agentId and commandId are required to extend command timeout');
+          }
+          const snapshot = this.runtime.getSnapshot(payload.agentId);
+          if (!snapshot) {
+            return {
+              granted: false,
+              newTimeoutMs: 0,
+              deadlineAt: 0,
+              addedMs: 0,
+              reason: 'Active agent session not found.',
+            };
+          }
+          return await this.capabilityBridge.extendCommandTimeout(
+            {
+              agentId: payload.agentId,
+              workspaceId: snapshot.workspaceId,
+              signal: new AbortController().signal,
+            },
+            payload.commandId,
+            payload.additionalMs,
+            'user',
+            payload.reason
+          );
+        },
+      },
+      {
+        channel: Channels.Agent.CancelCommandRequest,
+        handler: async (payload: { agentId: string; commandId: string }) => {
+          if (!payload?.agentId || !payload?.commandId) {
+            return { cancelled: false };
+          }
+          const snapshot = this.runtime.getSnapshot(payload.agentId);
+          if (!snapshot) {
+            return { cancelled: false };
+          }
+          const cancelled = await this.capabilityBridge.cancelCommand(
+            {
+              agentId: payload.agentId,
+              workspaceId: snapshot.workspaceId,
+              signal: new AbortController().signal,
+            },
+            payload.commandId
+          );
+          return { cancelled };
         },
       },
     ];

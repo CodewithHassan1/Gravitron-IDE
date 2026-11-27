@@ -83,6 +83,13 @@ export class WorkspaceExecutionService implements IWorkspaceExecutionService {
     await this.processManager.terminateTree(sessionId);
   }
 
+  public async terminateSessionSafely(
+    sessionId: string,
+    gracePeriodMs = 5_000
+  ): Promise<{ exitedGracefully: boolean; pid?: number; terminationResult: string }> {
+    return await this.processManager.terminateSessionSafely(sessionId, gracePeriodMs);
+  }
+
   public async cleanupWorkspace(workspaceId: string): Promise<void> {
     await this.processManager.cleanupWorkspace(workspaceId);
   }

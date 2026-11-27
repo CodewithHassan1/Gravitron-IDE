@@ -19,7 +19,7 @@ describe('AgentRouter Integration with AgentRuntime & Specialist Allowlist', () 
     const runtime = new AgentRuntime({ capabilityBridge: mockBridge });
 
     const initialToolCount = runtime.getToolRegistry().getDefinitions().length;
-    expect(initialToolCount).toBe(8); // 8 builtin tools
+    expect(initialToolCount).toBe(9); // 9 builtin tools
 
     const connection = await runtime.connectAgentRouter({
       endpoint: 'https://agent-router.org/mcp',
@@ -164,6 +164,6 @@ describe('AgentRouter Integration with AgentRuntime & Specialist Allowlist', () 
     expect(connection.error).toBeDefined();
 
     // Builtin tools remain intact
-    expect(runtime.getToolRegistry().getDefinitions().length).toBe(8);
+    expect(runtime.getToolRegistry().getDefinitions().length).toBe(9);
   });
 });

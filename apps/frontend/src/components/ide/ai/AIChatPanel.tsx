@@ -10,6 +10,7 @@ import { WorkspaceEventType } from '../../../services/workspace/types';
 import { useLayoutStore } from '../../../stores/ide/layoutStore';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { CommandExecutionCard, formatDurationReadable } from './CommandExecutionCard';
 import {
   PanelLeft,
   Search,
@@ -39,10 +40,21 @@ import {
   PanelBottom,
   MessageSquare,
   X,
+  Loader2,
+  CheckCircle2,
+  Circle,
+  XCircle,
+  ListChecks,
+  Cpu,
 } from 'lucide-react';
 
 const DEFAULT_MODELS: Record<AgentProtocol.SupportedProviderType, string[]> = {
-  gemini: ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-1.5-pro'],
+  gemini: [
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.8-flash',
+    'gemini-3.1-pro-preview',
+  ],
   anthropic: [
     'claude-3-5-sonnet-20241022',
     'claude-3-7-sonnet-20250219',
@@ -52,10 +64,10 @@ const DEFAULT_MODELS: Record<AgentProtocol.SupportedProviderType, string[]> = {
 };
 
 const MODEL_FRIENDLY_NAMES: Record<string, string> = {
-  'gemini-3.8-flash': 'Gemini 3.8 Flash High',
-  'gemini-3.5-flash-lite': 'Gemini 3.5 Flash Lite',
   'gemini-3.5-flash': 'Gemini 3.5 Flash',
-  'gemini-1.5-pro': 'Gemini 1.5 Pro',
+  'gemini-3.5-flash-lite': 'Gemini 3.5 Flash Lite',
+  'gemini-3.8-flash': 'Gemini 3.8 Flash',
+  'gemini-3.1-pro-preview': 'Gemini 3.1 Pro',
   'claude-3-5-sonnet-20241022': 'Claude 3.5 Sonnet',
   'claude-3-7-sonnet-20250219': 'Claude 3.7 Sonnet',
   'claude-3-5-haiku-20241022': 'Claude 3.5 Haiku',
@@ -95,7 +107,23 @@ function getResolvedWorkspaceId(): string {
 
 export function AIChatPanel() {
   const router = useRouter();
-  const { agentId, state, displayMessages, processEvent, applySnapshot, clear } = useAgentStore();
+  const {
+    agentId,
+    state,
+    statusReason,
+    activeToolName,
+    lastError,
+    plan,
+    displayMessages,
+    specialistActivities,
+    commandExecutions,
+    commandExecutionOrder,
+    processEvent,
+    applySnapshot,
+    beginRun,
+    setError,
+    clear,
+  } = useAgentStore();
 
   const toggleSidebar = useLayoutStore((s) => s.toggleSidebar);
   const toggleBottomPanel = useLayoutStore((s) => s.toggleBottomPanel);
@@ -106,7 +134,7 @@ export function AIChatPanel() {
 
   const [selectedProvider, setSelectedProvider] =
     useState<AgentProtocol.SupportedProviderType>('gemini');
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.8-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.5-flash');
 
   // UI state toggles matching user images
   const [isSearching, setIsSearching] = useState(false);
@@ -193,6 +221,7 @@ export function AIChatPanel() {
     };
   }, []);
 
+  // Keep a single continuous event subscription across agentId changes so startup events are never missed
   useEffect(() => {
     if (!agentManager) return;
 
@@ -200,16 +229,23 @@ export function AIChatPanel() {
       processEvent(event);
     });
 
-    if (activeWorkspaceId && agentId) {
-      agentManager.snapshot(agentId).then((snapshot) => {
-        if (snapshot) applySnapshot(snapshot);
-      });
-    }
-
     return () => {
       unsubscribe();
     };
-  }, [agentManager, agentId, activeWorkspaceId, processEvent, applySnapshot]);
+  }, [agentManager, processEvent]);
+
+  // Attach snapshot only when reconnecting to an existing session without local state
+  useEffect(() => {
+    if (!agentManager || !activeWorkspaceId || !agentId) return;
+    const storeState = useAgentStore.getState();
+    if (storeState.lastSequence > 0 && storeState.displayMessages.length > 0) {
+      return;
+    }
+
+    agentManager.snapshot(agentId).then((snapshot) => {
+      if (snapshot) applySnapshot(snapshot);
+    });
+  }, [agentManager, agentId, activeWorkspaceId, applySnapshot]);
 
   // Auto-scroll when messages update
   useEffect(() => {
@@ -253,6 +289,7 @@ export function AIChatPanel() {
     if (addUserMsg) {
       useAgentStore.getState().addUserMessage(prompt);
     }
+    beginRun(wsId);
 
     try {
       if (!agentManager || !agentManager.isAvailable()) {
@@ -271,6 +308,7 @@ export function AIChatPanel() {
     } catch (e: any) {
       const msg = e?.message || 'Failed to start agent task.';
       console.warn('[AIChatPanel] startAgent failed:', msg);
+      setError(msg);
       setErrorMessage(msg);
     }
   };
@@ -278,6 +316,13 @@ export function AIChatPanel() {
   const handleCancel = () => {
     if (agentId && agentManager && agentManager.isAvailable()) {
       agentManager.cancelAgent(agentId);
+      showToast('Agent stopped.');
+    } else if (isRunning) {
+      setError(null);
+      useAgentStore.setState({
+        state: AgentProtocol.AgentState.Cancelled,
+        statusReason: 'Cancelled by user',
+      });
       showToast('Agent stopped.');
     }
   };
@@ -302,6 +347,43 @@ export function AIChatPanel() {
       agentManager.approveTool(agentId, approvalId, toolCallId, approved);
     }
   };
+
+  const handleExtendCommand = useCallback(
+    async (commandId: string, additionalMs: number) => {
+      if (!agentId || !agentManager || !agentManager.isAvailable()) return;
+      try {
+        const res = await agentManager.extendCommandTimeout(
+          agentId,
+          commandId,
+          additionalMs,
+          'User requested extension'
+        );
+        if (res.granted) {
+          showToast(`Extended timeout by ${formatDurationReadable(res.addedMs)}`);
+        } else {
+          showToast(res.reason || 'Unable to extend command timeout');
+        }
+      } catch (err: any) {
+        showToast(err?.message || 'Extension failed');
+      }
+    },
+    [agentId, agentManager]
+  );
+
+  const handleCancelCommand = useCallback(
+    async (commandId: string) => {
+      if (!agentId || !agentManager || !agentManager.isAvailable()) return;
+      try {
+        const res = await agentManager.cancelCommand(agentId, commandId);
+        if (res?.cancelled) {
+          showToast('Command cancelled');
+        }
+      } catch (err: any) {
+        showToast(err?.message || 'Cancel failed');
+      }
+    },
+    [agentId, agentManager]
+  );
 
   const handleCopyMessage = async (id: string, text: string) => {
     try {
@@ -391,14 +473,18 @@ export function AIChatPanel() {
 
   const handleOpenSettings = () => {
     setIsMoreMenuOpen(false);
-    router.push('/dashboard/settings');
+    router.push('/dashboard/settings?tab=agent');
   };
 
   const isRunning =
+    Boolean(state) &&
     state !== AgentProtocol.AgentState.Idle &&
     state !== AgentProtocol.AgentState.Completed &&
     state !== AgentProtocol.AgentState.Failed &&
     state !== AgentProtocol.AgentState.Cancelled;
+
+  const activeError =
+    errorMessage || (state === AgentProtocol.AgentState.Failed ? lastError : null);
 
   const displayModelName =
     MODEL_FRIENDLY_NAMES[selectedModel] || selectedModel || 'Gemini 3.8 Flash High';
@@ -409,6 +495,15 @@ export function AIChatPanel() {
     const q = searchQuery.toLowerCase();
     return displayMessages.filter((m) => m.content.toLowerCase().includes(q));
   }, [displayMessages, searchQuery]);
+
+  const showWelcome =
+    filteredMessages.length === 0 &&
+    !isRunning &&
+    !plan?.steps?.length &&
+    specialistActivities.length === 0 &&
+    commandExecutionOrder.length === 0 &&
+    !activeError &&
+    state === AgentProtocol.AgentState.Idle;
 
   const setNativeElementValue = (
     el: HTMLInputElement | HTMLTextAreaElement,
@@ -825,15 +920,59 @@ export function AIChatPanel() {
 
       {/* Main Messages Stream Area */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 select-text">
-        {errorMessage && (
+        {showWelcome ? (
+          <EmptyWelcomeState onSelectPrompt={(p) => handleStart(p, true)} />
+        ) : (
+          <>
+            {plan && plan.steps && plan.steps.length > 0 && <AgentPlanCard plan={plan} />}
+
+            {filteredMessages.map((msg, idx) => (
+              <MessageItem
+                key={msg.id}
+                message={msg}
+                onCopy={handleCopyMessage}
+                isCopied={copiedId === msg.id}
+                reaction={reactions[msg.id]}
+                onReaction={(type) => handleToggleReaction(msg.id, type)}
+                isActiveAssistant={
+                  isRunning && idx === filteredMessages.length - 1 && msg.role === 'assistant'
+                }
+                activeToolName={activeToolName}
+              />
+            ))}
+
+            {specialistActivities.length > 0 && (
+              <SpecialistActivityList activities={specialistActivities} />
+            )}
+
+            {commandExecutionOrder.length > 0 && (
+              <div className="space-y-2">
+                {commandExecutionOrder.map((cmdId) => {
+                  const exec = commandExecutions[cmdId];
+                  if (!exec) return null;
+                  return (
+                    <CommandExecutionCard
+                      key={cmdId}
+                      execution={exec}
+                      onExtend={handleExtendCommand}
+                      onCancel={handleCancelCommand}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeError && (
           <div className="p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs text-red-200 flex items-start justify-between">
             <div className="flex items-start space-x-2">
               <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <div className="space-y-1.5">
-                <div className="font-semibold text-red-100">Unable to Start Agent</div>
-                <div className="text-[11px] text-red-200/90 break-words">{errorMessage}</div>
-                {(errorMessage.includes('401') ||
-                  errorMessage.toLowerCase().includes('session has expired')) && (
+                <div className="font-semibold text-red-100">Unable to Complete Agent Task</div>
+                <div className="text-[11px] text-red-200/90 break-words">{activeError}</div>
+                {(activeError.includes('401') ||
+                  activeError.toLowerCase().includes('session has expired')) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -849,7 +988,10 @@ export function AIChatPanel() {
             </div>
             <button
               type="button"
-              onClick={() => setErrorMessage(null)}
+              onClick={() => {
+                setErrorMessage(null);
+                setError(null);
+              }}
               className="text-red-400 hover:text-red-200 ml-2 p-0.5 shrink-0"
             >
               <X className="w-3.5 h-3.5" />
@@ -857,26 +999,16 @@ export function AIChatPanel() {
           </div>
         )}
 
-        {filteredMessages.length === 0 ? (
-          <EmptyWelcomeState onSelectPrompt={(p) => handleStart(p, true)} />
-        ) : (
-          filteredMessages.map((msg) => (
-            <MessageItem
-              key={msg.id}
-              message={msg}
-              onCopy={handleCopyMessage}
-              isCopied={copiedId === msg.id}
-              reaction={reactions[msg.id]}
-              onReaction={(type) => handleToggleReaction(msg.id, type)}
-            />
-          ))
-        )}
-
         {state === AgentProtocol.AgentState.AwaitingApproval && (
           <ApprovalBanner onApprove={handleApproveTool} />
         )}
 
-        <AgentStatus state={state} onCancel={handleCancel} />
+        <AgentStatus
+          state={state}
+          statusReason={statusReason}
+          activeToolName={activeToolName}
+          onCancel={handleCancel}
+        />
         <div ref={messagesEndRef} />
       </div>
 
@@ -1360,6 +1492,188 @@ function FileChangesDiffCard({
 }
 
 // ---------------------------------------------------------------------------
+// Live Antigravity-style task plan progress card
+// ---------------------------------------------------------------------------
+function AgentPlanCard({ plan }: { plan: AgentProtocol.AgentPlan }) {
+  const [expanded, setExpanded] = useState(true);
+  const completedCount = plan.steps.filter((s) => s.status === 'completed').length;
+  const totalCount = plan.steps.length;
+  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  return (
+    <div className="rounded-xl border border-zinc-800/90 bg-zinc-900/50 overflow-hidden text-xs">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full px-3 py-2 flex items-center justify-between hover:bg-zinc-800/40 transition-colors"
+      >
+        <div className="flex items-center space-x-2 text-zinc-200 font-medium">
+          <ListChecks className="w-3.5 h-3.5 text-primary shrink-0" />
+          <span>Task Plan</span>
+          <span className="text-[11px] text-zinc-500 font-normal">
+            {completedCount}/{totalCount} completed
+          </span>
+        </div>
+        <ChevronDown
+          className={cn(
+            'w-3.5 h-3.5 text-zinc-500 transition-transform',
+            !expanded && '-rotate-90'
+          )}
+        />
+      </button>
+
+      <div className="h-0.5 bg-zinc-800/80 w-full">
+        <div
+          className="h-full bg-primary transition-all duration-300"
+          style={{ width: `${progressPct}%` }}
+        />
+      </div>
+
+      {expanded && (
+        <div className="px-3 py-2 space-y-1.5">
+          {plan.steps.map((step) => (
+            <div key={step.id} className="flex items-start space-x-2 text-[11px] leading-snug">
+              {step.status === 'in_progress' && (
+                <Loader2 className="w-3.5 h-3.5 text-primary animate-spin shrink-0 mt-0.5" />
+              )}
+              {step.status === 'completed' && (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              )}
+              {step.status === 'failed' && (
+                <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+              )}
+              {(step.status === 'pending' || step.status === 'skipped') && (
+                <Circle className="w-3.5 h-3.5 text-zinc-600 shrink-0 mt-0.5" />
+              )}
+              <span
+                className={cn(
+                  step.status === 'completed' && 'text-zinc-400 line-through',
+                  step.status === 'in_progress' && 'text-zinc-100 font-medium',
+                  step.status === 'failed' && 'text-red-300',
+                  (step.status === 'pending' || step.status === 'skipped') && 'text-zinc-400'
+                )}
+              >
+                {step.description}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Live specialist delegation activity cards
+// ---------------------------------------------------------------------------
+function SpecialistActivityList({
+  activities,
+}: {
+  activities: AgentProtocol.SpecialistDelegationPayload[];
+}) {
+  return (
+    <div className="space-y-1.5">
+      {activities.map((activity, idx) => (
+        <div
+          key={`${activity.specialistName}-${idx}`}
+          className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-3 py-2 text-[11px] space-y-1"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1.5 text-zinc-200 font-medium">
+              <Cpu className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span>{activity.specialistName}</span>
+            </div>
+            {activity.status === 'running' || activity.status === 'starting' ? (
+              <span className="flex items-center space-x-1 text-primary">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>Consulting</span>
+              </span>
+            ) : activity.status === 'completed' ? (
+              <span className="text-emerald-400">Completed</span>
+            ) : (
+              <span className="text-red-400">Failed</span>
+            )}
+          </div>
+          {(activity.summary || activity.reason) && (
+            <div className="text-zinc-400 leading-snug break-words">
+              {activity.summary || activity.reason}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Compact collapsible tool call row matching Antigravity activity rows
+// ---------------------------------------------------------------------------
+function ToolCallPill({
+  toolCall,
+  isActive,
+}: {
+  toolCall: NonNullable<AgentProtocol.DisplayMessage['toolCalls']>[number];
+  isActive: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  const argPreview = useMemo(() => {
+    const args = toolCall.arguments as Record<string, unknown> | null;
+    if (!args || typeof args !== 'object') return '';
+    const candidate =
+      args.path ||
+      args.filePath ||
+      args.command ||
+      args.query ||
+      args.pattern ||
+      args.target ||
+      args.directory;
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim();
+    }
+    return '';
+  }, [toolCall.arguments]);
+
+  if (toolCall.name === 'update_plan') {
+    return null;
+  }
+
+  return (
+    <div className="my-1.5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 text-[11px] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full px-2.5 py-1.5 flex items-center justify-between hover:bg-zinc-800/40 transition-colors text-left"
+      >
+        <div className="flex items-center space-x-2 min-w-0">
+          {isActive ? (
+            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin shrink-0" />
+          ) : (
+            <Terminal className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+          )}
+          <span className="font-mono text-zinc-200 font-medium shrink-0">{toolCall.name}</span>
+          {argPreview && (
+            <span className="text-zinc-500 font-mono truncate">{argPreview}</span>
+          )}
+        </div>
+        <ChevronRight
+          className={cn(
+            'w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform',
+            expanded && 'rotate-90'
+          )}
+        />
+      </button>
+
+      {expanded && (
+        <pre className="px-2.5 pb-2 pt-1 text-[10px] font-mono text-zinc-400 overflow-x-auto border-t border-zinc-800/60 bg-zinc-950/60">
+          {JSON.stringify(toolCall.arguments, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Single message item with action toolbar matching reference image
 // ---------------------------------------------------------------------------
 function MessageItem({
@@ -1368,17 +1682,23 @@ function MessageItem({
   isCopied,
   reaction,
   onReaction,
+  isActiveAssistant = false,
+  activeToolName = null,
 }: {
   message: AgentProtocol.DisplayMessage;
   onCopy: (id: string, text: string) => void;
   isCopied: boolean;
   reaction?: 'up' | 'down';
   onReaction: (type: 'up' | 'down') => void;
+  isActiveAssistant?: boolean;
+  activeToolName?: string | null;
 }) {
+  const [toolExpanded, setToolExpanded] = useState(false);
   const isUser = message.role === 'user';
+  const isTool = message.role === 'tool';
 
   const hasFileModifications = useMemo(() => {
-    if (isUser) return false;
+    if (isUser || isTool) return false;
     const hasWriteTool = message.toolCalls?.some(
       (tc) => tc.name === 'write_file' || tc.name === 'edit_file'
     );
@@ -1387,7 +1707,39 @@ function MessageItem({
       message.content.includes('1 file changed') ||
       message.content.includes('+2 -2');
     return hasWriteTool || mentionsDiff;
-  }, [message, isUser]);
+  }, [message, isUser, isTool]);
+
+  if (isTool) {
+    const trimmed = message.content.trim();
+    const preview = trimmed.length > 90 ? `${trimmed.slice(0, 90)}...` : trimmed;
+    return (
+      <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/30 text-[11px] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setToolExpanded(!toolExpanded)}
+          className="w-full px-2.5 py-1.5 flex items-center justify-between text-zinc-400 hover:bg-zinc-800/30 transition-colors text-left"
+        >
+          <div className="flex items-center space-x-2 min-w-0">
+            <CheckCircle2 className="w-3 h-3 text-emerald-500/80 shrink-0" />
+            <span className="truncate font-mono text-[10px] text-zinc-400">
+              {preview || 'Tool completed'}
+            </span>
+          </div>
+          <ChevronRight
+            className={cn(
+              'w-3 h-3 text-zinc-500 shrink-0 transition-transform',
+              toolExpanded && 'rotate-90'
+            )}
+          />
+        </button>
+        {toolExpanded && (
+          <pre className="px-2.5 pb-2 pt-1 text-[10px] font-mono text-zinc-400 overflow-x-auto max-h-48 border-t border-zinc-800/50 bg-zinc-950/60 whitespace-pre-wrap break-words">
+            {message.content}
+          </pre>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -1409,23 +1761,20 @@ function MessageItem({
         {hasFileModifications && <FileChangesDiffCard />}
 
         {message.toolCalls &&
-          message.toolCalls.map((tc) => (
-            <div
+          message.toolCalls.map((tc, tcIdx) => (
+            <ToolCallPill
               key={tc.id}
-              className="my-2 p-2.5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 text-[11px] font-mono"
-            >
-              <div className="flex items-center space-x-1.5 text-primary font-semibold mb-1">
-                <Terminal className="w-3.5 h-3.5" />
-                <span>{tc.name}</span>
-              </div>
-              <pre className="text-zinc-500 overflow-x-auto">
-                {JSON.stringify(tc.arguments, null, 2)}
-              </pre>
-            </div>
+              toolCall={tc}
+              isActive={
+                isActiveAssistant &&
+                tcIdx === (message.toolCalls?.length ?? 0) - 1 &&
+                activeToolName === tc.name
+              }
+            />
           ))}
       </div>
 
-      {!isUser && (
+      {!isUser && !isActiveAssistant && Boolean(message.content?.trim()) && (
         <div className="flex items-center space-x-3 text-zinc-500 text-xs mt-2 select-none">
           <button
             onClick={() => onCopy(message.id, message.content)}
@@ -1460,8 +1809,6 @@ function MessageItem({
           >
             <ThumbsDown className="w-3.5 h-3.5" />
           </button>
-
-          <span className="text-[11px] text-zinc-500 font-sans ml-1">3m ago</span>
         </div>
       )}
     </div>
@@ -1521,11 +1868,30 @@ export function ApprovalBanner({
   const pendingApproval = useAgentStore((s) => s.pendingApproval);
   if (!pendingApproval) return null;
 
+  const args = (pendingApproval.arguments as Record<string, any>) || {};
+  const requestedTimeoutSec =
+    typeof args.timeoutSeconds === 'number' && args.timeoutSeconds > 0
+      ? args.timeoutSeconds
+      : args.timeoutPreset === 'extended'
+        ? 600
+        : args.timeoutPreset === 'long'
+          ? 300
+          : args.timeoutPreset === 'short'
+            ? 30
+            : null;
+
   return (
     <div className="bg-amber-950/30 border border-amber-800/70 p-3 rounded-2xl my-3 shadow-md space-y-2">
-      <h3 className="font-semibold text-amber-300 flex items-center text-xs">
-        <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-400" /> Tool Approval Required
-      </h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-semibold text-amber-300 flex items-center text-xs">
+          <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-400" /> Tool Approval Required
+        </h3>
+        {pendingApproval.toolName === 'execute_command' && requestedTimeoutSec !== null && (
+          <span className="px-2 py-0.5 rounded-full bg-amber-900/50 border border-amber-700/70 text-[10px] font-mono text-amber-200">
+            Timeout: {formatDurationReadable(requestedTimeoutSec * 1000)}
+          </span>
+        )}
+      </div>
       <div className="text-xs space-y-1.5">
         <div className="bg-zinc-950 p-2 rounded-xl font-mono text-[11px] overflow-auto max-h-36 border border-zinc-800 text-zinc-400">
           <div className="font-bold text-primary mb-1">{pendingApproval.toolName}</div>
@@ -1553,14 +1919,55 @@ export function ApprovalBanner({
 // ---------------------------------------------------------------------------
 // Agent Status Indicator
 // ---------------------------------------------------------------------------
+function formatAgentStatusLabel(
+  state: AgentProtocol.AgentState,
+  activeToolName: string | null,
+  statusReason: string | null
+): { title: string; detail?: string } {
+  let title = 'Working';
+  switch (state) {
+    case AgentProtocol.AgentState.Planning:
+      title = 'Planning next steps';
+      break;
+    case AgentProtocol.AgentState.CallingProvider:
+      title = 'Thinking';
+      break;
+    case AgentProtocol.AgentState.Streaming:
+      title = 'Generating response';
+      break;
+    case AgentProtocol.AgentState.ToolCallPending:
+      title = activeToolName ? `Preparing ${activeToolName}` : 'Preparing tool execution';
+      break;
+    case AgentProtocol.AgentState.AwaitingApproval:
+      title = activeToolName ? `Waiting for approval: ${activeToolName}` : 'Waiting for approval';
+      break;
+    case AgentProtocol.AgentState.ExecutingTool:
+      title = activeToolName ? `Running ${activeToolName}` : 'Executing tool';
+      break;
+    default:
+      title = state || 'Working';
+  }
+
+  const detail =
+    statusReason && statusReason.trim() && statusReason.trim() !== title
+      ? statusReason.trim()
+      : undefined;
+  return { title, detail };
+}
+
 export function AgentStatus({
   state,
+  statusReason = null,
+  activeToolName = null,
   onCancel,
 }: {
   state: AgentProtocol.AgentState;
+  statusReason?: string | null;
+  activeToolName?: string | null;
   onCancel: () => void;
 }) {
   if (
+    !state ||
     state === AgentProtocol.AgentState.Idle ||
     state === AgentProtocol.AgentState.Completed ||
     state === AgentProtocol.AgentState.Cancelled ||
@@ -1569,13 +1976,21 @@ export function AgentStatus({
     return null;
   }
 
+  const { title, detail } = formatAgentStatusLabel(state, activeToolName, statusReason);
+
   return (
-    <div className="flex items-center space-x-2 text-xs text-zinc-400 my-2 p-2 px-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
-      <div className="animate-spin h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full" />
-      <span className="font-medium text-zinc-200 capitalize">{state}...</span>
+    <div className="flex items-center justify-between gap-2 text-xs text-zinc-400 my-2 p-2.5 px-3 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
+      <div className="flex items-center space-x-2.5 min-w-0">
+        <Loader2 className="w-3.5 h-3.5 text-primary animate-spin shrink-0" />
+        <div className="min-w-0">
+          <div className="font-medium text-zinc-200 truncate">{title}...</div>
+          {detail && <div className="text-[11px] text-zinc-400 truncate">{detail}</div>}
+        </div>
+      </div>
       <button
+        type="button"
         onClick={onCancel}
-        className="ml-auto text-red-400 hover:text-red-300 px-2 py-0.5 rounded hover:bg-red-950/30 text-[11px] transition-colors"
+        className="shrink-0 text-red-400 hover:text-red-300 px-2 py-0.5 rounded hover:bg-red-950/30 text-[11px] transition-colors"
       >
         Cancel
       </button>

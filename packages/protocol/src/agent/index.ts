@@ -41,6 +41,87 @@ export namespace AgentProtocol {
     ToolApprovalRequested = 'ToolApprovalRequested',
     PlanUpdated = 'PlanUpdated',
     SpecialistDelegation = 'SpecialistDelegation',
+    CommandExecutionUpdated = 'CommandExecutionUpdated',
+  }
+
+  export type CommandExecutionOutcome =
+    | 'completed'
+    | 'failed'
+    | 'timed_out'
+    | 'cancelled_by_user'
+    | 'terminated_by_policy';
+
+  export type CommandTimeoutPreset = 'short' | 'normal' | 'long' | 'extended';
+
+  export interface AgentTimeoutPolicy {
+    defaultTimeoutMs: number;
+    maxPermittedTimeoutMs: number;
+    allowAgentExtension: boolean;
+    requireConfirmationForLongCommands: boolean;
+    terminationGracePeriodMs: number;
+    warningThresholdRatio: number;
+    criticalThresholdRatio: number;
+  }
+
+  export interface CommandTimeoutExtensionRecord {
+    requestedBy: 'agent' | 'user';
+    addedMs: number;
+    previousTimeoutMs: number;
+    newTimeoutMs: number;
+    reason?: string;
+    timestamp: number;
+  }
+
+  export interface CommandExecutionOptions {
+    commandId?: string;
+    description?: string;
+    timeoutMs?: number;
+    preset?: CommandTimeoutPreset;
+    toolCallId?: string;
+  }
+
+  export interface CommandExecutionResult {
+    stdout: string;
+    stderr: string;
+    exitCode: number;
+    commandId?: string;
+    command?: string;
+    description?: string;
+    outcome?: CommandExecutionOutcome;
+    timedOut?: boolean;
+    cancelled?: boolean;
+    configuredTimeoutMs?: number;
+    elapsedMs?: number;
+    terminationResult?: string;
+    extensions?: CommandTimeoutExtensionRecord[];
+    canExtend?: boolean;
+    policyViolation?: string;
+  }
+
+  export interface ActiveCommandExecutionSnapshot {
+    commandId: string;
+    agentId: string;
+    workspaceId: string;
+    command: string;
+    description: string;
+    status: 'running' | 'warning' | 'critical' | 'terminating' | CommandExecutionOutcome;
+    startedAt: number;
+    deadlineAt: number;
+    configuredTimeoutMs: number;
+    maxTimeoutMs: number;
+    canExtend: boolean;
+    elapsedMs?: number;
+    warningLevel?: 'none' | 'subtle' | 'critical';
+    outputPreview?: string;
+    extensions: CommandTimeoutExtensionRecord[];
+    terminationResult?: string;
+    exitCode?: number;
+  }
+
+  export interface CommandExecutionUpdatedEvent {
+    type: AgentEventType.CommandExecutionUpdated;
+    agentId: string;
+    execution: ActiveCommandExecutionSnapshot;
   }
 
   export interface AgentPlanStep {
@@ -122,6 +203,8 @@ export namespace AgentProtocol {
       arguments: unknown;
     };
     plan?: AgentPlan;
+    activeCommandExecutions?: ActiveCommandExecutionSnapshot[];
+    timeoutPolicy?: AgentTimeoutPolicy;
     sequence: number;
   }
 
@@ -130,7 +213,8 @@ export namespace AgentProtocol {
     | StreamEventPayload
     | ToolApprovalRequestedEvent
     | PlanUpdatedEvent
-    | SpecialistDelegationPayload;
+    | SpecialistDelegationPayload
+    | CommandExecutionUpdatedEvent;
 
   export interface AgentEventEnvelope {
     eventId: string;
@@ -146,6 +230,8 @@ export namespace AgentProtocol {
     agentId: string;
     workspaceId: string;
     signal: AbortSignal;
+    onCommandExecutionUpdate?: (execution: ActiveCommandExecutionSnapshot) => void;
+    timeoutPolicy?: AgentTimeoutPolicy;
   }
 
   export interface IntelligenceQueryResult<T> {
@@ -198,12 +284,27 @@ export namespace AgentProtocol {
     executeCommand(
       context: AgentCapabilityContext,
       command: string,
-      cwd?: string
+      cwd?: string,
+      options?: CommandExecutionOptions
+    ): Promise<CommandExecutionResult>;
+
+    extendCommandTimeout?(
+      context: AgentCapabilityContext,
+      commandId: string,
+      additionalMs: number,
+      requestedBy: 'agent' | 'user',
+      reason?: string
     ): Promise<{
-      stdout: string;
-      stderr: string;
-      exitCode: number;
+      granted: boolean;
+      newTimeoutMs: number;
+      deadlineAt: number;
+      addedMs: number;
+      reason?: string;
     }>;
+
+    cancelCommand?(context: AgentCapabilityContext, commandId: string): Promise<boolean>;
+
+    getTimeoutPolicy?(): AgentTimeoutPolicy;
 
     searchWorkspace(
       context: AgentCapabilityContext,

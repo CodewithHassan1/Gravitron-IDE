@@ -8,6 +8,7 @@ import { DelegationContext, isDelegationContext } from './DelegationContext';
 import { ReadFileTool } from './tools/builtin/ReadFileTool';
 import { WriteFileTool } from './tools/builtin/WriteFileTool';
 import { ExecuteCommandTool } from './tools/builtin/ExecuteCommandTool';
+import { ExtendCommandTimeoutTool } from './tools/builtin/ExtendCommandTimeoutTool';
 import { SearchWorkspaceTool } from './tools/builtin/SearchWorkspaceTool';
 import { FindDefinitionTool } from './tools/builtin/FindDefinitionTool';
 import { FindReferencesTool } from './tools/builtin/FindReferencesTool';
@@ -33,6 +34,7 @@ export class AgentRuntime {
     this.toolRegistry.register(new ReadFileTool());
     this.toolRegistry.register(new WriteFileTool());
     this.toolRegistry.register(new ExecuteCommandTool());
+    this.toolRegistry.register(new ExtendCommandTimeoutTool());
     this.toolRegistry.register(new SearchWorkspaceTool());
     this.toolRegistry.register(new FindDefinitionTool());
     this.toolRegistry.register(new FindReferencesTool());
@@ -200,6 +202,12 @@ export class AgentRuntime {
   public cancelAgent(agentId: string): void {
     const session = this.sessions.get(agentId);
     if (session) {
+      session.cancel();
+    }
+  }
+
+  public cancelAll(): void {
+    for (const session of this.sessions.values()) {
       session.cancel();
     }
   }

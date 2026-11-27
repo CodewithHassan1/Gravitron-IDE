@@ -225,6 +225,39 @@ export class AgentManager {
     api.cancel(agentId);
   }
 
+  async getTimeoutPolicy(): Promise<AgentProtocol.AgentTimeoutPolicy> {
+    const api = this.ensureAvailable('getTimeoutPolicy');
+    return await api.getTimeoutPolicy();
+  }
+
+  async setTimeoutPolicy(
+    policy: Partial<AgentProtocol.AgentTimeoutPolicy>
+  ): Promise<AgentProtocol.AgentTimeoutPolicy> {
+    const api = this.ensureAvailable('setTimeoutPolicy');
+    return await api.setTimeoutPolicy(policy);
+  }
+
+  async extendCommandTimeout(
+    agentId: string,
+    commandId: string,
+    additionalMs: number,
+    reason?: string
+  ): Promise<{
+    granted: boolean;
+    newTimeoutMs: number;
+    deadlineAt: number;
+    addedMs: number;
+    reason?: string;
+  }> {
+    const api = this.ensureAvailable('extendCommandTimeout');
+    return await api.extendCommandTimeout(agentId, commandId, additionalMs, reason);
+  }
+
+  async cancelCommand(agentId: string, commandId: string): Promise<{ cancelled: boolean }> {
+    const api = this.ensureAvailable('cancelCommand');
+    return await api.cancelCommand(agentId, commandId);
+  }
+
   dispose(): void {
     if (this.subscription) {
       try {

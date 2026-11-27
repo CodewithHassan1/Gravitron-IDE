@@ -243,8 +243,11 @@ export class GeminiProvider implements AIProvider {
     ];
   }
 
-  private async executeWithRetry<T>(operation: () => Promise<T>, signal?: AbortSignal): Promise<T> {
-    const maxRetries = this.config.maxRetries ?? 3;
+  private async executeWithRetry<T>(
+    operation: (effectiveSignal: AbortSignal) => Promise<T>,
+    signal?: AbortSignal
+  ): Promise<T> {
+    const maxRetries = this.config.maxRetries ?? 2;
     let attempt = 0;
 
     while (true) {
@@ -254,24 +257,23 @@ export class GeminiProvider implements AIProvider {
 
       try {
         const abortController = new AbortController();
-        const onAbort = () => abortController.abort();
+        const onAbort = () => abortController.abort(signal?.reason);
 
         let timeoutId: any;
-        if (this.config.timeoutMs) {
-          timeoutId = setTimeout(
-            () => abortController.abort(new Error('Timeout')),
-            this.config.timeoutMs
-          );
-        }
+        const timeoutMs = this.config.timeoutMs ?? 60_000;
+        timeoutId = setTimeout(
+          () => abortController.abort(new Error(`Gemini request timed out after ${timeoutMs}ms`)),
+          timeoutMs
+        );
 
         if (signal) {
-          signal.addEventListener('abort', onAbort);
+          signal.addEventListener('abort', onAbort, { once: true });
         }
 
         try {
-          return await operation();
+          return await operation(abortController.signal);
         } finally {
-          if (timeoutId) clearTimeout(timeoutId);
+          clearTimeout(timeoutId);
           if (signal) signal.removeEventListener('abort', onAbort);
         }
       } catch (err: any) {
@@ -327,14 +329,14 @@ export class GeminiProvider implements AIProvider {
   }
 
   async completeChat(req: CompletionRequest, signal?: AbortSignal): Promise<CompletionResponse> {
-    return this.executeWithRetry(async () => {
+    return this.executeWithRetry(async (effectiveSignal) => {
       const systemMsg = req.messages.find((m) => m.role === 'system');
       const systemInstruction = systemMsg?.content;
 
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
-      const targetModel = req.model || this.config.model || 'gemini-3.5-flash-lite';
+      const targetModel = req.model || this.config.model || 'gemini-3.5-flash';
       const response = await this.client.models.generateContent({
         model: targetModel,
         contents,
@@ -343,6 +345,7 @@ export class GeminiProvider implements AIProvider {
           temperature: req.temperature,
           maxOutputTokens: req.maxTokens,
           tools,
+          abortSignal: effectiveSignal,
         },
       });
 
@@ -390,14 +393,14 @@ export class GeminiProvider implements AIProvider {
   }
 
   async *streamChat(req: CompletionRequest, signal?: AbortSignal): AsyncIterable<AIStreamEvent> {
-    const streamPromise = this.executeWithRetry(async () => {
+    const streamPromise = this.executeWithRetry(async (effectiveSignal) => {
       const systemMsg = req.messages.find((m) => m.role === 'system');
       const systemInstruction = systemMsg?.content;
 
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
-      const targetModel = req.model || this.config.model || 'gemini-3.5-flash-lite';
+      const targetModel = req.model || this.config.model || 'gemini-3.5-flash';
       return await this.client.models.generateContentStream({
         model: targetModel,
         contents,
@@ -406,6 +409,7 @@ export class GeminiProvider implements AIProvider {
           temperature: req.temperature,
           maxOutputTokens: req.maxTokens,
           tools,
+          abortSignal: effectiveSignal,
         },
       });
     }, signal);

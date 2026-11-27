@@ -47,6 +47,9 @@ export class AgentSession {
   } | null = null;
 
   public plan?: AgentProtocol.AgentPlan;
+  private activeExecutions = new Map<string, AgentProtocol.ActiveCommandExecutionSnapshot>();
+  private lastTimedOutSignature = '';
+  private repeatedTimeoutCount = 0;
 
   private readonly MAX_ITERATIONS: number;
   private sequence = 0;
@@ -164,12 +167,18 @@ export class AgentSession {
       displayMessages,
       pendingApproval,
       plan: this.plan,
+      activeCommandExecutions: Array.from(this.activeExecutions.values()),
+      timeoutPolicy: this.capabilityBridge.getTimeoutPolicy?.(),
       sequence: this.sequence,
     };
   }
 
   private transition(newState: AgentProtocol.AgentState, reason?: string) {
     if (this.stateMachine.state === newState) {
+      // Allow consecutive tool execution updates to broadcast the active tool reason
+      if (newState === AgentProtocol.AgentState.ExecutingTool && reason) {
+        this.emit(AgentProtocol.AgentEventType.StateChanged, { state: newState, reason });
+      }
       return;
     }
     this.stateMachine.transition(newState);
@@ -207,22 +216,6 @@ export class AgentSession {
       return;
     }
 
-    // Attempt to load existing episodic memory from DB
-    await this.memory.load();
-
-    // PHASE 8.3 ENFORCEMENT: Fail-closed restart
-    // If the memory has prior messages, this is a restart.
-    // Worker does not have persistent delegation bearer credentials.
-    // Therefore, any execution restart MUST fail closed unless it's a completely new execution.
-    if (this.memory.messages.length > 0) {
-      this.transition(
-        AgentProtocol.AgentState.Failed,
-        'Cannot resume execution: ephemeral delegation lost on restart'
-      );
-      return;
-    }
-
-    await this.memory.addMessage({ role: 'user', content: initialPrompt });
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
@@ -234,6 +227,26 @@ export class AgentSession {
       workspaceId: this.workspaceId,
       signal,
     };
+
+    try {
+      this.transition(AgentProtocol.AgentState.Planning, 'Loading session memory...');
+
+      // Attempt to load existing episodic memory from DB
+      await this.memory.load();
+
+      // PHASE 8.3 ENFORCEMENT: Fail-closed restart
+      // If the memory has prior messages, this is a restart.
+      // Worker does not have persistent delegation bearer credentials.
+      // Therefore, any execution restart MUST fail closed unless it's a completely new execution.
+      if (this.memory.messages.length > 0) {
+        this.transition(
+          AgentProtocol.AgentState.Failed,
+          'Cannot resume execution: ephemeral delegation lost on restart'
+        );
+        return;
+      }
+
+      await this.memory.addMessage({ role: 'user', content: initialPrompt });
 
     let claudeMd = '';
     try {
@@ -274,16 +287,13 @@ export class AgentSession {
 
     const projectInstructions = this.options?.projectInstructions || defaultProjectInstructions;
 
-    try {
-      this.transition(AgentProtocol.AgentState.Planning);
-
       while (iterations < this.MAX_ITERATIONS) {
         if (signal.aborted) {
           this.transition(AgentProtocol.AgentState.Cancelled, 'Aborted by user');
           return;
         }
 
-        this.transition(AgentProtocol.AgentState.CallingProvider);
+        this.transition(AgentProtocol.AgentState.CallingProvider, 'Thinking & planning next action...');
 
         // Fetch JIT memories (hybrid search)
         // Here we just use a generic query to represent current context, or fetch last message
@@ -360,7 +370,6 @@ export class AgentSession {
         };
 
         const stream = this.provider.streamChat(request, signal);
-        this.transition(AgentProtocol.AgentState.Streaming);
 
         this.inFlightMessage = {
           role: 'assistant',
@@ -368,7 +377,12 @@ export class AgentSession {
           toolCalls: [],
         };
 
+        let receivedFirstEvent = false;
         for await (const event of stream) {
+          if (!receivedFirstEvent) {
+            receivedFirstEvent = true;
+            this.transition(AgentProtocol.AgentState.Streaming, 'Generating response...');
+          }
           this.emit(AgentProtocol.AgentEventType.StreamEvent, {
             event,
           });
@@ -386,13 +400,13 @@ export class AgentSession {
         this.inFlightMessage = null;
 
         if (currentToolCalls.length > 0) {
-          this.transition(AgentProtocol.AgentState.ToolCallPending);
+          this.transition(AgentProtocol.AgentState.ToolCallPending, 'Preparing tool execution...');
 
           for (const toolCall of currentToolCalls) {
             if (signal.aborted) break;
 
             if (toolCall.name === 'update_plan') {
-              this.transition(AgentProtocol.AgentState.ExecutingTool);
+              this.transition(AgentProtocol.AgentState.ExecutingTool, 'Updating task plan...');
               const args = toolCall.arguments as any;
               this.plan = { steps: args.steps };
               this.emit(AgentProtocol.AgentEventType.PlanUpdated, { plan: this.plan });
@@ -432,7 +446,28 @@ export class AgentSession {
 
             if (needsApproval) {
               const approvalId = randomUUID();
-              const isAutoApprove = this.options?.autoApprove === true;
+              const timeoutPolicy = this.capabilityBridge.getTimeoutPolicy?.();
+              const cmdArgs = validatedArgs as {
+                command?: string;
+                timeoutSeconds?: number;
+                timeoutPreset?: string;
+              };
+              const requestedMs =
+                typeof cmdArgs?.timeoutSeconds === 'number' && cmdArgs.timeoutSeconds > 0
+                  ? cmdArgs.timeoutSeconds * 1000
+                  : cmdArgs?.timeoutPreset === 'extended'
+                    ? 600_000
+                    : cmdArgs?.timeoutPreset === 'long'
+                      ? 300_000
+                      : timeoutPolicy?.defaultTimeoutMs ?? 120_000;
+              const isLongRunningCommand =
+                toolCall.name === 'execute_command' &&
+                Boolean(timeoutPolicy?.requireConfirmationForLongCommands) &&
+                (requestedMs > (timeoutPolicy?.defaultTimeoutMs ?? 120_000) ||
+                  cmdArgs?.timeoutPreset === 'long' ||
+                  cmdArgs?.timeoutPreset === 'extended');
+
+              const isAutoApprove = this.options?.autoApprove === true && !isLongRunningCommand;
               const approvalMode: 'manual' | 'policy_auto' = isAutoApprove ? 'policy_auto' : 'manual';
 
               this.emit(AgentProtocol.AgentEventType.ToolApprovalRequested, {
@@ -485,7 +520,7 @@ export class AgentSession {
 
             if (signal.aborted) break;
 
-            this.transition(AgentProtocol.AgentState.ExecutingTool);
+            this.transition(AgentProtocol.AgentState.ExecutingTool, `Running ${toolCall.name}...`);
 
             const isSpecialist = SpecialistRegistry.APPROVED_SPECIALISTS.has(toolCall.name);
             if (isSpecialist) {
@@ -497,6 +532,7 @@ export class AgentSession {
             }
 
             try {
+              const timeoutPolicy = this.capabilityBridge.getTimeoutPolicy?.();
               const toolContext: AgentProtocol.AgentCapabilityContext & {
                 executionId: string;
                 userId: string;
@@ -505,15 +541,44 @@ export class AgentSession {
                 agentId: this.id,
                 workspaceId: this.workspaceId,
                 signal,
+                timeoutPolicy,
+                onCommandExecutionUpdate: (execution) => {
+                  this.activeExecutions.set(execution.commandId, execution);
+                  this.emit(AgentProtocol.AgentEventType.CommandExecutionUpdated, { execution });
+                },
                 executionId: this.delegation.executionId,
                 userId: this.delegation.userId,
                 orgId: this.delegation.orgId,
               };
               const result = await tool.execute(validatedArgs, this.capabilityBridge, toolContext);
 
-              const resultString = result.truncated
+              let resultString = result.truncated
                 ? `[Tool output truncated: original ${result.originalSize} characters; showing ${result.content.length}.]\n${result.content}`
                 : result.content;
+
+              if (toolCall.name === 'execute_command' && resultString.includes('Outcome: timed_out')) {
+                const cmdArgs = validatedArgs as {
+                  command?: string;
+                  timeoutSeconds?: number;
+                  timeoutPreset?: string;
+                };
+                const sig = `${cmdArgs?.command || ''}::${cmdArgs?.timeoutSeconds || cmdArgs?.timeoutPreset || 'default'}`;
+                if (sig === this.lastTimedOutSignature) {
+                  this.repeatedTimeoutCount++;
+                } else {
+                  this.lastTimedOutSignature = sig;
+                  this.repeatedTimeoutCount = 1;
+                }
+                if (this.repeatedTimeoutCount >= 2) {
+                  resultString +=
+                    '\n[LOOP GUARD]: This exact command and timeout combination has timed out multiple times consecutively. Do NOT run the exact same command with the exact same timeout again; change the command, narrow scope, inspect partial output, or increase timeoutSeconds if appropriate.';
+                  this.consecutiveErrors++;
+                }
+              } else {
+                this.repeatedTimeoutCount = 0;
+                this.lastTimedOutSignature = '';
+                this.consecutiveErrors = 0; // Reset on success
+              }
 
               await this.memory.addMessage({
                 role: 'tool',
@@ -521,7 +586,6 @@ export class AgentSession {
                 toolName: toolCall.name,
                 content: resultString,
               });
-              this.consecutiveErrors = 0; // Reset on success
 
               if (isSpecialist) {
                 const conciseSummary =
@@ -568,7 +632,7 @@ export class AgentSession {
           }
 
           if (!signal.aborted) {
-            this.transition(AgentProtocol.AgentState.Planning);
+            this.transition(AgentProtocol.AgentState.Planning, 'Reviewing results and planning next step...');
           }
           iterations++;
         } else {

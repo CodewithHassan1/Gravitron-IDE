@@ -111,6 +111,16 @@ export class IpcDispatcher {
         if (result && typeof result === 'object' && 'errorName' in result) {
           return result;
         }
+        // Handlers that already construct a ResponseEnvelope must not be double-wrapped.
+        if (
+          result &&
+          typeof result === 'object' &&
+          'version' in result &&
+          'requestId' in result &&
+          'payload' in result
+        ) {
+          return result;
+        }
         return {
           version: ProtocolVersion.V1,
           requestId: envelope.requestId,
