@@ -53,7 +53,11 @@ export class AgentStateMachine {
         );
 
       case AgentState.ToolCallPending:
-        return to === AgentState.AwaitingApproval || to === AgentState.ExecutingTool;
+        return (
+          to === AgentState.AwaitingApproval ||
+          to === AgentState.ExecutingTool ||
+          to === AgentState.Planning
+        );
 
       case AgentState.AwaitingApproval:
         return (
@@ -63,7 +67,13 @@ export class AgentStateMachine {
         );
 
       case AgentState.ExecutingTool:
-        return to === AgentState.Planning || to === AgentState.Completed;
+        return (
+          to === AgentState.Planning ||
+          to === AgentState.Completed ||
+          to === AgentState.ToolCallPending ||
+          to === AgentState.AwaitingApproval ||
+          to === AgentState.ExecutingTool
+        );
 
       default:
         return false;

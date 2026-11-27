@@ -29,10 +29,26 @@ export class LocalBackend implements IExecutionBackend {
 
   constructor() { }
 
-  private prepareShellIntegration(
+  public prepareShellIntegration(
     executable: string,
     originalArgs: readonly string[]
   ): { executable: string; args: string[] } {
+    const hasNonInteractiveFlag = originalArgs.some((arg) => {
+      const lower = arg.toLowerCase();
+      return (
+        lower === '-c' ||
+        lower === '-command' ||
+        lower === '/c' ||
+        lower === '-noninteractive' ||
+        lower.startsWith('-c=') ||
+        lower.startsWith('-command=')
+      );
+    });
+
+    if (hasNonInteractiveFlag) {
+      return { executable, args: [...originalArgs] };
+    }
+
     const execLower = executable.toLowerCase();
 
     if (execLower.includes('powershell') || execLower.includes('pwsh')) {

@@ -7,7 +7,7 @@ export interface PromptContext {
   claudeMd?: string;
   currentTask: string;
   retrievedMemories: { role: string; content: string }[];
-  episodicHistory: { role: string; content: string }[];
+  episodicHistory: (ChatMessage | { role: string; content: string })[];
 }
 
 export class PromptBuilder {
@@ -58,22 +58,105 @@ export class PromptBuilder {
     messages.push({ role: 'system', content: systemContent });
 
     // 6. Episodic History
-    // We add from oldest to newest, but we must ensure we only take the most recent history that fits in the budget.
-    // So we iterate backwards to select, then unshift into the final array.
-    const historyMessages: ChatMessage[] = [];
-    for (let i = context.episodicHistory.length - 1; i >= 0; i--) {
-      const msg = context.episodicHistory[i];
-      if (this.budget.canFit('history', msg.content)) {
-        historyMessages.unshift({ role: msg.role as any, content: msg.content });
-        this.budget.consume('history', msg.content);
+    // Groups assistant tool-call messages and their corresponding tool responses as atomic coherent groups.
+    // Retains the most recent complete groups that fit within the token budget.
+    const groups = this.groupHistory(context.episodicHistory);
+    const selectedGroups: ChatMessage[][] = [];
+
+    for (let g = groups.length - 1; g >= 0; g--) {
+      const group = groups[g];
+
+      let groupSerialized = '';
+      for (const m of group) {
+        groupSerialized += m.content;
+        if (m.toolCalls) {
+          groupSerialized += JSON.stringify(m.toolCalls);
+        }
+        if (m.toolCallId) {
+          groupSerialized += m.toolCallId;
+        }
+      }
+
+      if (this.budget.canFit('history', groupSerialized)) {
+        selectedGroups.unshift(group);
+        this.budget.consume('history', groupSerialized);
       } else {
-        // If we can't fit the next newest message, we truncate the rest of the history
+        // Truncate all older history when a group cannot fit
         break;
       }
     }
 
-    messages.push(...historyMessages);
+    for (const group of selectedGroups) {
+      messages.push(...group);
+    }
 
     return messages;
+  }
+
+  /**
+   * Partitions messages into coherent atomic conversation groups so tool-calls
+   * and tool-responses are never separated during history truncation.
+   */
+  private groupHistory(
+    rawMessages: (ChatMessage | { role: string; content: string })[]
+  ): ChatMessage[][] {
+    const groups: ChatMessage[][] = [];
+    let i = 0;
+
+    while (i < rawMessages.length) {
+      const msg = rawMessages[i];
+      const role = msg.role;
+      const toolCalls = 'toolCalls' in msg ? msg.toolCalls : undefined;
+      const toolCallId = 'toolCallId' in msg ? (msg as any).toolCallId : undefined;
+
+      const normalizedMsg: ChatMessage = {
+        role: role as any,
+        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+        toolCalls,
+        toolCallId,
+      };
+
+      if (role === 'tool') {
+        // Orphaned tool result without preceding assistant tool call: drop
+        i++;
+        continue;
+      }
+
+      if (role === 'assistant' && toolCalls && toolCalls.length > 0) {
+        const expectedIds = new Set(toolCalls.map((tc) => tc.id));
+        const group: ChatMessage[] = [normalizedMsg];
+        let j = i + 1;
+
+        while (j < rawMessages.length && rawMessages[j].role === 'tool') {
+          const toolMsg = rawMessages[j];
+          const tId = 'toolCallId' in toolMsg ? (toolMsg as any).toolCallId : undefined;
+          if (tId && expectedIds.has(tId)) {
+            group.push({
+              role: 'tool',
+              content:
+                typeof toolMsg.content === 'string'
+                  ? toolMsg.content
+                  : JSON.stringify(toolMsg.content),
+              toolCallId: tId,
+            });
+            expectedIds.delete(tId);
+          }
+          j++;
+        }
+
+        // Only retain the group if all expected tool responses were present
+        if (expectedIds.size === 0) {
+          groups.push(group);
+        }
+        i = j;
+        continue;
+      }
+
+      // Normal user, assistant (without tools), or system message
+      groups.push([normalizedMsg]);
+      i++;
+    }
+
+    return groups;
   }
 }

@@ -328,18 +328,56 @@ contextBridge.exposeInMainWorld('agApi', {
     },
   },
   agent: {
+    getProviderConfig: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.GetProviderConfigRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    setProviderConfig: async (config: any) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: config,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.SetProviderConfigRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    testProviderConfig: async (config: any) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: config,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.TestProviderConfigRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
     start: async (
       workspaceId: string,
       conversationId: string,
       prompt: string,
-      providerType: any,
-      providerConfig: any,
-      accessToken?: string
+      providerType?: any,
+      providerConfig?: any,
+      accessToken?: string,
+      model?: string,
+      options?: any
     ) => {
       const envelope: RequestEnvelope<any> = {
         version: ProtocolVersion.V1,
         requestId: crypto.randomUUID(),
-        payload: { workspaceId, conversationId, prompt, providerType, providerConfig, accessToken },
+        payload: {
+          workspaceId,
+          conversationId,
+          prompt,
+          providerType,
+          providerConfig,
+          accessToken,
+          model,
+          options,
+        },
       };
       const response = await ipcRenderer.invoke(Channels.Agent.StartRequest, envelope);
       return unwrapIpcResponse<any>(response).agentId;

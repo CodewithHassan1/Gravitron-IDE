@@ -1,4 +1,4 @@
-import { AgentSession } from './AgentSession';
+import { AgentSession, AgentSessionOptions } from './AgentSession';
 import { ProviderFactory, ProviderType, ProviderConfig } from '@ag/ai-providers';
 import { AgentProtocol } from '@ag/protocol';
 import { AGENT_EXECUTE_SCOPE } from '@ag/auth';
@@ -13,11 +13,18 @@ import { FindDefinitionTool } from './tools/builtin/FindDefinitionTool';
 import { FindReferencesTool } from './tools/builtin/FindReferencesTool';
 import { RepositoryMapTool } from './tools/builtin/RepositoryMapTool';
 import { SemanticSearchTool } from './tools/builtin/SemanticSearchTool';
+import { AgentRouterClient, AgentRouterClientOptions } from './mcp/AgentRouterClient';
+import { AgentRouterTool } from './mcp/AgentRouterTool';
+import { SpecialistRegistry } from './mcp/SpecialistRegistry';
+import { SpecialistLifecycleManager } from './mcp/SpecialistLifecycleManager';
 
 export class AgentRuntime {
   private sessions = new Map<string, AgentSession>();
   private toolRegistry = new ToolRegistry();
   private capabilityBridge: AgentProtocol.IAgentCapabilityBridge;
+  private specialistRegistry = new SpecialistRegistry();
+  private specialistClient?: AgentRouterClient;
+  private specialistLifecycle?: SpecialistLifecycleManager;
 
   constructor(options: { capabilityBridge: AgentProtocol.IAgentCapabilityBridge }) {
     this.capabilityBridge = options.capabilityBridge;
@@ -31,6 +38,106 @@ export class AgentRuntime {
     this.toolRegistry.register(new FindReferencesTool());
     this.toolRegistry.register(new RepositoryMapTool());
     this.toolRegistry.register(new SemanticSearchTool());
+  }
+
+  public async connectAgentRouter(options?: AgentRouterClientOptions): Promise<{
+    connected: boolean;
+    toolsDiscovered: number;
+    tools: string[];
+    approvedTools: string[];
+    registeredTools: string[];
+    error?: string;
+  }> {
+    try {
+      this.specialistClient = new AgentRouterClient(options);
+      await this.specialistClient.initialize();
+      const mcpTools = await this.specialistClient.listTools();
+
+      // Ingest dynamically discovered tools into the specialist registry
+      this.specialistRegistry.registerDiscoveredTools(mcpTools);
+      this.specialistLifecycle = new SpecialistLifecycleManager(this.specialistClient);
+
+      const registeredNames: string[] = [];
+
+      // Strict allowlist: Only approved and available tools are registered as executable
+      for (const mcpTool of mcpTools) {
+        if (
+          this.specialistRegistry.isApproved(mcpTool.name) &&
+          this.specialistRegistry.isAvailable(mcpTool.name)
+        ) {
+          const toolImpl = new AgentRouterTool(
+            mcpTool,
+            this.specialistClient,
+            this.specialistRegistry,
+            this.specialistLifecycle
+          );
+          this.toolRegistry.register(toolImpl);
+          this.specialistRegistry.markRegistered(mcpTool.name);
+          registeredNames.push(mcpTool.name);
+        }
+      }
+
+      return {
+        connected: true,
+        toolsDiscovered: mcpTools.length,
+        tools: mcpTools.map((t) => t.name),
+        approvedTools: this.specialistRegistry.getApprovedToolNames(),
+        registeredTools: registeredNames,
+      };
+    } catch (err: any) {
+      return {
+        connected: false,
+        toolsDiscovered: 0,
+        tools: [],
+        approvedTools: [],
+        registeredTools: [],
+        error: err.message,
+      };
+    }
+  }
+
+  public getSpecialistRegistry(): SpecialistRegistry {
+    return this.specialistRegistry;
+  }
+
+  public getSpecialistLifecycleManager(): SpecialistLifecycleManager | undefined {
+    return this.specialistLifecycle;
+  }
+
+  /**
+   * Enables an approved specialist tool dynamically at runtime.
+   */
+  public enableSpecialist(name: string): boolean {
+    const success = this.specialistRegistry.enableSpecialist(name);
+    if (success && this.specialistClient) {
+      const toolDef = this.specialistRegistry.getToolDefinition(name);
+      if (toolDef && !this.toolRegistry.has(name)) {
+        const toolImpl = new AgentRouterTool(
+          toolDef,
+          this.specialistClient,
+          this.specialistRegistry,
+          this.specialistLifecycle
+        );
+        this.toolRegistry.register(toolImpl);
+        this.specialistRegistry.markRegistered(name);
+      }
+    }
+    return success;
+  }
+
+  /**
+   * Disables an approved specialist tool dynamically at runtime.
+   */
+  public disableSpecialist(name: string): boolean {
+    const success = this.specialistRegistry.disableSpecialist(name);
+    if (success) {
+      this.toolRegistry.unregister(name);
+    }
+    return success;
+  }
+
+  public getToolRegistry(): ToolRegistry {
+    return this.toolRegistry;
   }
 
   public getSnapshot(agentId: string): AgentProtocol.AgentSnapshot | null {
@@ -47,7 +154,8 @@ export class AgentRuntime {
     providerConfig: ProviderConfig,
     eventEmitter: (event: AgentProtocol.AgentEventEnvelope) => void,
     delegation: DelegationContext,
-    agentId?: string
+    agentId?: string,
+    options?: AgentSessionOptions
   ): string {
     const id = agentId || crypto.randomUUID();
 
@@ -76,7 +184,8 @@ export class AgentRuntime {
       provider,
       eventEmitter,
       this.toolRegistry,
-      this.capabilityBridge
+      this.capabilityBridge,
+      options
     );
     this.sessions.set(id, session);
 

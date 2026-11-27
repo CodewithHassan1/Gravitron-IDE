@@ -15,18 +15,17 @@ import { IWorkspaceService } from './IWorkspaceService';
 import { IWorkspaceExecutionService } from './execution/IWorkspaceExecutionService';
 import { AgentCapabilityBridgeImpl } from './AgentCapabilityBridgeImpl';
 import { IntelligenceManager } from './IntelligenceManager';
-
-const AGENT_GATEWAY_URL = process.env.AGENT_GATEWAY_URL || 'http://localhost:3001';
-const AGENT_HOST_SECRET = process.env.AGENT_HOST_SECRET;
-const INTERNAL_PUBLIC_KEY = process.env.INTERNAL_PUBLIC_KEY;
+import { SecureCredentialStore } from './security/SecureCredentialStore';
 
 interface StartRequestPayload {
   workspaceId: string;
   conversationId: string;
   agentId?: string;
   prompt: string;
-  providerType: any;
-  providerConfig: any;
+  providerType?: any;
+  providerConfig?: any;
+  model?: string;
+  options?: any;
   // The renderer's own access token. Exchanged for an ephemeral, execution
   // bound agent delegation in the main process. The raw delegation token is
   // NEVER returned to the renderer and is NEVER persisted.
@@ -44,12 +43,14 @@ export class AgentIpcService implements IService, IIpcService {
   ];
   private runtime: AgentRuntime;
   private windowService: WindowService;
+  private credentialStore: SecureCredentialStore;
 
   constructor(
     windowService: WindowService,
     workspaceService: IWorkspaceService,
     workspaceExecutionService: IWorkspaceExecutionService,
-    intelligenceManager: IntelligenceManager
+    intelligenceManager: IntelligenceManager,
+    credentialStore?: SecureCredentialStore
   ) {
     const capabilityBridge = new AgentCapabilityBridgeImpl(
       workspaceService,
@@ -58,6 +59,38 @@ export class AgentIpcService implements IService, IIpcService {
     );
     this.runtime = new AgentRuntime({ capabilityBridge });
     this.windowService = windowService;
+    this.credentialStore = credentialStore || new SecureCredentialStore();
+  }
+
+  private getGatewayUrl(): string {
+    return (
+      process.env.AGENT_GATEWAY_URL ||
+      process.env.GATEWAY_URL ||
+      'http://localhost:8080'
+    );
+  }
+
+  private getAgentHostSecret(): string {
+    const fromEnv = process.env.AGENT_HOST_SECRET;
+    if (fromEnv && fromEnv.trim().length > 0) {
+      return fromEnv.trim();
+    }
+    // Match development convention in services/gateway/src/index.ts:52
+    const isPackaged = process.env.IS_PACKAGED === 'true';
+    if (!isPackaged && process.env.NODE_ENV !== 'production') {
+      return 'local-dev-host-secret';
+    }
+    throw new Error(
+      'AGENT_HOST_SECRET is not configured; agent execution host cannot exchange a delegation'
+    );
+  }
+
+  private getInternalPublicKey(): string {
+    const pubKey = process.env.INTERNAL_PUBLIC_KEY;
+    if (!pubKey || pubKey.trim().length === 0) {
+      throw new Error('INTERNAL_PUBLIC_KEY is not configured; cannot verify the agent delegation');
+    }
+    return pubKey;
   }
 
   /**
@@ -73,36 +106,45 @@ export class AgentIpcService implements IService, IIpcService {
     accessToken: string,
     orgId?: string
   ): Promise<DelegationContext> {
-    if (!AGENT_HOST_SECRET) {
+    const hostSecret = this.getAgentHostSecret();
+    const internalPublicKey = this.getInternalPublicKey();
+    const gatewayUrl = this.getGatewayUrl();
+
+    let exchangeResponse: Response;
+    try {
+      exchangeResponse = await fetch(`${gatewayUrl}/api/v1/agent/delegations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+          'X-Agent-Host-Token': hostSecret,
+        },
+        body: JSON.stringify({ workspaceId, orgId }),
+      });
+    } catch (networkErr: any) {
       throw new Error(
-        'AGENT_HOST_SECRET is not configured; agent execution host cannot exchange a delegation'
+        `Failed to connect to Gateway at ${gatewayUrl}: ${networkErr.message}. Ensure the Gateway service is running.`
       );
     }
-    if (!INTERNAL_PUBLIC_KEY) {
-      throw new Error('INTERNAL_PUBLIC_KEY is not configured; cannot verify the agent delegation');
-    }
-
-    const exchangeResponse = await fetch(`${AGENT_GATEWAY_URL}/api/v1/agent/delegations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-        'X-Agent-Host-Token': AGENT_HOST_SECRET,
-      },
-      body: JSON.stringify({ workspaceId, orgId }),
-    });
 
     if (!exchangeResponse.ok) {
-      throw new Error(`Delegation exchange failed (${exchangeResponse.status})`);
+      let detail = '';
+      try {
+        const errBody = (await exchangeResponse.json()) as any;
+        if (errBody?.error) detail = `: ${errBody.error}`;
+      } catch {
+        // Ignore JSON parse failures
+      }
+      throw new Error(`Delegation exchange failed (${exchangeResponse.status})${detail}`);
     }
 
-    const exchanged = await exchangeResponse.json();
+    const exchanged = (await exchangeResponse.json()) as any;
 
     // Verify before the runtime may start. The raw delegation token exists
     // only in this function's local scope and is never stored or forwarded.
     return verifyDelegationWithPublicKey(
       exchanged.delegation,
-      INTERNAL_PUBLIC_KEY,
+      internalPublicKey,
       exchanged.executionId
     );
   }
@@ -112,6 +154,52 @@ export class AgentIpcService implements IService, IIpcService {
     handler: (payload: any, ctx: IpcContext) => Promise<any>;
   }> {
     return [
+      {
+        channel: Channels.Agent.GetProviderConfigRequest,
+        handler: async (_payload: void, ctx: IpcContext) => {
+          const config = this.credentialStore.getProviderConfig();
+          const response: ResponseEnvelope<AgentProtocol.GetProviderConfigResponsePayload> = {
+            version: ProtocolVersion.V1,
+            requestId: ctx.requestId,
+            payload: config,
+          };
+          return response;
+        },
+      },
+      {
+        channel: Channels.Agent.SetProviderConfigRequest,
+        handler: async (
+          payload: AgentProtocol.SetProviderConfigRequestPayload,
+          ctx: IpcContext
+        ) => {
+          const result = this.credentialStore.setProviderConfig(payload);
+          const response: ResponseEnvelope<{
+            success: boolean;
+            isConfigured: boolean;
+            error?: string;
+          }> = {
+            version: ProtocolVersion.V1,
+            requestId: ctx.requestId,
+            payload: result,
+          };
+          return response;
+        },
+      },
+      {
+        channel: Channels.Agent.TestProviderConfigRequest,
+        handler: async (
+          payload: AgentProtocol.TestProviderConfigRequestPayload,
+          ctx: IpcContext
+        ) => {
+          const result = await this.credentialStore.testProviderConnection(payload);
+          const response: ResponseEnvelope<AgentProtocol.TestProviderConfigResponsePayload> = {
+            version: ProtocolVersion.V1,
+            requestId: ctx.requestId,
+            payload: result,
+          };
+          return response;
+        },
+      },
       {
         channel: Channels.Agent.StartRequest,
         handler: async (payload: StartRequestPayload, ctx: IpcContext) => {
@@ -133,6 +221,38 @@ export class AgentIpcService implements IService, IIpcService {
             throw new Error('A renderer access token is required to authorize agent execution');
           }
 
+          // Resolve provider and securely inject credentials
+          const resolvedProviderType: AgentProtocol.SupportedProviderType =
+            providerType || this.credentialStore.getActiveProvider();
+
+          const resolvedConfig = { ...(providerConfig || {}) };
+          if (!resolvedConfig.apiKey) {
+            const storedApiKey = this.credentialStore.getApiKey(resolvedProviderType);
+            if (!storedApiKey) {
+              throw new Error(
+                `No API key configured for provider '${resolvedProviderType}'. Please configure your API key in AI Assistant Settings.`
+              );
+            }
+            resolvedConfig.apiKey = storedApiKey;
+          }
+
+          if (!resolvedConfig.baseURL) {
+            const storedBaseURL = this.credentialStore.getBaseURL(resolvedProviderType);
+            if (storedBaseURL) {
+              resolvedConfig.baseURL = storedBaseURL;
+            }
+          }
+
+          const modelToUse =
+            payload.model ||
+            resolvedConfig.model ||
+            this.credentialStore.getModel(resolvedProviderType);
+
+          const sessionOptions = {
+            model: modelToUse,
+            ...(payload.options || {}),
+          };
+
           // Execution host authorization: exchange the renderer token for an
           // ephemeral, execution-bound delegation and verify it. The raw
           // delegation never reaches the runtime; only metadata is used.
@@ -142,13 +262,14 @@ export class AgentIpcService implements IService, IIpcService {
             workspaceId,
             conversationId,
             prompt,
-            providerType,
-            providerConfig,
+            resolvedProviderType,
+            resolvedConfig,
             (agentEvent) => {
               this.windowService.broadcast(Channels.Agent.OnEvent, agentEvent);
             },
             delegation,
-            agentId
+            agentId,
+            sessionOptions
           );
 
           const response: ResponseEnvelope<AgentProtocol.StartResponse> = {

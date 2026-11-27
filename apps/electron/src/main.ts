@@ -1,6 +1,45 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { pathToFileURL } from 'url';
 import { app, protocol, net } from 'electron';
+
+// Bootstrap development environment variables from root .env if available
+try {
+  const candidateEnvPaths = [
+    path.resolve(__dirname, '..', '..', '..', '..', '.env'),
+    path.resolve(__dirname, '..', '..', '..', '.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), '..', '..', '.env'),
+  ];
+  for (const rootEnvPath of candidateEnvPaths) {
+    if (fs.existsSync(rootEnvPath)) {
+      const content = fs.readFileSync(rootEnvPath, 'utf8');
+      for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const idx = trimmed.indexOf('=');
+        if (idx > 0) {
+          const key = trimmed.slice(0, idx).trim();
+          let val = trimmed.slice(idx + 1).trim();
+          if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+          ) {
+            val = val.slice(1, -1);
+          }
+          val = val.replace(/\\n/g, '\n');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+      break;
+    }
+  }
+} catch {
+  // Non-fatal in production or isolated environments
+}
+
 import { ApplicationHost } from './ApplicationHost';
 import { ServiceIds } from './services/ServiceIds';
 import { WindowService } from './services/WindowService';

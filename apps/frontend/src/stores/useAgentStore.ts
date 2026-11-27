@@ -7,6 +7,7 @@ interface AgentStateStore {
   state: AgentProtocol.AgentState;
   displayMessages: AgentProtocol.DisplayMessage[];
   pendingApproval: AgentProtocol.AgentSnapshot['pendingApproval'] | null;
+  specialistActivities: AgentProtocol.SpecialistDelegationPayload[];
   lastSequence: number;
 
   applySnapshot: (snapshot: AgentProtocol.AgentSnapshot) => void;
@@ -22,6 +23,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
   state: AgentProtocol.AgentState.Idle,
   displayMessages: [],
   pendingApproval: null,
+  specialistActivities: [],
   lastSequence: 0,
 
   applySnapshot: (snapshot) => {
@@ -145,6 +147,21 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
         updates.displayMessages = messages;
         break;
       }
+
+      case AgentProtocol.AgentEventType.SpecialistDelegation: {
+        const payload = event.payload as AgentProtocol.SpecialistDelegationPayload;
+        const currentActivities = [...(currentState.specialistActivities || [])];
+        const existingIdx = currentActivities.findIndex(
+          (a) => a.specialistName === payload.specialistName && a.status === 'running'
+        );
+        if (existingIdx >= 0 && (payload.status === 'completed' || payload.status === 'failed')) {
+          currentActivities[existingIdx] = payload;
+        } else {
+          currentActivities.push(payload);
+        }
+        updates.specialistActivities = currentActivities;
+        break;
+      }
     }
 
     set(updates);
@@ -157,6 +174,7 @@ export const useAgentStore = create<AgentStateStore>((set, get) => ({
       state: AgentProtocol.AgentState.Idle,
       displayMessages: [],
       pendingApproval: null,
+      specialistActivities: [],
       lastSequence: 0,
     });
   },

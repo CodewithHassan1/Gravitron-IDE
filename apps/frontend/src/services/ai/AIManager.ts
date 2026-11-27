@@ -16,7 +16,7 @@ export class AIManagerImpl {
   public tool = new ToolManager();
 
   initialize() {
-    // Orchestrate setup
+    this.agent.initialize();
   }
 }
 

@@ -57,4 +57,124 @@ describe('PromptBuilder', () => {
     // Because of tight budget, history should be truncated or omitted
     expect(historyCount).toBeLessThan(2);
   });
+
+  it('preserves multi-tool turns as coherent atomic groups with toolCallId associations', () => {
+    const budget = new TokenBudget(10000);
+    const builder = new PromptBuilder(budget);
+
+    const context: PromptContext = {
+      systemSafety: 'System safety',
+      currentTask: 'Do work',
+      retrievedMemories: [],
+      episodicHistory: [
+        { role: 'user', content: 'Inspect repo' },
+        {
+          role: 'assistant',
+          content: 'Inspecting files',
+          toolCalls: [
+            { id: 'call_1', name: 'read_file', arguments: { path: 'a.txt' } },
+            { id: 'call_2', name: 'read_file', arguments: { path: 'b.txt' } },
+          ],
+        },
+        { role: 'tool', toolCallId: 'call_1', content: 'Content of a' },
+        { role: 'tool', toolCallId: 'call_2', content: 'Content of b' },
+      ],
+    };
+
+    const messages = builder.build(context);
+
+    // Messages should contain system, user, assistant with toolCalls, and both tool responses (5 total)
+    expect(messages).toHaveLength(5);
+    expect(messages[0].role).toBe('system');
+    expect(messages[1].role).toBe('user');
+    expect(messages[2].role).toBe('assistant');
+    expect(messages[2].toolCalls).toHaveLength(2);
+    expect(messages[2].toolCalls![0].id).toBe('call_1');
+    expect(messages[2].toolCalls![1].id).toBe('call_2');
+
+    expect(messages[3].role).toBe('tool');
+    expect(messages[3].toolCallId).toBe('call_1');
+    expect(messages[3].content).toBe('Content of a');
+
+    expect(messages[4].role).toBe('tool');
+    expect(messages[4].toolCallId).toBe('call_2');
+    expect(messages[4].content).toBe('Content of b');
+  });
+
+  it('drops orphaned tool results with no preceding assistant group', () => {
+    const budget = new TokenBudget(10000);
+    const builder = new PromptBuilder(budget);
+
+    const context: PromptContext = {
+      systemSafety: 'System safety',
+      currentTask: 'Task',
+      retrievedMemories: [],
+      episodicHistory: [
+        { role: 'tool', toolCallId: 'orphan_1', content: 'Orphaned output' },
+        { role: 'user', content: 'Hello' },
+      ],
+    };
+
+    const messages = builder.build(context);
+    expect(messages.some((m) => m.role === 'tool')).toBe(false);
+    expect(messages.some((m) => m.content === 'Hello')).toBe(true);
+  });
+
+  it('keeps entire tool turn together or drops together under budget constraint', () => {
+    // Large tool turn followed by recent user message
+    const largeToolResult = 'x'.repeat(400); // ~100 tokens
+    const budget = new TokenBudget(100); // Only fits system + recent user message, not large tool group
+    const builder = new PromptBuilder(budget);
+
+    const context: PromptContext = {
+      systemSafety: 'Safety',
+      currentTask: 'Task',
+      retrievedMemories: [],
+      episodicHistory: [
+        {
+          role: 'assistant',
+          content: 'Running tool',
+          toolCalls: [{ id: 'call_old', name: 'big_tool', arguments: {} }],
+        },
+        { role: 'tool', toolCallId: 'call_old', content: largeToolResult },
+        { role: 'user', content: 'Recent quick message' },
+      ],
+    };
+
+    const messages = builder.build(context);
+    // Recent user message fits, but the preceding tool turn must not be partially retained
+    expect(messages.some((m) => m.content === 'Recent quick message')).toBe(true);
+    expect(messages.some((m) => m.role === 'tool')).toBe(false);
+    expect(messages.some((m) => m.role === 'assistant' && m.toolCalls)).toBe(false);
+  });
+
+  it('does not retain tool calls without corresponding results when results are expected', () => {
+    const budget = new TokenBudget(10000);
+    const builder = new PromptBuilder(budget);
+
+    const context: PromptContext = {
+      systemSafety: 'Safety',
+      currentTask: 'Task',
+      retrievedMemories: [],
+      episodicHistory: [
+        {
+          role: 'assistant',
+          content: 'Calling two tools',
+          toolCalls: [
+            { id: 'c1', name: 'tool_1', arguments: {} },
+            { id: 'c2', name: 'tool_2', arguments: {} },
+          ],
+        },
+        // Only c1 returned; c2 is missing
+        { role: 'tool', toolCallId: 'c1', content: 'Result 1' },
+        { role: 'user', content: 'Next step' },
+      ],
+    };
+
+    const messages = builder.build(context);
+    // Incomplete tool group must be dropped
+    expect(messages.some((m) => m.content === 'Calling two tools')).toBe(false);
+    expect(messages.some((m) => m.content === 'Result 1')).toBe(false);
+    expect(messages.some((m) => m.content === 'Next step')).toBe(true);
+  });
 });

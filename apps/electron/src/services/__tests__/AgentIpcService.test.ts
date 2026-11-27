@@ -54,6 +54,7 @@ beforeAll(async () => {
   process.env.NODE_ENV = 'test';
   process.env.AGENT_GATEWAY_URL = 'http://localhost:3100';
   process.env.AGENT_HOST_SECRET = 'host-secret-for-test';
+  process.env.ANTHROPIC_API_KEY = 'sk-ant-test-suite-key';
 
   delegationToken = await mintDelegation('exec-elect-1');
   process.env.INTERNAL_PUBLIC_KEY = gatewayPublicPem;
@@ -166,5 +167,77 @@ describe('PHASE 8.3 Electron Main Process Delegation Exchange', () => {
         { requestId: 'req-2' } as any
       )
     ).rejects.toThrow('renderer access token is required');
+  });
+
+  it('handles GetProviderConfigRequest and SetProviderConfigRequest securely', async () => {
+    vi.resetModules();
+    const { AgentIpcService } = await import('../AgentIpcService');
+    const service = new AgentIpcService(
+      MOCK_WINDOW,
+      MOCK_WORKSPACE,
+      MOCK_EXECUTION,
+      MOCK_INTELLIGENCE
+    );
+
+    const getHandler = service
+      .registerHandlers()
+      .find((h) => h.channel === Channels.Agent.GetProviderConfigRequest)!;
+    const setHandler = service
+      .registerHandlers()
+      .find((h) => h.channel === Channels.Agent.SetProviderConfigRequest)!;
+
+    // Initially active provider is gemini, and anthropic has its env key configured from beforeAll
+    const initialConfig = await getHandler.handler(undefined, { requestId: 'req-get-1' } as any);
+    expect(initialConfig.payload.activeProvider).toBe('gemini');
+    expect(initialConfig.payload.providers.find((p: any) => p.type === 'anthropic').isConfigured).toBe(true);
+
+    // Set OpenAI provider credentials via IPC
+    const setRes = await setHandler.handler(
+      {
+        providerType: 'openai',
+        apiKey: 'sk-new-openai-key',
+        model: 'gpt-4o',
+      },
+      { requestId: 'req-set-1' } as any
+    );
+    expect(setRes.payload.success).toBe(true);
+    expect(setRes.payload.isConfigured).toBe(true);
+
+    // Verify updated config without revealing the key
+    const updatedConfig = await getHandler.handler(undefined, { requestId: 'req-get-2' } as any);
+    expect(updatedConfig.payload.activeProvider).toBe('openai');
+    const openai = updatedConfig.payload.providers.find((p: any) => p.type === 'openai');
+    expect(openai.isConfigured).toBe(true);
+    expect(JSON.stringify(updatedConfig)).not.toContain('sk-new-openai-key');
+  });
+
+  it('fails with clear error when no API key is configured for unconfigured provider', async () => {
+    vi.resetModules();
+    delete process.env.OPENAI_API_KEY;
+    const { AgentIpcService } = await import('../AgentIpcService');
+    const service = new AgentIpcService(
+      MOCK_WINDOW,
+      MOCK_WORKSPACE,
+      MOCK_EXECUTION,
+      MOCK_INTELLIGENCE
+    );
+
+    const startHandler = service
+      .registerHandlers()
+      .find((h) => h.channel === Channels.Agent.StartRequest)!;
+
+    await expect(
+      startHandler.handler(
+        {
+          workspaceId: 'ws-1',
+          conversationId: 'c-openai',
+          prompt: 'test prompt',
+          providerType: 'openai',
+          providerConfig: {},
+          accessToken: 'valid.token',
+        },
+        { requestId: 'req-openai-1' } as any
+      )
+    ).rejects.toThrow("No API key configured for provider 'openai'");
   });
 });

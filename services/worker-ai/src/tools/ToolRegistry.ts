@@ -8,8 +8,19 @@ export class ToolRegistry {
 
   public register(tool: ToolImplementation): void {
     this.tools.set(tool.definition.name, tool);
-    // Pre-compile schema for performance and early error detection
+    // Remove previous schema if replacing, then compile for performance
+    this.ajv.removeSchema(tool.definition.name);
     this.ajv.addSchema(tool.definition.inputSchema, tool.definition.name);
+  }
+
+  public unregister(name: string): boolean {
+    const deleted = this.tools.delete(name);
+    this.ajv.removeSchema(name);
+    return deleted;
+  }
+
+  public has(name: string): boolean {
+    return this.tools.has(name);
   }
 
   public getTool(name: string): ToolImplementation {

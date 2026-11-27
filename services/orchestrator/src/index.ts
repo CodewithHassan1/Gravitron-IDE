@@ -15,7 +15,7 @@ interface AuthorizeBody {
 }
 
 const start = async () => {
-  const internalPublicKeyStr = process.env.INTERNAL_PUBLIC_KEY;
+  const internalPublicKeyStr = (process.env.INTERNAL_PUBLIC_KEY || '').replace(/\\n/g, '\n');
   const internalJwksUrl =
     process.env.AUTH_JWKS_URL || 'http://localhost:3001/.well-known/jwks.json';
   if (!internalPublicKeyStr) {

@@ -14,11 +14,59 @@ import { AGLogger } from '@ag/logger';
 
 const logger = new AGLogger('GeminiProvider', '1.0.0');
 
+/**
+ * Cleans and dereferences JSON schemas to conform to Google Gemini function declaration specifications.
+ * Inlines $defs/$ref and removes unsupported OpenAPI schema keywords.
+ */
+function cleanSchemaForGemini(schema: Record<string, any>): Record<string, any> {
+  if (!schema || typeof schema !== 'object') {
+    return { type: 'object', properties: {} };
+  }
+
+  const cloned = JSON.parse(JSON.stringify(schema));
+  const defs = cloned.$defs || cloned.definitions || {};
+
+  function resolveRefs(obj: any): any {
+    if (!obj || typeof obj !== 'object') return obj;
+
+    if (Array.isArray(obj)) {
+      return obj.map(resolveRefs);
+    }
+
+    if (obj.$ref && typeof obj.$ref === 'string') {
+      const refKey = obj.$ref.replace(/^#\/(\$defs|definitions)\//, '');
+      if (defs[refKey]) {
+        const resolved = resolveRefs(JSON.parse(JSON.stringify(defs[refKey])));
+        delete obj.$ref;
+        Object.assign(obj, resolved);
+      }
+    }
+
+    const clean: Record<string, any> = {};
+    for (const [key, val] of Object.entries(obj)) {
+      if (key === '$defs' || key === 'definitions' || key === '$schema') {
+        continue;
+      }
+      clean[key] = resolveRefs(val);
+    }
+
+    return clean;
+  }
+
+  const result = resolveRefs(cloned);
+  delete result.$defs;
+  delete result.definitions;
+  delete result.$schema;
+  return result;
+}
+
 export class GeminiProvider implements AIProvider {
   private client: GoogleGenAI;
 
   constructor(private config: ProviderConfig) {
-    if (!config.apiKey) {
+    const apiKey = config.apiKey || process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
       throw new ProviderError(
         'Gemini API key is missing',
         ProviderErrorType.Authentication,
@@ -27,9 +75,7 @@ export class GeminiProvider implements AIProvider {
       );
     }
     this.client = new GoogleGenAI({
-      apiKey: config.apiKey,
-      // Note: @google/genai doesn't natively expose timeout directly in the constructor in the same way,
-      // but we will enforce AbortSignal natively.
+      apiKey,
     });
   }
 
@@ -40,48 +86,49 @@ export class GeminiProvider implements AIProvider {
       return new ProviderError('Request cancelled', ProviderErrorType.Cancelled, 'gemini', false);
     }
 
-    // Google API errors typically have err.status
-    if (err.status) {
-      if (err.status === 401 || err.status === 403) {
+    const status = err.status || err.code;
+
+    if (status) {
+      if (status === 401 || status === 403) {
         return new ProviderError(
-          err.message,
+          err.message || 'Gemini authentication failed: invalid or unauthorized API key',
           ProviderErrorType.Authentication,
           'gemini',
           false,
-          err.status
+          status
         );
       }
-      if (err.status === 429) {
+      if (status === 429) {
         return new ProviderError(
-          err.message,
+          err.message || 'Gemini rate limit or quota exceeded',
           ProviderErrorType.RateLimit,
           'gemini',
           true,
-          err.status
+          status
         );
       }
-      if (err.status === 400) {
+      if (status === 503 || status === 500) {
         return new ProviderError(
-          err.message,
-          ProviderErrorType.InvalidRequest,
-          'gemini',
-          false,
-          err.status
-        );
-      }
-      if (err.status >= 500) {
-        return new ProviderError(
-          err.message,
+          err.message || 'Gemini service temporarily unavailable (high demand)',
           ProviderErrorType.Unknown,
           'gemini',
           true,
-          err.status
+          status
+        );
+      }
+      if (status === 400) {
+        return new ProviderError(
+          err.message || 'Gemini bad request',
+          ProviderErrorType.InvalidRequest,
+          'gemini',
+          false,
+          status
         );
       }
     }
 
     return new ProviderError(
-      err.message || 'Unknown error',
+      err.message || 'Unknown Gemini error',
       ProviderErrorType.Unknown,
       'gemini',
       false
@@ -89,7 +136,10 @@ export class GeminiProvider implements AIProvider {
   }
 
   private mapMessages(messages: ChatMessage[]): any[] {
-    const contents: any[] = [];
+    const rawTurns: Array<{ role: 'user' | 'model'; parts: any[] }> = [];
+
+    // Map toolCallId to toolName to ensure functionResponse.name matches functionCall.name
+    const toolCallIdToName = new Map<string, string>();
 
     for (const msg of messages) {
       if (msg.role === 'system') {
@@ -97,44 +147,87 @@ export class GeminiProvider implements AIProvider {
         continue;
       }
 
-      let role = msg.role === 'assistant' ? 'model' : 'user';
-      const parts: any[] = [];
-
-      if (msg.content) {
-        parts.push({ text: msg.content });
-      }
-
-      if (msg.toolCalls && msg.toolCalls.length > 0) {
-        for (const tc of msg.toolCalls) {
-          parts.push({
-            functionCall: {
-              name: tc.name,
-              args: tc.arguments as any,
-            },
-          });
+      if (msg.role === 'assistant') {
+        const parts: any[] = [];
+        if (msg.content) {
+          parts.push({ text: msg.content });
         }
-      }
+        if (msg.toolCalls && msg.toolCalls.length > 0) {
+          for (const tc of msg.toolCalls) {
+            toolCallIdToName.set(tc.id, tc.name);
+            const callPart: any = {
+              functionCall: {
+                name: tc.name,
+                args: (tc.arguments as any) || {},
+              },
+            };
+            if (tc.thoughtSignature) {
+              callPart.thoughtSignature = tc.thoughtSignature;
+            }
+            parts.push(callPart);
+          }
+        }
+        if (parts.length > 0) {
+          rawTurns.push({ role: 'model', parts });
+        }
+      } else if (msg.role === 'tool') {
+        // In Gemini API, function responses belong to a user turn
+        const toolName =
+          (msg.toolCallId && toolCallIdToName.get(msg.toolCallId)) ||
+          msg.toolName ||
+          (msg.toolCallId && !msg.toolCallId.startsWith('tc_') && !msg.toolCallId.startsWith('call-')
+            ? msg.toolCallId
+            : 'unknown_tool');
 
-      if (msg.role === 'tool') {
-        role = 'user'; // Tool results are passed in user messages
         let responseParsed: any = msg.content;
         try {
           responseParsed = JSON.parse(msg.content);
-        } catch (e) {
+          if (
+            typeof responseParsed !== 'object' ||
+            responseParsed === null ||
+            Array.isArray(responseParsed)
+          ) {
+            responseParsed = { result: responseParsed };
+          }
+        } catch {
           responseParsed = { result: msg.content };
         }
-        parts.push({
-          functionResponse: {
-            name: msg.toolCallId || 'unknown_tool',
-            response: responseParsed,
-          },
-        });
-      }
 
-      contents.push({ role, parts });
+        rawTurns.push({
+          role: 'user',
+          parts: [
+            {
+              functionResponse: {
+                name: toolName,
+                response: responseParsed,
+              },
+            },
+          ],
+        });
+      } else {
+        // User message
+        const parts: any[] = [];
+        if (msg.content) {
+          parts.push({ text: msg.content });
+        }
+        if (parts.length > 0) {
+          rawTurns.push({ role: 'user', parts });
+        }
+      }
     }
 
-    return contents;
+    // Merge consecutive turns with the same role to strictly satisfy Gemini's alternating turn protocol
+    const mergedContents: Array<{ role: 'user' | 'model'; parts: any[] }> = [];
+    for (const turn of rawTurns) {
+      const last = mergedContents[mergedContents.length - 1];
+      if (last && last.role === turn.role) {
+        last.parts.push(...turn.parts);
+      } else {
+        mergedContents.push({ role: turn.role, parts: [...turn.parts] });
+      }
+    }
+
+    return mergedContents;
   }
 
   private mapTools(tools: CompletionRequest['tools']): any[] | undefined {
@@ -144,7 +237,7 @@ export class GeminiProvider implements AIProvider {
         functionDeclarations: tools.map((t) => ({
           name: t.name,
           description: t.description,
-          parameters: t.inputSchema, // @google/genai accepts JSON schema directly here
+          parameters: cleanSchemaForGemini(t.inputSchema),
         })),
       },
     ];
@@ -160,7 +253,6 @@ export class GeminiProvider implements AIProvider {
       }
 
       try {
-        // Enforce timeout combined with signal manually if needed
         const abortController = new AbortController();
         const onAbort = () => abortController.abort();
 
@@ -190,10 +282,23 @@ export class GeminiProvider implements AIProvider {
         }
 
         attempt++;
-        const delayMs = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
+        let delayMs = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 10000);
+
+        // If Google specifies an explicit retry delay in QuotaFailure / RetryInfo, honor it
+        if (mappedError.message) {
+          const match =
+            mappedError.message.match(/retry in ([0-9.]+)s/i) ||
+            mappedError.message.match(/"retryDelay":\s*"([0-9]+)s"/i);
+          if (match && match[1]) {
+            const parsedSeconds = parseFloat(match[1]);
+            if (!isNaN(parsedSeconds) && parsedSeconds > 0 && parsedSeconds <= 65) {
+              delayMs = Math.ceil(parsedSeconds * 1000) + Math.floor(Math.random() * 500);
+            }
+          }
+        }
         logger.warn(
           { trace_id: 'provider', span_id: 'retry', request_id: 'provider' },
-          'Transient error, retrying',
+          'Gemini transient error, retrying',
           { attempt, delayMs, error: mappedError.message }
         );
 
@@ -229,8 +334,9 @@ export class GeminiProvider implements AIProvider {
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
+      const targetModel = req.model || this.config.model || 'gemini-3.5-flash-lite';
       const response = await this.client.models.generateContent({
-        model: req.model,
+        model: targetModel,
         contents,
         config: {
           systemInstruction,
@@ -250,11 +356,13 @@ export class GeminiProvider implements AIProvider {
             textContent += part.text;
           }
           if (part.functionCall) {
-            // Gemini doesn't always provide a stable tool call ID, so we generate one
+            const rawId = (part.functionCall as any).id;
+            const id = rawId || `tc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
             toolCalls.push({
-              id: `tc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+              id,
               name: part.functionCall.name || 'unknown',
               arguments: part.functionCall.args,
+              thoughtSignature: (part as any).thoughtSignature,
             });
           }
         }
@@ -289,8 +397,9 @@ export class GeminiProvider implements AIProvider {
       const contents = this.mapMessages(req.messages);
       const tools = this.mapTools(req.tools);
 
+      const targetModel = req.model || this.config.model || 'gemini-3.5-flash-lite';
       return await this.client.models.generateContentStream({
-        model: req.model,
+        model: targetModel,
         contents,
         config: {
           systemInstruction,
@@ -309,6 +418,8 @@ export class GeminiProvider implements AIProvider {
           throw new ProviderError('Stream cancelled', ProviderErrorType.Cancelled, 'gemini', false);
         }
 
+        let hasToolCall = false;
+
         if (chunk.candidates && chunk.candidates.length > 0) {
           const parts = chunk.candidates[0].content?.parts || [];
           for (const part of parts) {
@@ -319,7 +430,9 @@ export class GeminiProvider implements AIProvider {
               };
             }
             if (part.functionCall) {
-              const id = `tc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+              hasToolCall = true;
+              const rawId = (part.functionCall as any).id;
+              const id = rawId || `tc_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
               yield {
                 type: AIStreamEventType.ToolCallStart,
                 toolCall: {
@@ -334,6 +447,16 @@ export class GeminiProvider implements AIProvider {
                   rawArguments: JSON.stringify(part.functionCall.args),
                 },
               };
+              // Crucial for ReAct agent loop: Emit complete tool call with arguments and thoughtSignature
+              yield {
+                type: AIStreamEventType.ToolCallComplete,
+                toolCall: {
+                  id,
+                  name: part.functionCall.name || 'unknown',
+                  arguments: part.functionCall.args || {},
+                  thoughtSignature: (part as any).thoughtSignature,
+                },
+              };
             }
           }
 
@@ -341,6 +464,7 @@ export class GeminiProvider implements AIProvider {
           if (gFinish) {
             let finishReason: CompletionResponse['finishReason'] = 'stop';
             if (gFinish === 'MAX_TOKENS') finishReason = 'length';
+            else if (hasToolCall) finishReason = 'tool_calls';
 
             yield {
               type: AIStreamEventType.Finish,
@@ -366,7 +490,6 @@ export class GeminiProvider implements AIProvider {
   }
 
   public async embed(text: string, signal?: AbortSignal): Promise<number[]> {
-    // Note: Gemini provides `text-embedding-004` but we can configure this later.
     throw new ProviderError(
       'Embeddings are not yet supported by GeminiProvider in this implementation. Please configure an OpenAI provider for embeddings.',
       ProviderErrorType.InvalidRequest,

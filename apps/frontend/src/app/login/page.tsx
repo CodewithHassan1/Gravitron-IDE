@@ -43,10 +43,15 @@ export default function LoginPage() {
       const res = await client.passwordLogin({ email: normalizedEmail, password });
 
       if (res.status === 'PENDING_VERIFICATION') {
-        login(res.accessToken, { email: normalizedEmail }, 'PENDING_VERIFICATION');
+        login(
+          res.accessToken,
+          { email: normalizedEmail },
+          'PENDING_VERIFICATION',
+          res.refreshToken
+        );
         router.push('/verify-email');
       } else {
-        login(res.accessToken, { email: normalizedEmail }, 'AUTHENTICATED');
+        login(res.accessToken, { email: normalizedEmail }, 'AUTHENTICATED', res.refreshToken);
         router.push('/dashboard');
       }
     } catch (err: unknown) {

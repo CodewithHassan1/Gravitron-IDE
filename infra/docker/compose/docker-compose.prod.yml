@@ -81,6 +81,30 @@ services:
         max-size: "50m"
         max-file: "5"
 
+  orchestrator:
+    build:
+      context: ../../../
+      dockerfile: services/orchestrator/Dockerfile
+    environment:
+      PORT: 3004
+      NODE_ENV: production
+      INTERNAL_PUBLIC_KEY: ${INTERNAL_PUBLIC_KEY}
+      AUTH_JWKS_URL: http://auth:3001/.well-known/jwks.json
+    networks:
+      - ag_internal
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3004/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
   gateway:
     build:
       context: ../../../
@@ -94,6 +118,7 @@ services:
       GATEWAY_PRIVATE_KEY: ${GATEWAY_PRIVATE_KEY}
       AUTH_SERVICE_URL: http://auth:3001
       AUTH_JWKS_URL: http://auth:3001/.well-known/jwks.json
+      ORCHESTRATOR_SERVICE_URL: http://orchestrator:3004
       AUTH_ISSUER: ${AUTH_ISSUER:-https://auth.ag-ide.local}
       AUTH_AUDIENCE: ${AUTH_AUDIENCE:-ag-ide-platform}
       AGENT_HOST_SECRET: ${AGENT_HOST_SECRET}
@@ -101,6 +126,8 @@ services:
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.1,::1}
     depends_on:
       auth:
+        condition: service_healthy
+      orchestrator:
         condition: service_healthy
       postgres:
         condition: service_healthy

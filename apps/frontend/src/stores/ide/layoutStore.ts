@@ -48,7 +48,7 @@ export const defaultWorkspaceLayout: WorkspaceLayout = {
   isSecondarySidebarOpen: false,
   secondarySidebarSize: 20,
   lastSecondarySidebarSize: 20,
-  activeSecondaryActivity: 'outline',
+  activeSecondaryActivity: 'ai-chat',
 
   isBottomPanelOpen: false,
   bottomPanelSize: 25,
@@ -84,6 +84,8 @@ interface LayoutActions {
   setSecondarySidebarSize: (size: number) => void;
   setLastSecondarySidebarSize: (size: number) => void;
   setActiveSecondaryActivity: (activityId: string) => void;
+  openAgentWorkspace: () => void;
+  toggleAgentWorkspace: () => void;
 
   // Bottom Panel
   setBottomPanelOpen: (isOpen: boolean) => void;
@@ -234,6 +236,35 @@ export const useLayoutStore = create<LayoutState & LayoutActions>()(
           return {
             activeSecondaryActivity: activityId,
             isSecondarySidebarOpen: true,
+            layouts: { ...state.layouts, [state.currentWorkspaceId]: nextLayout },
+          };
+        }),
+      openAgentWorkspace: () =>
+        set((state) => {
+          const nextLayout = {
+            ...(state.layouts[state.currentWorkspaceId] || defaultWorkspaceLayout),
+            activeSecondaryActivity: 'ai-chat',
+            isSecondarySidebarOpen: true,
+          };
+          return {
+            activeSecondaryActivity: 'ai-chat',
+            isSecondarySidebarOpen: true,
+            layouts: { ...state.layouts, [state.currentWorkspaceId]: nextLayout },
+          };
+        }),
+      toggleAgentWorkspace: () =>
+        set((state) => {
+          const isCurrentlyAgentActive =
+            state.isSecondarySidebarOpen && state.activeSecondaryActivity === 'ai-chat';
+          const nextOpen = !isCurrentlyAgentActive;
+          const nextLayout = {
+            ...(state.layouts[state.currentWorkspaceId] || defaultWorkspaceLayout),
+            activeSecondaryActivity: 'ai-chat',
+            isSecondarySidebarOpen: nextOpen,
+          };
+          return {
+            activeSecondaryActivity: 'ai-chat',
+            isSecondarySidebarOpen: nextOpen,
             layouts: { ...state.layouts, [state.currentWorkspaceId]: nextLayout },
           };
         }),

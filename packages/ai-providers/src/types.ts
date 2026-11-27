@@ -13,6 +13,7 @@ export interface ToolCall {
   id: string; // Stable, provider-independent ID
   name: string;
   arguments: unknown; // Parsed JSON arguments
+  thoughtSignature?: string; // Required by Gemini 3.x/2.5 for functionCall multi-turn preservation
 }
 
 export interface ChatMessage {
@@ -20,6 +21,7 @@ export interface ChatMessage {
   content: string;
   toolCalls?: ToolCall[];
   toolCallId?: string; // For tool responses
+  toolName?: string; // Tool name for functionResponse mapping
 }
 
 export interface CompletionRequest {
@@ -82,4 +84,5 @@ export interface ProviderConfig {
   organization?: string;
   timeoutMs?: number;
   maxRetries?: number;
+  model?: string;
 }

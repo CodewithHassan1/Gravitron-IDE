@@ -1,5 +1,6 @@
 import { CommandRegistry } from '../../../lib/registries/CommandRegistry';
 import { useAIStore } from '../../../stores/ide/aiStore';
+import { useLayoutStore } from '../../../stores/ide/layoutStore';
 
 export function registerAICommands() {
   const commands = [
@@ -23,8 +24,19 @@ export function registerAICommands() {
       id: `ai.${cmd.replace(/\s+/g, '').toLowerCase()}`,
       title: `AI: ${cmd}`,
       handler: () => {
+        useLayoutStore.getState().openAgentWorkspace();
         useAIStore.getState().setChatOpen(true);
       },
     });
+  });
+
+  // Dedicated Agent Workspace toggle command
+  CommandRegistry.registerCommand({
+    id: 'workbench.action.toggleAgentWorkspace',
+    title: 'AI: Toggle Agent Workspace',
+    category: 'AI',
+    handler: () => {
+      useLayoutStore.getState().toggleAgentWorkspace();
+    },
   });
 }

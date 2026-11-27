@@ -40,6 +40,7 @@ export namespace AgentProtocol {
     StreamEvent = 'StreamEvent',
     ToolApprovalRequested = 'ToolApprovalRequested',
     PlanUpdated = 'PlanUpdated',
+    SpecialistDelegation = 'SpecialistDelegation',
   }
 
   export interface AgentPlanStep {
@@ -72,12 +73,24 @@ export namespace AgentProtocol {
     toolCallId: string;
     toolName: string;
     arguments: unknown;
+    approvalMode?: 'manual' | 'policy_auto';
   }
 
   export interface PlanUpdatedEvent {
     type: AgentEventType.PlanUpdated;
     agentId: string;
     plan: AgentPlan;
+  }
+
+  export interface SpecialistDelegationPayload {
+    type: AgentEventType.SpecialistDelegation;
+    agentId: string;
+    specialistName: string;
+    status: 'starting' | 'running' | 'completed' | 'failed';
+    reason?: string;
+    summary?: string;
+    evaluation?: 'accepted' | 'rejected' | 'pending';
+    taskId?: string;
   }
 
   export interface SnapshotRequest {
@@ -113,7 +126,11 @@ export namespace AgentProtocol {
   }
 
   export type AgentEventPayload =
-    StateChangedEvent | StreamEventPayload | ToolApprovalRequestedEvent | PlanUpdatedEvent;
+    | StateChangedEvent
+    | StreamEventPayload
+    | ToolApprovalRequestedEvent
+    | PlanUpdatedEvent
+    | SpecialistDelegationPayload;
 
   export interface AgentEventEnvelope {
     eventId: string;
@@ -237,5 +254,44 @@ export namespace AgentProtocol {
       queryEmbedding: number[],
       limit?: number
     ): Promise<any[]>;
+  }
+
+  export type SupportedProviderType = 'anthropic' | 'openai' | 'gemini';
+
+  export interface ProviderInfo {
+    type: SupportedProviderType;
+    name: string;
+    defaultModel: string;
+    supportedModels: string[];
+    isConfigured: boolean;
+  }
+
+  export interface SetProviderConfigRequestPayload {
+    providerType: SupportedProviderType;
+    apiKey?: string;
+    model?: string;
+    baseURL?: string;
+  }
+
+  export interface TestProviderConfigRequestPayload {
+    providerType: SupportedProviderType;
+    apiKey?: string;
+    model?: string;
+    baseURL?: string;
+  }
+
+  export interface TestProviderConfigResponsePayload {
+    success: boolean;
+    providerType: SupportedProviderType;
+    model: string;
+    latencyMs: number;
+    message?: string;
+    error?: string;
+  }
+
+  export interface GetProviderConfigResponsePayload {
+    providers: ProviderInfo[];
+    activeProvider: SupportedProviderType;
+    activeModel: string;
   }
 }

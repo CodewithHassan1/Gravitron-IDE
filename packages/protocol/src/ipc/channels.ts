@@ -45,6 +45,9 @@ export const Channels = {
     ApproveToolRequest: 'agent/approveToolRequest',
     SnapshotRequest: 'agent/snapshotRequest',
     OnEvent: 'agent/onEvent',
+    GetProviderConfigRequest: 'agent/getProviderConfigRequest',
+    SetProviderConfigRequest: 'agent/setProviderConfigRequest',
+    TestProviderConfigRequest: 'agent/testProviderConfigRequest',
   },
   Lifecycle: {
     ReadyEvent: 'lifecycle/readyEvent',

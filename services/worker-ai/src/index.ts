@@ -6,6 +6,17 @@ import { importSPKI, KeyLike } from 'jose';
 export { AgentRuntime } from './AgentRuntime';
 export { verifyDelegationWithPublicKey, isDelegationContext } from './DelegationContext';
 export type { DelegationContext } from './DelegationContext';
+export { AgentRouterClient } from './mcp/AgentRouterClient';
+export { AgentRouterTool } from './mcp/AgentRouterTool';
+export { SpecialistRegistry } from './mcp/SpecialistRegistry';
+export { SpecialistSecurity } from './mcp/SpecialistSecurity';
+export { SpecialistLifecycleManager } from './mcp/SpecialistLifecycleManager';
+export type {
+  McpToolDefinition,
+  McpInitializeResult,
+  McpToolCallResult,
+  AgentRouterClientOptions,
+} from './mcp/AgentRouterClient';
 
 const logger = new AGLogger('worker-ai', '1.0.0');
 
