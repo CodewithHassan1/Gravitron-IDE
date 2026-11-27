@@ -8,12 +8,13 @@ import { WorkspaceEventType } from '../types';
 describe('WorkspaceSearchService', () => {
   let vfs: VirtualFileSystem;
   let searchService: WorkspaceSearchService;
+  let indexNodeId: string;
 
   beforeEach(() => {
     WorkspaceEvents.clearAllListeners();
     vfs = new VirtualFileSystem();
     vfs.initializeRoot('root', 'directory');
-    vfs.createFile('/index.ts');
+    indexNodeId = vfs.createFile('/index.ts').id;
     vfs.createFile('/app.tsx');
     vfs.createFolder('/src');
     vfs.createFile('/src/utils.ts');
@@ -52,9 +53,10 @@ describe('WorkspaceSearchService', () => {
   });
 
   it('updates index when a new file is created', async () => {
-    vfs.createFile('/readme.md');
+    const readmeNode = vfs.createFile('/readme.md');
     WorkspaceEvents.emit(WorkspaceEventType.FileCreated, {
       path: '/readme.md',
+      nodeId: readmeNode.id,
     });
 
     const results = await searchService.search(new SearchQuery('readme'));
@@ -66,6 +68,7 @@ describe('WorkspaceSearchService', () => {
     vfs.delete('/index.ts');
     WorkspaceEvents.emit(WorkspaceEventType.FileDeleted, {
       path: '/index.ts',
+      nodeId: indexNodeId,
     });
 
     const results = await searchService.search(new SearchQuery('index'));
@@ -97,7 +100,7 @@ describe('WorkspaceSearchService', () => {
       postMessage() {
         throw new Error('Worker is dead');
       }
-      terminate() {}
+      terminate() { }
     }
 
     const originalWorker = globalThis.Worker;

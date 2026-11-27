@@ -14,21 +14,20 @@ import { getErrorMessage } from './errors';
 
 describe('Gateway Configuration and Transport Suite', () => {
   const originalWindow = global.window;
-  const originalNodeEnv = process.env.NODE_ENV;
   const originalGatewayUrl = process.env.GATEWAY_URL;
   const originalNextPublic = process.env.NEXT_PUBLIC_GATEWAY_URL;
 
   beforeEach(() => {
     delete process.env.GATEWAY_URL;
     delete process.env.NEXT_PUBLIC_GATEWAY_URL;
-    process.env.NODE_ENV = 'test';
+    vi.stubEnv('NODE_ENV', 'test');
     // Clear in-memory caches
     clearGatewayUrl();
   });
 
   afterEach(() => {
     global.window = originalWindow;
-    process.env.NODE_ENV = originalNodeEnv;
+    vi.unstubAllEnvs();
     if (originalGatewayUrl) process.env.GATEWAY_URL = originalGatewayUrl;
     if (originalNextPublic) process.env.NEXT_PUBLIC_GATEWAY_URL = originalNextPublic;
     vi.restoreAllMocks();
@@ -49,10 +48,10 @@ describe('Gateway Configuration and Transport Suite', () => {
 
     it('falls back to NODE_ENV when window.agApi is absent', () => {
       (global as any).window = undefined;
-      process.env.NODE_ENV = 'production';
+      vi.stubEnv('NODE_ENV', 'production');
       expect(isProductionRuntime()).toBe(true);
 
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
       expect(isProductionRuntime()).toBe(false);
     });
   });
@@ -112,7 +111,7 @@ describe('Gateway Configuration and Transport Suite', () => {
 
   describe('getGatewayUrl', () => {
     it('defaults to http://localhost:8080 in development when unconfigured', () => {
-      process.env.NODE_ENV = 'development';
+      vi.stubEnv('NODE_ENV', 'development');
       expect(getGatewayUrl()).toBe('http://localhost:8080');
     });
 
@@ -218,9 +217,9 @@ describe('Gateway Configuration and Transport Suite', () => {
           },
         },
         localStorage: {
-          setItem: () => {},
+          setItem: () => { },
           getItem: () => null,
-          removeItem: () => {},
+          removeItem: () => { },
         },
       };
 
