@@ -32,7 +32,7 @@ export class WebSocketTerminalServer implements IService {
 
     const tryBind = (port: number): Promise<void> => {
       return new Promise((resolve, reject) => {
-        const wss = new WebSocketServer({ port });
+        const wss = new WebSocketServer({ host: '127.0.0.1', port });
 
         wss.on('listening', () => {
           this.wss = wss;

@@ -7,6 +7,7 @@ import { jwtVerify, createRemoteJWKSet, importPKCS8 } from 'jose';
 import httpProxy from '@fastify/http-proxy';
 import { S2SIssuer } from '@ag/auth';
 import { RateLimiter, createRateLimitingPreHandler } from './rateLimiter';
+import { resolveCloudEntitlements } from './entitlements';
 
 const config = validateConfig(process.env);
 const logger = new AGLogger('gateway', '1.0.0');
@@ -162,7 +163,7 @@ const authenticateAndInjectS2S = async (request: FastifyRequest, reply: FastifyR
 
     // Stash the externally-verified identity for downstream handlers. Identity
     // is never taken from client-provided identity headers.
-    (request as any).externalContext = { userId, orgId };
+    (request as any).externalContext = { userId, orgId, externalBearerToken: token };
 
     const s2sToken = await gatewayIssuer.mintS2S({ userId, orgId }, 'internal-services');
     request.headers['authorization'] = `Bearer ${s2sToken}`;
@@ -589,6 +590,64 @@ fastify.register(httpProxy, {
 
 const orchestratorUrl = () => process.env.ORCHESTRATOR_SERVICE_URL || 'http://localhost:3004';
 const workerUrl = () => process.env.WORKER_AI_URL || 'http://localhost:3005';
+const authServiceBaseUrl = () => process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+
+async function fetchAuthoritativeEntitlements(
+  s2sToken: string,
+  externalBearerToken?: string
+) {
+  const res = await fetch(`${authServiceBaseUrl()}/api/v1/auth/entitlements`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${s2sToken}`,
+      ...(externalBearerToken ? { 'X-External-Authorization': `Bearer ${externalBearerToken}` } : {}),
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Account entitlement lookup failed (${res.status})`);
+  }
+  const raw = (await res.json()) as any;
+  const resolved = resolveCloudEntitlements(raw.tier, raw.subscriptionStatus);
+  return {
+    accountId: raw.accountId,
+    orgId: raw.orgId,
+    email: raw.email,
+    plan: resolved.effectivePlan,
+    subscriptionStatus: resolved.status,
+    quotas: {
+      maxWorkspaces: raw.maxWorkspaces ?? 3,
+      maxAgentTokens: raw.maxAgentTokens ?? 100000,
+      tokensUsed: raw.tokensUsed ?? 0,
+      resetAt: raw.resetAt,
+    },
+    byokAllowed: true,
+    permittedCloudModels: resolved.permittedCloudModels,
+    cloudModels: resolved.cloudModels,
+    fetchedAt: Date.now(),
+  };
+}
+
+// Authoritative Account Subscription & Cloud Model Entitlements
+fastify.get(
+  '/api/v1/account/entitlements',
+  { preHandler: authenticateAndInjectS2S },
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    const s2sToken = (request.headers.authorization || '').replace(/^Bearer\s+/i, '');
+    const externalBearerToken = (request as any).externalContext?.externalBearerToken;
+    const logCtx = (request as any).logCtx || {
+      trace_id: 'none',
+      span_id: 'none',
+      request_id: request.id,
+    };
+    try {
+      const entitlements = await fetchAuthoritativeEntitlements(s2sToken, externalBearerToken);
+      return reply.send(entitlements);
+    } catch (err: any) {
+      logger.error(logCtx, `Entitlement lookup failed: ${err.message}`);
+      return reply.status(502).send({ error: 'Account entitlement service unavailable' });
+    }
+  }
+);
 
 interface ExecutionAuthorization {
   executionId: string;
@@ -718,6 +777,22 @@ fastify.post(
     };
 
     try {
+      // Backend enforcement of cloud model entitlements when using subscription credentials
+      if (body.credentialSource === 'subscription' && typeof body.model === 'string' && body.model.trim()) {
+        const externalBearerToken = (request as any).externalContext?.externalBearerToken;
+        const entitlements = await fetchAuthoritativeEntitlements(s2sToken, externalBearerToken);
+        if (!entitlements.permittedCloudModels.includes(body.model.trim())) {
+          return reply.status(403).send({
+            error: `Model '${body.model.trim()}' is not included in your ${entitlements.plan} subscription (${entitlements.subscriptionStatus}). Upgrade your plan or configure your own provider API key (BYOK).`,
+          });
+        }
+        if (entitlements.quotas.tokensUsed >= entitlements.quotas.maxAgentTokens) {
+          return reply.status(403).send({
+            error: 'Monthly subscription agent token quota exhausted. Upgrade your plan or use BYOK credentials.',
+          });
+        }
+      }
+
       const authz = await authorizeExecution(s2sToken, { workspaceId, orgId: body.orgId });
       const delegation = await mintAgentDelegation(authz);
 

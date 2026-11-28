@@ -26,6 +26,7 @@ export default (router: ConnectRouter) => {
   });
 
   router.rpc(AuthService, AuthService.methods.register, async (req: any, _context: any) => {
+    try {
     const rawEmail = req.email;
     const password = req.password;
     const displayName = req.displayName?.trim();
@@ -58,7 +59,8 @@ export default (router: ConnectRouter) => {
       .replace(/[^a-z0-9]/g, '-');
     const now = new Date();
 
-    await db.transaction().execute(async (tx) => {
+    try {
+      await db.transaction().execute(async (tx) => {
       await tx
         .insertInto('users')
         .values({
@@ -93,7 +95,38 @@ export default (router: ConnectRouter) => {
           created_at: now,
         })
         .execute();
-    });
+
+      await tx
+        .insertInto('quotas')
+        .values({
+          id: crypto.randomUUID(),
+          organization_id: orgId,
+          tier: 'FREE',
+          max_workspaces: 3,
+          max_agent_tokens: 100000,
+          tokens_used: 0,
+          reset_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+          created_at: now,
+          updated_at: now,
+        })
+        .execute();
+
+      await tx
+        .insertInto('billing_metadata')
+        .values({
+          organization_id: orgId,
+          stripe_customer_id: null,
+          subscription_status: 'INACTIVE',
+          billing_email: email,
+          created_at: now,
+          updated_at: now,
+        })
+        .execute();
+      });
+    } catch (err: any) {
+      console.error('[auth:register] transaction failed:', err?.message || err, err);
+      throw new ConnectError(err?.message || 'Registration failed', Code.Internal);
+    }
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
@@ -113,6 +146,11 @@ export default (router: ConnectRouter) => {
       return { userId, status: 'PENDING_VERIFICATION_EMAIL_FAILED' };
     }
     return { userId, status: 'PENDING_VERIFICATION' };
+    } catch (err: any) {
+      if (err instanceof ConnectError) throw err;
+      console.error('[auth:register] fatal:', err?.message || err, err);
+      throw new ConnectError(err?.message || 'Registration failed', Code.Internal);
+    }
   });
 
   router.rpc(AuthService, AuthService.methods.passwordLogin, async (req: any, _context: any) => {

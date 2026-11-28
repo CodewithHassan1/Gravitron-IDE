@@ -8,13 +8,12 @@ import { WorkspaceEventType } from '../types';
 describe('WorkspaceSearchService', () => {
   let vfs: VirtualFileSystem;
   let searchService: WorkspaceSearchService;
-  let indexNodeId: string;
 
   beforeEach(() => {
     WorkspaceEvents.clearAllListeners();
     vfs = new VirtualFileSystem();
     vfs.initializeRoot('root', 'directory');
-    indexNodeId = vfs.createFile('/index.ts').id;
+    vfs.createFile('/index.ts');
     vfs.createFile('/app.tsx');
     vfs.createFolder('/src');
     vfs.createFile('/src/utils.ts');
@@ -53,10 +52,10 @@ describe('WorkspaceSearchService', () => {
   });
 
   it('updates index when a new file is created', async () => {
-    const readmeNode = vfs.createFile('/readme.md');
+    vfs.createFile('/readme.md');
     WorkspaceEvents.emit(WorkspaceEventType.FileCreated, {
       path: '/readme.md',
-      nodeId: readmeNode.id,
+      nodeId: 'readme-md',
     });
 
     const results = await searchService.search(new SearchQuery('readme'));
@@ -68,7 +67,7 @@ describe('WorkspaceSearchService', () => {
     vfs.delete('/index.ts');
     WorkspaceEvents.emit(WorkspaceEventType.FileDeleted, {
       path: '/index.ts',
-      nodeId: indexNodeId,
+      nodeId: 'index-ts',
     });
 
     const results = await searchService.search(new SearchQuery('index'));
@@ -100,7 +99,7 @@ describe('WorkspaceSearchService', () => {
       postMessage() {
         throw new Error('Worker is dead');
       }
-      terminate() { }
+      terminate() {}
     }
 
     const originalWorker = globalThis.Worker;

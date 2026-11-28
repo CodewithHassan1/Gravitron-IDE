@@ -100,4 +100,19 @@ describe('SecureCredentialStore', () => {
       false
     );
   });
+
+  it('fails closed in production when safeStorage encryption is unavailable and never persists plaintext secrets', () => {
+    const prevProd = process.env.IS_PACKAGED;
+    try {
+      process.env.IS_PACKAGED = 'true';
+      const store = new SecureCredentialStore(customConfigPath);
+      expect(() =>
+        (store as any).encryptString('sk-should-fail-in-prod-without-safeStorage')
+      ).toThrow('Electron safeStorage');
+      expect(fs.existsSync(customConfigPath)).toBe(false);
+    } finally {
+      if (prevProd !== undefined) process.env.IS_PACKAGED = prevProd;
+      else delete process.env.IS_PACKAGED;
+    }
+  });
 });

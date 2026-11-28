@@ -3,41 +3,59 @@ import * as fs from 'fs';
 import { pathToFileURL } from 'url';
 import { app, protocol, net } from 'electron';
 
-// Bootstrap development environment variables from root .env if available
-try {
-  const candidateEnvPaths = [
-    path.resolve(__dirname, '..', '..', '..', '..', '.env'),
-    path.resolve(__dirname, '..', '..', '..', '.env'),
-    path.resolve(process.cwd(), '.env'),
-    path.resolve(process.cwd(), '..', '..', '.env'),
-  ];
-  for (const rootEnvPath of candidateEnvPaths) {
-    if (fs.existsSync(rootEnvPath)) {
-      const content = fs.readFileSync(rootEnvPath, 'utf8');
-      for (const line of content.split('\n')) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) continue;
-        const idx = trimmed.indexOf('=');
-        if (idx > 0) {
-          const key = trimmed.slice(0, idx).trim();
-          let val = trimmed.slice(idx + 1).trim();
-          if (
-            (val.startsWith('"') && val.endsWith('"')) ||
-            (val.startsWith("'") && val.endsWith("'"))
-          ) {
-            val = val.slice(1, -1);
-          }
-          val = val.replace(/\\n/g, '\n');
-          if (!process.env[key]) {
-            process.env[key] = val;
+function redactSensitiveText(input: unknown): string {
+  const text = input instanceof Error ? `${input.name}: ${input.message}` : String(input ?? '');
+  return text
+    .replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]')
+    .replace(/AIza[0-9A-Za-z\-_]{20,}/g, '[REDACTED_API_KEY]')
+    .replace(/sk-[A-Za-z0-9\-_]{16,}/g, '[REDACTED_API_KEY]');
+}
+
+process.on('uncaughtException', (err) => {
+  console.error('[main] Uncaught exception:', redactSensitiveText(err));
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[main] Unhandled rejection:', redactSensitiveText(reason));
+});
+
+// Bootstrap development environment variables ONLY when unpackaged in non-production dev mode
+if (!app.isPackaged && process.env.NODE_ENV !== 'production') {
+  try {
+    const candidateEnvPaths = [
+      path.resolve(__dirname, '..', '..', '..', '..', '.env'),
+      path.resolve(__dirname, '..', '..', '..', '.env'),
+      path.resolve(process.cwd(), '.env'),
+      path.resolve(process.cwd(), '..', '..', '.env'),
+    ];
+    for (const rootEnvPath of candidateEnvPaths) {
+      if (fs.existsSync(rootEnvPath)) {
+        const content = fs.readFileSync(rootEnvPath, 'utf8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const idx = trimmed.indexOf('=');
+          if (idx > 0) {
+            const key = trimmed.slice(0, idx).trim();
+            let val = trimmed.slice(idx + 1).trim();
+            if (
+              (val.startsWith('"') && val.endsWith('"')) ||
+              (val.startsWith("'") && val.endsWith("'"))
+            ) {
+              val = val.slice(1, -1);
+            }
+            val = val.replace(/\\n/g, '\n');
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
           }
         }
+        break;
       }
-      break;
     }
+  } catch {
+    // Ignore optional local dev .env loading errors
   }
-} catch {
-  // Non-fatal in production or isolated environments
 }
 
 import { ApplicationHost } from './ApplicationHost';
@@ -66,6 +84,7 @@ import { WebSocketTerminalServer } from './services/WebSocketTerminalServer';
 import { IntelligenceManager } from './services/IntelligenceManager';
 import { AgentIpcService } from './services/AgentIpcService';
 import { ConfigService } from './services/ConfigService';
+import { ModelManagerService } from './services/models/ModelManagerService';
 
 // Register custom protocol for loading Next.js static export files securely
 protocol.registerSchemesAsPrivileged([
@@ -85,16 +104,17 @@ protocol.registerSchemesAsPrivileged([
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   app.quit();
-} else {
-  if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-      app.setAsDefaultProtocolClient('gravitron', process.execPath, [
-        path.resolve(process.argv[1]),
-      ]);
-    }
-  } else {
-    app.setAsDefaultProtocolClient('gravitron');
+  process.exit(0);
+}
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('gravitron', process.execPath, [
+      path.resolve(process.argv[1]),
+    ]);
   }
+} else {
+  app.setAsDefaultProtocolClient('gravitron');
 }
 
 // Set up the application host
@@ -125,12 +145,13 @@ const executionService = new WorkspaceExecutionService(
 const windowService = new WindowService();
 const eventBroker = new WorkspaceEventBroker(windowService);
 const fileWatcherService = new FileWatcherService(eventBroker);
+const configService = new ConfigService();
 
 host.getServiceContainer().register(windowService);
 host.getServiceContainer().register(new ExternalLinkService(new ElectronShellLauncher()));
 host.getServiceContainer().register(executionService);
 host.getServiceContainer().register(new MenuService());
-host.getServiceContainer().register(new ConfigService());
+host.getServiceContainer().register(configService);
 
 const workspaceService = new WorkspaceService(fileWatcherService, eventBroker);
 workspaceService.onWorkspaceClosed((workspaceId) => {
@@ -140,14 +161,25 @@ workspaceService.onWorkspaceClosed((workspaceId) => {
 });
 
 const intelligenceManager = new IntelligenceManager();
+const modelManagerService = new ModelManagerService(windowService);
 
 host.getServiceContainer().register(workspaceService);
 host.getServiceContainer().register(intelligenceManager);
+host.getServiceContainer().register(modelManagerService);
 
 host
   .getServiceContainer()
   .register(
-    new AgentIpcService(windowService, workspaceService, executionService, intelligenceManager)
+    new AgentIpcService(
+      windowService,
+      workspaceService,
+      executionService,
+      intelligenceManager,
+      undefined,
+      undefined,
+      configService,
+      modelManagerService
+    )
   );
 
 host.getServiceContainer().register(
@@ -169,7 +201,6 @@ const wsServer = new WebSocketTerminalServer(
   8081
 );
 host.getServiceContainer().register(wsServer);
-wsServer.start().catch(console.error);
 
 // Boot
 app.whenReady().then(() => {
@@ -189,7 +220,7 @@ app.whenReady().then(() => {
         : path.join(app.getAppPath(), '..', 'frontend', 'dist')
     );
 
-    const cleanPathname = decodedPathname.replace(/^\//, '');
+    const cleanPathname = decodedPathname.replace(/^\/+|\/+$/g, '');
     let targetRelativePath = cleanPathname;
 
     if (!targetRelativePath || targetRelativePath === 'index.html') {
@@ -221,11 +252,32 @@ app.whenReady().then(() => {
       return new Response('Bad Request', { status: 400 });
     }
 
-    return net.fetch(pathToFileURL(candidatePath).toString()).catch(() => {
-      // Fallback for any other .html route mapping Next.js might use
-      return net.fetch(pathToFileURL(candidatePath + '.html').toString()).catch(() => {
-        return new Response('Not Found', { status: 404 });
-      });
+    const resolveStaticFile = (): string | null => {
+      try {
+        if (fs.existsSync(candidatePath) && fs.statSync(candidatePath).isFile()) {
+          return candidatePath;
+        }
+        const htmlCandidate = `${candidatePath}.html`;
+        if (fs.existsSync(htmlCandidate) && fs.statSync(htmlCandidate).isFile()) {
+          return htmlCandidate;
+        }
+        const dirIndexCandidate = path.join(candidatePath, 'index.html');
+        if (fs.existsSync(dirIndexCandidate) && fs.statSync(dirIndexCandidate).isFile()) {
+          return dirIndexCandidate;
+        }
+      } catch {
+        // Ignore filesystem errors and return 404 below
+      }
+      return null;
+    };
+
+    const resolvedFile = resolveStaticFile();
+    if (!resolvedFile) {
+      return new Response('Not Found', { status: 404 });
+    }
+
+    return net.fetch(pathToFileURL(resolvedFile).toString()).catch(() => {
+      return new Response('Not Found', { status: 404 });
     });
   });
 
@@ -258,6 +310,23 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('will-quit', () => {
-  host.stop();
+let isQuitting = false;
+app.on('before-quit', (event) => {
+  if (isQuitting) return;
+  event.preventDefault();
+  isQuitting = true;
+
+  const exitTimeout = setTimeout(() => {
+    app.exit(0);
+  }, 4000);
+
+  host
+    .stop()
+    .catch((err) => {
+      console.error('[main] Error during shutdown cleanup:', redactSensitiveText(err));
+    })
+    .finally(() => {
+      clearTimeout(exitTimeout);
+      app.exit(0);
+    });
 });

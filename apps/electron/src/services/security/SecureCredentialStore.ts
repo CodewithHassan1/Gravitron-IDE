@@ -5,8 +5,10 @@ import * as crypto from 'crypto';
 import { AgentProtocol } from '@ag/protocol';
 import { ProviderFactory } from '@ag/ai-providers';
 
+export type CloudProviderType = 'anthropic' | 'openai' | 'gemini';
+
 export const SUPPORTED_PROVIDERS: Record<
-  AgentProtocol.SupportedProviderType,
+  CloudProviderType,
   {
     name: string;
     defaultModel: string;
@@ -64,6 +66,7 @@ export class SecureCredentialStore {
   private activeProvider: AgentProtocol.SupportedProviderType = 'gemini';
   private providerModels = new Map<AgentProtocol.SupportedProviderType, string>();
   private providerBaseUrls = new Map<AgentProtocol.SupportedProviderType, string>();
+  private pendingEncryptedReload = false;
 
   constructor(customPath?: string) {
     if (customPath) {
@@ -77,6 +80,13 @@ export class SecureCredentialStore {
       }
     }
 
+    this.loadFromDisk();
+  }
+
+  public ensureLoaded(): void {
+    if (!this.pendingEncryptedReload) return;
+    if (app?.isReady && !app.isReady()) return;
+    if (safeStorage?.isEncryptionAvailable && !safeStorage.isEncryptionAvailable()) return;
     this.loadFromDisk();
   }
 
@@ -153,6 +163,7 @@ export class SecureCredentialStore {
 
   private loadFromDisk(): void {
     if (!this.configFilePath || !fs.existsSync(this.configFilePath)) return;
+    this.pendingEncryptedReload = false;
 
     try {
       const raw = fs.readFileSync(this.configFilePath, 'utf8');
@@ -172,8 +183,17 @@ export class SecureCredentialStore {
             this.providerBaseUrls.set(p, data.baseURL);
           }
           if (data?.encryptedKey) {
-            const decrypted = this.decryptString(data.encryptedKey, true);
-            if (decrypted) this.inMemoryKeys.set(p, decrypted);
+            const appNotReady = Boolean(app?.isReady && !app.isReady());
+            const safeStorageReady = Boolean(
+              safeStorage?.isEncryptionAvailable && safeStorage.isEncryptionAvailable()
+            );
+            if (appNotReady || !safeStorageReady) {
+              // Chromium OSCrypt / DPAPI initializes at app.whenReady(); defer decryption until ready
+              this.pendingEncryptedReload = true;
+            } else {
+              const decrypted = this.decryptString(data.encryptedKey, true);
+              if (decrypted) this.inMemoryKeys.set(p, decrypted);
+            }
           } else if (data?.fallbackEncryptedKey) {
             const decrypted = this.decryptString(data.fallbackEncryptedKey, false);
             if (decrypted) this.inMemoryKeys.set(p, decrypted);
@@ -231,6 +251,8 @@ export class SecureCredentialStore {
   }
 
   public getApiKey(providerType: AgentProtocol.SupportedProviderType): string | undefined {
+    if (providerType === 'local') return undefined;
+    this.ensureLoaded();
     // 1. In-memory / decrypted secure store
     const stored = this.inMemoryKeys.get(providerType);
     if (stored && stored.trim().length > 0) {
@@ -238,7 +260,7 @@ export class SecureCredentialStore {
     }
 
     // 2. Fallback to process.env (e.g. ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY)
-    const envVar = SUPPORTED_PROVIDERS[providerType]?.envVar;
+    const envVar = SUPPORTED_PROVIDERS[providerType as CloudProviderType]?.envVar;
     if (envVar && process.env[envVar]) {
       return process.env[envVar]!.trim();
     }
@@ -247,24 +269,31 @@ export class SecureCredentialStore {
   }
 
   public getModel(providerType: AgentProtocol.SupportedProviderType): string {
+    this.ensureLoaded();
+    if (providerType === 'local') {
+      return this.providerModels.get('local') || 'qwen3-4b-instruct-2507';
+    }
     return (
       this.providerModels.get(providerType) ||
-      SUPPORTED_PROVIDERS[providerType]?.defaultModel ||
+      SUPPORTED_PROVIDERS[providerType as CloudProviderType]?.defaultModel ||
       'claude-3-5-sonnet-20241022'
     );
   }
 
   public getBaseURL(providerType: AgentProtocol.SupportedProviderType): string | undefined {
+    this.ensureLoaded();
     return this.providerBaseUrls.get(providerType);
   }
 
   public getActiveProvider(): AgentProtocol.SupportedProviderType {
+    this.ensureLoaded();
     return this.activeProvider;
   }
 
   public getProviderConfig(): AgentProtocol.GetProviderConfigResponsePayload {
+    this.ensureLoaded();
     const providers: AgentProtocol.ProviderInfo[] = (
-      Object.keys(SUPPORTED_PROVIDERS) as AgentProtocol.SupportedProviderType[]
+      Object.keys(SUPPORTED_PROVIDERS) as CloudProviderType[]
     ).map((type) => {
       const def = SUPPORTED_PROVIDERS[type];
       const hasKey = Boolean(this.getApiKey(type));
@@ -287,6 +316,7 @@ export class SecureCredentialStore {
   public setProviderConfig(
     payload: AgentProtocol.SetProviderConfigRequestPayload
   ): { success: boolean; isConfigured: boolean; error?: string } {
+    this.ensureLoaded();
     const { providerType, apiKey, model, baseURL } = payload;
     if (!providerType || !(providerType in SUPPORTED_PROVIDERS)) {
       return { success: false, isConfigured: false, error: `Invalid provider type: ${providerType}` };

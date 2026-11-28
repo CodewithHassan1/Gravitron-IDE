@@ -93,7 +93,22 @@ export class AgentRouterClient {
 
     let res: Response;
     try {
-      res = await fetch(this.endpoint, {
+      let fetchFn: typeof fetch = fetch;
+      // Electron 29's built-in Undici fetch throws UND_ERR_REQ_CONTENT_LENGTH_MISMATCH
+      // when following HTTP 308 POST redirects. Use Electron's Chromium net.fetch in Electron.
+      if (typeof process !== 'undefined' && Boolean((process.versions as any)?.electron)) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const electronMod = require('electron');
+          if (electronMod?.net?.fetch) {
+            fetchFn = electronMod.net.fetch.bind(electronMod.net);
+          }
+        } catch {
+          // Fallback to global fetch if electron module is unavailable
+        }
+      }
+
+      res = await fetchFn(this.endpoint, {
         method: 'POST',
         headers,
         body: JSON.stringify(payload),

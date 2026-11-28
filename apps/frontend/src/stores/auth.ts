@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
           try {
             localStorage.removeItem('ag_access_token');
             localStorage.removeItem('ag_refresh_token');
+            void (window as any).agApi?.agent?.clearEntitlements?.().catch?.(() => {});
           } catch {
             // Ignore
           }

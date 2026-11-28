@@ -1,6 +1,6 @@
 import { IService, ILifecycleService, IIpcService } from './IService';
 import { ServiceIds } from './ServiceIds';
-import { AgentRuntime, verifyDelegationWithPublicKey } from '@ag/worker-ai';
+import { AgentRuntime, SpecialistRegistry, verifyDelegationWithPublicKey } from '@ag/worker-ai';
 import type { DelegationContext } from '@ag/worker-ai';
 import {
   Channels,
@@ -8,6 +8,7 @@ import {
   RequestEnvelope,
   ResponseEnvelope,
   ProtocolVersion,
+  type AccountEntitlements,
 } from '@ag/protocol';
 import { IpcContext } from '../ipc/IpcContext';
 import { WindowService } from './WindowService';
@@ -17,6 +18,9 @@ import { AgentCapabilityBridgeImpl } from './AgentCapabilityBridgeImpl';
 import { IntelligenceManager } from './IntelligenceManager';
 import { SecureCredentialStore } from './security/SecureCredentialStore';
 import { AgentTimeoutSettingsStore } from './security/AgentTimeoutSettingsStore';
+import { ConfigService } from './ConfigService';
+import { ModelManagerService } from './models/ModelManagerService';
+import { randomUUID } from 'crypto';
 
 interface StartRequestPayload {
   workspaceId: string;
@@ -46,7 +50,13 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
   private windowService: WindowService;
   private credentialStore: SecureCredentialStore;
   private timeoutSettingsStore: AgentTimeoutSettingsStore;
+  private configService?: ConfigService;
+  private modelManagerService?: ModelManagerService;
+  private cachedEntitlements: AccountEntitlements | null = null;
   private capabilityBridge: AgentCapabilityBridgeImpl;
+  private routerConnected = false;
+  private routerEndpoint = 'https://agent-router.org/mcp';
+  private routerLastError?: string;
 
   constructor(
     windowService: WindowService,
@@ -54,8 +64,12 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
     workspaceExecutionService: IWorkspaceExecutionService,
     intelligenceManager: IntelligenceManager,
     credentialStore?: SecureCredentialStore,
-    timeoutSettingsStore?: AgentTimeoutSettingsStore
+    timeoutSettingsStore?: AgentTimeoutSettingsStore,
+    configService?: ConfigService,
+    modelManagerService?: ModelManagerService
   ) {
+    this.configService = configService;
+    this.modelManagerService = modelManagerService;
     this.timeoutSettingsStore = timeoutSettingsStore || new AgentTimeoutSettingsStore();
     this.capabilityBridge = new AgentCapabilityBridgeImpl(
       workspaceService,
@@ -68,7 +82,9 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
     this.credentialStore = credentialStore || new SecureCredentialStore();
   }
 
-  public async initialize(): Promise<void> {}
+  public async initialize(): Promise<void> {
+    this.credentialStore.ensureLoaded?.();
+  }
   public async start(): Promise<void> {}
   public async stop(): Promise<void> {
     this.runtime.cancelAll?.();
@@ -82,11 +98,28 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
     return true;
   }
 
+  private isProductionMode(): boolean {
+    return Boolean(
+      process.env.IS_PACKAGED === 'true' ||
+      process.env.NODE_ENV === 'production' ||
+      this.configService?.getConfig().isPackaged
+    );
+  }
+
   private getGatewayUrl(): string {
-    return (
-      process.env.AGENT_GATEWAY_URL ||
-      process.env.GATEWAY_URL ||
-      'http://localhost:8080'
+    const envUrl = process.env.AGENT_GATEWAY_URL || process.env.GATEWAY_URL;
+    if (envUrl && envUrl.trim().length > 0) {
+      return envUrl.trim();
+    }
+    const configuredUrl = this.configService?.getConfig().gatewayUrl;
+    if (configuredUrl && configuredUrl.trim().length > 0) {
+      return configuredUrl.trim();
+    }
+    if (!this.isProductionMode()) {
+      return 'http://localhost:8080';
+    }
+    throw new Error(
+      'Gateway URL is not configured. Configure your production HTTPS Gateway URL in Server Settings before starting the agent.'
     );
   }
 
@@ -96,8 +129,7 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
       return fromEnv.trim();
     }
     // Match development convention in services/gateway/src/index.ts:52
-    const isPackaged = process.env.IS_PACKAGED === 'true';
-    if (!isPackaged && process.env.NODE_ENV !== 'production') {
+    if (!this.isProductionMode()) {
       return 'local-dev-host-secret';
     }
     throw new Error(
@@ -124,11 +156,13 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
   private async authorizeAgentExecution(
     workspaceId: string,
     accessToken: string,
-    orgId?: string
+    orgId?: string,
+    model?: string,
+    credentialSource?: 'subscription' | 'byok' | 'local'
   ): Promise<DelegationContext> {
+    const gatewayUrl = this.getGatewayUrl();
     const hostSecret = this.getAgentHostSecret();
     const internalPublicKey = this.getInternalPublicKey();
-    const gatewayUrl = this.getGatewayUrl();
 
     let exchangeResponse: Response;
     try {
@@ -139,7 +173,7 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
           Authorization: `Bearer ${accessToken}`,
           'X-Agent-Host-Token': hostSecret,
         },
-        body: JSON.stringify({ workspaceId, orgId }),
+        body: JSON.stringify({ workspaceId, orgId, model, credentialSource }),
       });
     } catch (networkErr: any) {
       throw new Error(
@@ -237,7 +271,7 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
           if (!workspaceId || !prompt) {
             throw new Error('workspaceId and prompt are required to start an agent');
           }
-          if (!accessToken || typeof accessToken !== 'string') {
+          if (providerType !== 'local' && (!accessToken || typeof accessToken !== 'string')) {
             throw new Error('A renderer access token is required to authorize agent execution');
           }
 
@@ -246,27 +280,65 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
             providerType || this.credentialStore.getActiveProvider();
 
           const resolvedConfig = { ...(providerConfig || {}) };
-          if (!resolvedConfig.apiKey) {
-            const storedApiKey = this.credentialStore.getApiKey(resolvedProviderType);
-            if (!storedApiKey) {
-              throw new Error(
-                `No API key configured for provider '${resolvedProviderType}'. Please configure your API key in AI Assistant Settings.`
-              );
-            }
-            resolvedConfig.apiKey = storedApiKey;
-          }
-
-          if (!resolvedConfig.baseURL) {
-            const storedBaseURL = this.credentialStore.getBaseURL(resolvedProviderType);
-            if (storedBaseURL) {
-              resolvedConfig.baseURL = storedBaseURL;
-            }
-          }
-
-          const modelToUse =
+          let credentialSource: 'subscription' | 'byok' | 'local' = 'byok';
+          let modelToUse =
             payload.model ||
             resolvedConfig.model ||
             this.credentialStore.getModel(resolvedProviderType);
+
+          if (resolvedProviderType === 'local') {
+            credentialSource = 'local';
+            if (!this.modelManagerService) {
+              throw new Error('Local model runtime manager is unavailable.');
+            }
+            const targetLocalModelId =
+              payload.model ||
+              resolvedConfig.model ||
+              (await this.modelManagerService.getCatalogSnapshot()).defaultModelId;
+            if (!targetLocalModelId) {
+              throw new Error('No local model selected or installed. Install a local model first.');
+            }
+            const rt = await this.modelManagerService.loadModel(targetLocalModelId);
+            const activeEndpoint = this.modelManagerService.getRuntimeManager().getActiveEndpoint();
+            if (!activeEndpoint || rt.status !== 'running') {
+              throw new Error(rt.error || 'Failed to start local inference runtime.');
+            }
+            resolvedConfig.baseURL = activeEndpoint.baseURL;
+            resolvedConfig.apiKey = activeEndpoint.apiKey;
+            modelToUse = targetLocalModelId;
+          } else {
+            if (!resolvedConfig.apiKey) {
+              const storedApiKey = this.credentialStore.getApiKey(resolvedProviderType);
+              if (storedApiKey) {
+                resolvedConfig.apiKey = storedApiKey;
+                credentialSource = 'byok';
+              } else if (
+                this.cachedEntitlements &&
+                this.cachedEntitlements.permittedCloudModels.includes(modelToUse)
+              ) {
+                credentialSource = 'subscription';
+                // Subscription-backed cloud model still requires configured provider credential on host if gateway doesn't proxy inference
+                const fallbackEnvKey = this.credentialStore.getApiKey(resolvedProviderType);
+                if (!fallbackEnvKey) {
+                  throw new Error(
+                    `Model '${modelToUse}' is permitted on your ${this.cachedEntitlements.plan} plan, but no ${resolvedProviderType} API key is configured on this desktop host.`
+                  );
+                }
+                resolvedConfig.apiKey = fallbackEnvKey;
+              } else {
+                throw new Error(
+                  `No API key configured for provider '${resolvedProviderType}'. Please configure your API key in AI Assistant Settings or select an entitled model.`
+                );
+              }
+            }
+
+            if (!resolvedConfig.baseURL) {
+              const storedBaseURL = this.credentialStore.getBaseURL(resolvedProviderType);
+              if (storedBaseURL) {
+                resolvedConfig.baseURL = storedBaseURL;
+              }
+            }
+          }
 
           const sessionOptions = {
             model: modelToUse,
@@ -274,9 +346,48 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
           };
 
           // Execution host authorization: exchange the renderer token for an
-          // ephemeral, execution-bound delegation and verify it. The raw
-          // delegation never reaches the runtime; only metadata is used.
-          const delegation = await this.authorizeAgentExecution(workspaceId, accessToken, orgId);
+          // ephemeral, execution-bound delegation and verify it. For offline local
+          // model execution when Gateway is unreachable on the network, bind a
+          // local execution context derived from the verified local workspace & user.
+          let delegation: DelegationContext;
+          try {
+            delegation = await this.authorizeAgentExecution(
+              workspaceId,
+              accessToken || '',
+              orgId,
+              modelToUse,
+              credentialSource
+            );
+          } catch (authErr: any) {
+            const msg = String(authErr?.message || '');
+            const isOfflineLocalAllowed =
+              /Failed to connect to Gateway|Gateway URL is not configured|AGENT_HOST_SECRET is not configured|INTERNAL_PUBLIC_KEY is not configured|fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT/i.test(
+                msg
+              );
+            if (resolvedProviderType === 'local' && (isOfflineLocalAllowed || !accessToken)) {
+              let sub = 'offline-local-user';
+              let org = orgId || 'offline-local-org';
+              try {
+                const payloadPart = (accessToken || '').split('.')[1];
+                if (payloadPart) {
+                  const decoded = JSON.parse(Buffer.from(payloadPart, 'base64url').toString('utf8'));
+                  if (decoded?.sub) sub = String(decoded.sub);
+                  if (decoded?.org_id) org = String(decoded.org_id);
+                }
+              } catch {
+                // fallback offline local identity
+              }
+              delegation = {
+                executionId: randomUUID(),
+                userId: sub,
+                orgId: org,
+                scope: 'agent:execute',
+                jti: randomUUID(),
+              };
+            } else {
+              throw authErr;
+            }
+          }
 
           const createdAgentId = this.runtime.startAgent(
             workspaceId,
@@ -414,6 +525,120 @@ export class AgentIpcService implements IService, ILifecycleService, IIpcService
           return { cancelled };
         },
       },
+      {
+        channel: Channels.Agent.GetSpecialistsStatusRequest,
+        handler: async () => {
+          return this.buildSpecialistsStatusPayload();
+        },
+      },
+      {
+        channel: Channels.Agent.DiscoverSpecialistsRequest,
+        handler: async (payload?: AgentProtocol.DiscoverSpecialistsRequestPayload) => {
+          const endpoint = payload?.endpoint?.trim() || this.routerEndpoint;
+          this.routerEndpoint = endpoint;
+          const res = await this.runtime.connectAgentRouter({
+            endpoint,
+            timeoutMs: payload?.timeoutMs || 15000,
+          });
+          this.routerConnected = res.connected;
+          this.routerLastError = res.error;
+          return this.buildSpecialistsStatusPayload();
+        },
+      },
+      {
+        channel: Channels.Agent.SetSpecialistEnabledRequest,
+        handler: async (payload: AgentProtocol.SetSpecialistEnabledRequestPayload) => {
+          if (!payload?.name) {
+            throw new Error('Specialist name is required');
+          }
+          const ok = payload.enabled
+            ? this.runtime.enableSpecialist(payload.name)
+            : this.runtime.disableSpecialist(payload.name);
+          const status = this.buildSpecialistsStatusPayload();
+          if (!ok) {
+            return {
+              ...status,
+              error: `Specialist '${payload.name}' is excluded or not on the approved allowlist.`,
+            };
+          }
+          return status;
+        },
+      },
+      {
+        channel: Channels.Agent.GetEntitlementsRequest,
+        handler: async (payload: { accessToken?: string }) => {
+          if (!payload?.accessToken) {
+            throw new Error('Access token is required to fetch account entitlements.');
+          }
+          const gatewayUrl = this.getGatewayUrl();
+          const res = await fetch(`${gatewayUrl}/api/v1/account/entitlements`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${payload.accessToken}`,
+            },
+          });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({} as any));
+            throw new Error(body?.error || `Failed to retrieve entitlements (${res.status})`);
+          }
+          const data = (await res.json()) as AccountEntitlements;
+          this.cachedEntitlements = data;
+          return data;
+        },
+      },
+      {
+        channel: Channels.Agent.ClearEntitlementsRequest,
+        handler: async () => {
+          this.cachedEntitlements = null;
+          return { cleared: true };
+        },
+      },
     ];
+  }
+
+  private buildSpecialistsStatusPayload(): AgentProtocol.SpecialistsStatusResponsePayload {
+    const fallbackDescriptions: Record<string, string> = {
+      softwareengineeringexpert:
+        'Architecture design, refactoring strategy, and deep code quality analysis.',
+      sandboxcodingagent:
+        'Isolated sandbox execution for algorithmic verification (no local workspace access).',
+      taskplanner: 'Structured decomposition of multi-component implementation tasks.',
+      constructivecritic: 'Independent architectural and trade-off critique of plans.',
+      researchagent: 'External technical documentation and API research.',
+      browsernavigationagent: 'Remote web documentation inspection and browser navigation.',
+      reasoningdelegationhigh: 'Deep multi-step analytical reasoning under uncertainty.',
+      wait_for_task: 'Coordination helper for asynchronous specialist tasks.',
+      discover_agents: 'Discover capabilities advertised by the AgentRouter network.',
+    };
+
+    const registry = this.runtime.getSpecialistRegistry?.();
+    const discoveredNames = registry ? registry.getDiscoveredToolNames() : [];
+    const registeredNames = new Set(registry ? registry.getRegisteredToolNames() : []);
+
+    const specialists: AgentProtocol.SpecialistStatus[] = Array.from(
+      SpecialistRegistry.APPROVED_SPECIALISTS
+    ).map((name) => {
+      const def = registry?.getToolDefinition(name);
+      return {
+        name,
+        description:
+          def?.description || fallbackDescriptions[name] || `AgentRouter specialist: ${name}`,
+        riskLevel: SpecialistRegistry.RISK_LEVEL_MAP[name] || 'read',
+        approved: true,
+        discovered: Boolean(def),
+        registered: registeredNames.has(name),
+        enabled: registry ? registry.isAvailable(name) : true,
+      };
+    });
+
+    return {
+      connected: this.routerConnected,
+      endpoint: this.routerEndpoint,
+      discoveredCount: discoveredNames.length,
+      approvedCount: specialists.length,
+      registeredCount: registeredNames.size,
+      specialists,
+      error: this.routerLastError,
+    };
   }
 }

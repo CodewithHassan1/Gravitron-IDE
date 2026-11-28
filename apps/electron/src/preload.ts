@@ -451,6 +451,51 @@ contextBridge.exposeInMainWorld('agApi', {
       const response = await ipcRenderer.invoke(Channels.Agent.CancelCommandRequest, envelope);
       return unwrapIpcResponse<any>(response);
     },
+    getSpecialistsStatus: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.GetSpecialistsStatusRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    discoverSpecialists: async (options?: { endpoint?: string; timeoutMs?: number }) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: options || {},
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.DiscoverSpecialistsRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    setSpecialistEnabled: async (name: string, enabled: boolean) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { name, enabled },
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.SetSpecialistEnabledRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    getEntitlements: async (accessToken: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { accessToken },
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.GetEntitlementsRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    clearEntitlements: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Agent.ClearEntitlementsRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
     subscribe: (callback: (event: any) => void) => {
       const handler = (_event: any, payload: any) => {
         callback(payload);
@@ -461,6 +506,153 @@ contextBridge.exposeInMainWorld('agApi', {
           ipcRenderer.removeListener(Channels.Agent.OnEvent, handler);
         },
       };
+    },
+  },
+  models: {
+    getCatalogSnapshot: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.GetCatalogSnapshotRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    getHardwareProfile: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.GetHardwareProfileRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    setStorageDir: async (storageDir: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { storageDir },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.SetStorageDirRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    selectStorageFolder: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.SelectStorageFolderRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    installModel: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.InstallModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    pauseDownload: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.PauseDownloadRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    resumeDownload: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.ResumeDownloadRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    cancelDownload: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.CancelDownloadRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    removeModel: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.RemoveModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    verifyModel: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.VerifyModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    selectDefaultModel: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.SelectDefaultModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    loadModel: async (modelId: string) => {
+      const envelope: RequestEnvelope<any> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: { modelId },
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.LoadModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    unloadModel: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.UnloadModelRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    getRuntimeStatus: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.GetRuntimeStatusRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    completeSetup: async () => {
+      const envelope: RequestEnvelope<void> = {
+        version: ProtocolVersion.V1,
+        requestId: crypto.randomUUID(),
+        payload: undefined,
+      };
+      const response = await ipcRenderer.invoke(Channels.Models.CompleteSetupRequest, envelope);
+      return unwrapIpcResponse<any>(response);
+    },
+    onDownloadProgress: (callback: (info: any) => void) => {
+      const handler = (_event: any, payload: any) => callback(payload);
+      ipcRenderer.on(Channels.Models.OnDownloadProgress, handler);
+      return { dispose: () => ipcRenderer.removeListener(Channels.Models.OnDownloadProgress, handler) };
+    },
+    onRuntimeStatus: (callback: (status: any) => void) => {
+      const handler = (_event: any, payload: any) => callback(payload);
+      ipcRenderer.on(Channels.Models.OnRuntimeStatus, handler);
+      return { dispose: () => ipcRenderer.removeListener(Channels.Models.OnRuntimeStatus, handler) };
     },
   },
   app: {

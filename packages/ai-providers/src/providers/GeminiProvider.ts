@@ -79,6 +79,26 @@ export class GeminiProvider implements AIProvider {
     });
   }
 
+  private extractReadableMessage(raw: string): string {
+    let text = raw || '';
+    for (let i = 0; i < 2; i++) {
+      const trimmed = text.trim();
+      if (!trimmed.startsWith('{')) break;
+      try {
+        const parsed = JSON.parse(trimmed);
+        const inner = parsed?.error?.message || parsed?.message;
+        if (typeof inner === 'string' && inner.trim()) {
+          text = inner;
+          continue;
+        }
+      } catch {
+        break;
+      }
+      break;
+    }
+    return text.trim();
+  }
+
   private mapError(err: any): ProviderError {
     if (err instanceof ProviderError) return err;
 
@@ -87,11 +107,12 @@ export class GeminiProvider implements AIProvider {
     }
 
     const status = err.status || err.code;
+    const readableMessage = this.extractReadableMessage(err.message || '');
 
     if (status) {
       if (status === 401 || status === 403) {
         return new ProviderError(
-          err.message || 'Gemini authentication failed: invalid or unauthorized API key',
+          readableMessage || 'Gemini authentication failed: invalid or unauthorized API key',
           ProviderErrorType.Authentication,
           'gemini',
           false,
@@ -100,7 +121,7 @@ export class GeminiProvider implements AIProvider {
       }
       if (status === 429) {
         return new ProviderError(
-          err.message || 'Gemini rate limit or quota exceeded',
+          readableMessage || 'Gemini rate limit or quota exceeded',
           ProviderErrorType.RateLimit,
           'gemini',
           true,
@@ -109,7 +130,7 @@ export class GeminiProvider implements AIProvider {
       }
       if (status === 503 || status === 500) {
         return new ProviderError(
-          err.message || 'Gemini service temporarily unavailable (high demand)',
+          readableMessage || 'Gemini service temporarily unavailable (high demand)',
           ProviderErrorType.Unknown,
           'gemini',
           true,
@@ -118,7 +139,7 @@ export class GeminiProvider implements AIProvider {
       }
       if (status === 400) {
         return new ProviderError(
-          err.message || 'Gemini bad request',
+          readableMessage || 'Gemini bad request',
           ProviderErrorType.InvalidRequest,
           'gemini',
           false,
@@ -128,7 +149,7 @@ export class GeminiProvider implements AIProvider {
     }
 
     return new ProviderError(
-      err.message || 'Unknown Gemini error',
+      readableMessage || 'Unknown Gemini error',
       ProviderErrorType.Unknown,
       'gemini',
       false

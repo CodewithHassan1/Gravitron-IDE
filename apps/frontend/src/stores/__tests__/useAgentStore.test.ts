@@ -112,4 +112,36 @@ describe('useAgentStore', () => {
     expect(currentState.workspaceId).toBe('ws-A');
     expect(currentState.state).toBe(AgentProtocol.AgentState.Planning);
   });
+
+  it('Test F - Multi-conversation history preserves, switches, pins, renames, and archives conversations', () => {
+    const store = useAgentStore.getState();
+
+    store.addUserMessage('First conversation prompt');
+    const firstId = useAgentStore.getState().activeConversationId;
+    store.renameConversation('Auth Investigation', firstId);
+    store.togglePinConversation(firstId);
+
+    // Create a second conversation without losing the first
+    store.createNewConversation('ws-2');
+    const secondId = useAgentStore.getState().activeConversationId;
+    expect(secondId).not.toBe(firstId);
+    expect(useAgentStore.getState().displayMessages).toHaveLength(0);
+
+    store.addUserMessage('Second conversation prompt');
+
+    // Switch back to the first conversation
+    store.selectConversation(firstId);
+    const restored = useAgentStore.getState();
+    expect(restored.activeConversationId).toBe(firstId);
+    expect(restored.customTitle).toBe('Auth Investigation');
+    expect(restored.isPinned).toBe(true);
+    expect(restored.displayMessages.map((m) => m.content)).toEqual(['First conversation prompt']);
+
+    // Archive first conversation cleanly
+    store.archiveConversation(firstId);
+    const afterArchive = useAgentStore.getState();
+    expect(afterArchive.activeConversationId).not.toBe(firstId);
+    const archivedRecord = afterArchive.conversations.find((c) => c.id === firstId);
+    expect(archivedRecord?.archived).toBe(true);
+  });
 });

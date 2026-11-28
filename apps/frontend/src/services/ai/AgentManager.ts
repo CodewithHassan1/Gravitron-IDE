@@ -258,6 +258,36 @@ export class AgentManager {
     return await api.cancelCommand(agentId, commandId);
   }
 
+  async getSpecialistsStatus(): Promise<AgentProtocol.SpecialistsStatusResponsePayload> {
+    const api = this.ensureAvailable('getSpecialistsStatus');
+    return await api.getSpecialistsStatus();
+  }
+
+  async discoverSpecialists(
+    options?: AgentProtocol.DiscoverSpecialistsRequestPayload
+  ): Promise<AgentProtocol.SpecialistsStatusResponsePayload> {
+    const api = this.ensureAvailable('discoverSpecialists');
+    return await api.discoverSpecialists(options);
+  }
+
+  async setSpecialistEnabled(
+    name: string,
+    enabled: boolean
+  ): Promise<AgentProtocol.SpecialistsStatusResponsePayload> {
+    const api = this.ensureAvailable('setSpecialistEnabled');
+    return await api.setSpecialistEnabled(name, enabled);
+  }
+
+  async getEntitlements(accessToken: string): Promise<any> {
+    const api = this.ensureAvailable('getEntitlements');
+    return await api.getEntitlements(accessToken);
+  }
+
+  async clearEntitlements(): Promise<void> {
+    if (!this.isAvailable()) return;
+    await (window as any).agApi?.agent?.clearEntitlements?.();
+  }
+
   dispose(): void {
     if (this.subscription) {
       try {

@@ -56,6 +56,15 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="flex justify-center pb-1">
+          <div className="bg-white/95 px-3.5 py-1.5 rounded-xl shadow-sm">
+            <img
+              src="/brand/gravitron-logo.png"
+              alt="Gravitron IDE"
+              className="h-8 w-auto object-contain"
+            />
+          </div>
+        </div>
         <h2 className="text-2xl font-bold">Reset Password</h2>
         <p className="text-muted-foreground text-sm">Enter your new password below.</p>
 

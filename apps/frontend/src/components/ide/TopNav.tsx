@@ -29,7 +29,14 @@ export function TopNav() {
   return (
     <div className="h-12 border-b border-border bg-card flex items-center justify-between px-4 select-none shrink-0">
       <div className="flex items-center space-x-4 flex-1">
-        <div className="font-semibold text-foreground tracking-tight ml-2">Gravitron</div>
+        <div className="flex items-center space-x-2 ml-1">
+          <img
+            src="/brand/gravitron-mark.png"
+            alt="Gravitron"
+            className="w-6 h-6 object-contain"
+          />
+          <span className="font-semibold text-foreground tracking-tight">Gravitron</span>
+        </div>
         <WorkbenchMenu />
       </div>
 

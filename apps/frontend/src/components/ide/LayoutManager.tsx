@@ -43,7 +43,7 @@ function HydratedLayoutManager() {
 
   const initialSecondarySidebarSize = useRef(
     useLayoutStore.getState().isSecondarySidebarOpen
-      ? clampSize(useLayoutStore.getState().secondarySidebarSize, 10, 40, 20)
+      ? clampSize(useLayoutStore.getState().secondarySidebarSize, 18, 42, 24)
       : 0
   ).current;
 
@@ -287,8 +287,8 @@ function HydratedLayoutManager() {
           panelRef={secondarySidebarRef}
           id="secondary-sidebar"
           defaultSize={initialSecondarySidebarSize}
-          minSize="12%"
-          maxSize="30%"
+          minSize="18%"
+          maxSize="42%"
           collapsible={true}
           collapsedSize={0}
           onResize={(size) => handleResize('secondary', size, setSecondarySidebarSize)}

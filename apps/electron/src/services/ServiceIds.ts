@@ -18,6 +18,7 @@ export const ServiceIds = {
   Update: Symbol.for('Update'),
   Menu: Symbol.for('Menu'),
   WebSocketTerminal: Symbol.for('WebSocketTerminal'),
+  Models: Symbol.for('Models'),
 } as const;
 
 export type ServiceId = (typeof ServiceIds)[keyof typeof ServiceIds];

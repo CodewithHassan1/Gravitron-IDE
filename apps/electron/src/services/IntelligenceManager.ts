@@ -3,6 +3,7 @@ import { ServiceIds } from './ServiceIds';
 import { ChildProcess, fork } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { app } from 'electron';
 import { IntelligenceProtocol } from '@ag/protocol';
 import { randomUUID } from 'crypto';
 import { AGLogger } from '@ag/logger';
@@ -43,6 +44,10 @@ export class IntelligenceManager implements IService {
 
   public async stop(): Promise<void> {
     this.isShuttingDown = true;
+    if (this.restartTimeout) {
+      clearTimeout(this.restartTimeout);
+      this.restartTimeout = null;
+    }
     if (this.workerProcess) {
       this.workerProcess.kill('SIGTERM');
       this.workerProcess = null;
@@ -60,12 +65,16 @@ export class IntelligenceManager implements IService {
   private spawnWorker(): void {
     if (this.isShuttingDown) return;
 
-    // Use absolute path relative to the electron dist or monorepo.
-    // In dev, we can point to `services/worker-intelligence/dist/index.js`
-    const workerPath = path.resolve(
+    const packagedWorkerPath =
+      app?.isPackaged && process.resourcesPath
+        ? path.join(process.resourcesPath, 'worker-intelligence', 'dist', 'index.js')
+        : '';
+    const devWorkerPath = path.resolve(
       __dirname,
       '../../../../services/worker-intelligence/dist/index.js'
     );
+    const workerPath =
+      packagedWorkerPath && fs.existsSync(packagedWorkerPath) ? packagedWorkerPath : devWorkerPath;
 
     if (!fs.existsSync(workerPath)) {
       logger.warn(

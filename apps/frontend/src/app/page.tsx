@@ -3,6 +3,13 @@ import Link from 'next/link';
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-background text-foreground">
+      <div className="bg-white/95 px-5 py-3 rounded-2xl shadow-md mb-6">
+        <img
+          src="/brand/gravitron-logo.png"
+          alt="Gravitron IDE"
+          className="h-14 w-auto object-contain"
+        />
+      </div>
       <h1 className="text-5xl font-bold tracking-tight mb-4">Gravitron IDE</h1>
       <p className="text-xl text-muted-foreground mb-8">Enterprise production environment.</p>
 

@@ -42,9 +42,16 @@ export class WindowService implements IWindowService {
   }
 
   public async createMainWindow(): Promise<void> {
+    const iconCandidates = [
+      path.join(process.resourcesPath || '', 'frontend', 'dist', 'brand', 'gravitron-mark.png'),
+      path.resolve(__dirname, '..', '..', 'build', 'icon.png'),
+    ];
+    const windowIcon = iconCandidates.find((p) => p && require('fs').existsSync(p));
+
     const mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
+      ...(windowIcon ? { icon: windowIcon } : {}),
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,

@@ -19,7 +19,16 @@ export default function DashboardPage() {
   // Empty Workspace View
   return (
     <div className="p-8 h-full bg-background text-foreground flex flex-col">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="bg-white/95 px-2.5 py-1 rounded-lg shadow-sm">
+          <img
+            src="/brand/gravitron-logo.png"
+            alt="Gravitron"
+            className="h-6 w-auto object-contain"
+          />
+        </div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+      </div>
 
       <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg border-dashed mt-4 bg-muted/20">
         <h3 className="font-medium text-lg mb-1">No recent workspaces</h3>

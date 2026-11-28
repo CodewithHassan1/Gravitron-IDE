@@ -8,9 +8,11 @@ import { WorkspaceSession } from '../../../services/workspace/WorkspaceSession';
 import { WorkspaceEvents } from '../../../services/workspace/WorkspaceEvents';
 import { WorkspaceEventType } from '../../../services/workspace/types';
 import { useLayoutStore } from '../../../stores/ide/layoutStore';
+import { useWorkspaceTreeStore } from '../../../stores/ide/workspaceTreeStore';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { CommandExecutionCard, formatDurationReadable } from './CommandExecutionCard';
+import { AgentSettingsView, AgentSettingsSection } from './AgentSettingsView';
 import {
   PanelLeft,
   Search,
@@ -46,7 +48,16 @@ import {
   XCircle,
   ListChecks,
   Cpu,
+  History,
+  Trash2,
+  KeyRound,
+  ExternalLink,
+  HardDrive,
+  Lock,
+  Store,
 } from 'lucide-react';
+import { useModelStore } from '../../../stores/useModelStore';
+import { modelManager } from '../../../services/models/ModelManager';
 
 const DEFAULT_MODELS: Record<AgentProtocol.SupportedProviderType, string[]> = {
   gemini: [
@@ -61,6 +72,7 @@ const DEFAULT_MODELS: Record<AgentProtocol.SupportedProviderType, string[]> = {
     'claude-3-5-haiku-20241022',
   ],
   openai: ['gpt-4o', 'gpt-4o-mini', 'o1', 'o3-mini'],
+  local: [],
 };
 
 const MODEL_FRIENDLY_NAMES: Record<string, string> = {
@@ -105,9 +117,38 @@ function getResolvedWorkspaceId(): string {
   return 'default';
 }
 
+function collectWorkspaceFiles(
+  nodes: { type: string; path: string; name: string; children?: any[] }[],
+  out: { name: string; path: string }[] = [],
+  limit = 200
+): { name: string; path: string }[] {
+  for (const node of nodes) {
+    if (out.length >= limit) break;
+    if (node.type === 'file' && node.path) {
+      out.push({ name: node.name, path: node.path });
+    } else if (Array.isArray(node.children)) {
+      collectWorkspaceFiles(node.children, out, limit);
+    }
+  }
+  return out;
+}
+
+const SLASH_ACTIONS = [
+  { command: '/inspect', label: 'Inspect repository structure', prompt: 'Inspect repository structure and summarize architecture and entry points.' },
+  { command: '/fix', label: 'Diagnose & fix type/test errors', prompt: 'Run typecheck and test suite, diagnose errors and fix them.' },
+  { command: '/specialists', label: 'Open AgentRouter Specialists', action: 'specialists' as const },
+  { command: '/settings', label: 'Open Agent & Provider Settings', action: 'settings' as const },
+  { command: '/new', label: 'Start a new conversation', action: 'new' as const },
+  { command: '/clear', label: 'Clear search & draft', action: 'clear' as const },
+];
+
 export function AIChatPanel() {
   const router = useRouter();
   const {
+    activeConversationId,
+    conversations,
+    customTitle,
+    isPinned,
     agentId,
     state,
     statusReason,
@@ -122,33 +163,68 @@ export function AIChatPanel() {
     applySnapshot,
     beginRun,
     setError,
-    clear,
+    createNewConversation,
+    selectConversation,
+    renameConversation,
+    togglePinConversation,
+    archiveConversation,
+    deleteConversation,
+    hydrateConversations,
   } = useAgentStore();
 
   const toggleSidebar = useLayoutStore((s) => s.toggleSidebar);
   const toggleBottomPanel = useLayoutStore((s) => s.toggleBottomPanel);
   const setSecondarySidebarOpen = useLayoutStore((s) => s.setSecondarySidebarOpen);
+  const setActiveSecondaryActivity = useLayoutStore((s) => s.setActiveSecondaryActivity);
+  const workspaceTree = useWorkspaceTreeStore((s) => s.tree);
 
   const [agentManager, setAgentManager] = useState<AgentManager | null>(null);
+  const entitlements = useModelStore((s) => s.entitlements);
+  const fetchEntitlements = useModelStore((s) => s.fetchEntitlements);
+  const localSnapshot = useModelStore((s) => s.localSnapshot);
+  const refreshLocalModels = useModelStore((s) => s.refreshLocalModels);
+  const setMarketplaceOpen = useModelStore((s) => s.setMarketplaceOpen);
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  useEffect(() => {
+    if (accessToken) {
+      void fetchEntitlements(accessToken);
+    }
+  }, [accessToken, fetchEntitlements]);
+
+  useEffect(() => {
+    if (modelManager.isAvailable()) {
+      void refreshLocalModels();
+    }
+  }, [refreshLocalModels]);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string>('default');
 
   const [selectedProvider, setSelectedProvider] =
     useState<AgentProtocol.SupportedProviderType>('gemini');
   const [selectedModel, setSelectedModel] = useState<string>('gemini-3.5-flash');
+  const [providerConfig, setProviderConfig] =
+    useState<AgentProtocol.GetProviderConfigResponsePayload | null>(null);
 
-  // UI state toggles matching user images
+  // UI state toggles
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [showArchivedHistory, setShowArchivedHistory] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<'split' | 'copy' | null>(null);
   const [isModelPickerOpen, setIsModelPickerOpen] = useState(false);
   const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<AgentSettingsSection>('providers');
 
-  // Title rename & pin state
-  const [customTitle, setCustomTitle] = useState<string | null>(null);
+  // Multiline composer state + @mention / /action autocomplete
+  const [promptText, setPromptText] = useState('');
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [slashQuery, setSlashQuery] = useState<string | null>(null);
+
+  // Title rename state
   const [isRenaming, setIsRenaming] = useState(false);
   const [titleInput, setTitleInput] = useState('');
-  const [isPinned, setIsPinned] = useState(false);
 
   // Reaction feedback state (thumbs up/down per message)
   const [reactions, setReactions] = useState<Record<string, 'up' | 'down'>>({});
@@ -167,7 +243,9 @@ export function AIChatPanel() {
   } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef<HTMLDivElement>(null);
   const modelPickerRef = useRef<HTMLDivElement>(null);
   const quickMenuRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
@@ -176,6 +254,10 @@ export function AIChatPanel() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
   };
+
+  useEffect(() => {
+    hydrateConversations();
+  }, [hydrateConversations]);
 
   // Resolve active workspace dynamically on mount and on workspace events
   useEffect(() => {
@@ -209,11 +291,32 @@ export function AIChatPanel() {
     return `${fullTitle.slice(0, 19)}...`;
   }, [fullTitle]);
 
-  // Initialize browser-only AgentManager
+  // Initialize browser-only AgentManager, sync provider config, and warm up AgentRouter discovery
   useEffect(() => {
     const manager = new AgentManager();
     manager.initialize();
     setAgentManager(manager);
+
+    if (manager.isAvailable()) {
+      manager
+        .getProviderConfig()
+        .then((cfg) => {
+          if (!cfg) return;
+          setProviderConfig(cfg);
+          setSelectedProvider(cfg.activeProvider);
+          setSelectedModel(cfg.activeModel);
+        })
+        .catch(() => {});
+
+      manager
+        .getSpecialistsStatus()
+        .then((status) => {
+          if (status && !status.connected) {
+            void manager.discoverSpecialists().catch(() => {});
+          }
+        })
+        .catch(() => {});
+    }
 
     return () => {
       manager.dispose();
@@ -259,6 +362,9 @@ export function AIChatPanel() {
         setIsMoreMenuOpen(false);
         setActiveSubmenu(null);
       }
+      if (historyRef.current && !historyRef.current.contains(e.target as Node)) {
+        setIsHistoryOpen(false);
+      }
       if (modelPickerRef.current && !modelPickerRef.current.contains(e.target as Node)) {
         setIsModelPickerOpen(false);
       }
@@ -272,6 +378,9 @@ export function AIChatPanel() {
     const handleKeyClose = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setContextMenu(null);
+        setIsHistoryOpen(false);
+        setMentionQuery(null);
+        setSlashQuery(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -286,6 +395,22 @@ export function AIChatPanel() {
     const wsId = activeWorkspaceId || getResolvedWorkspaceId();
     setErrorMessage(null);
 
+    // Capture prior conversational turns before appending the current user prompt
+    const existingMessages = useAgentStore.getState().displayMessages;
+    const priorSource = addUserMsg ? existingMessages : existingMessages.slice(0, -1);
+    const priorMessages = priorSource
+      .filter(
+        (m) =>
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string' &&
+          m.content.trim().length > 0
+      )
+      .slice(-20)
+      .map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
+
     if (addUserMsg) {
       useAgentStore.getState().addUserMessage(prompt);
     }
@@ -297,13 +422,30 @@ export function AIChatPanel() {
           'Desktop Agent IPC bridge is unavailable. Please run inside the Gravitron IDE desktop application.'
         );
       }
+      if (selectedProvider === 'local') {
+        const currentRuntime = localSnapshot?.runtime;
+        if (currentRuntime?.loadedModelId !== selectedModel || currentRuntime?.status !== 'running') {
+          await modelManager.loadModel(selectedModel);
+          await refreshLocalModels();
+        }
+      } else if (entitlements) {
+        const providerEntry = providerConfig?.providers.find((p) => p.type === selectedProvider);
+        const hasByok = Boolean(providerEntry?.isConfigured);
+        const isEntitled = entitlements.permittedCloudModels.includes(selectedModel);
+        if (!isEntitled && !hasByok) {
+          throw new Error(
+            `Model "${selectedModel}" requires a higher Gravitron subscription (${entitlements.plan} plan active) or your own BYOK API key in Provider Settings.`
+          );
+        }
+      }
       await agentManager.startAgent(
         wsId,
-        crypto.randomUUID(),
+        useAgentStore.getState().activeConversationId || crypto.randomUUID(),
         prompt,
         selectedProvider,
         {},
-        selectedModel
+        selectedModel,
+        priorMessages.length > 0 ? { priorMessages } : undefined
       );
     } catch (e: any) {
       const msg = e?.message || 'Failed to start agent task.';
@@ -336,9 +478,9 @@ export function AIChatPanel() {
     ) {
       handleCancel();
     }
-    clear();
-    setCustomTitle(null);
+    createNewConversation(activeWorkspaceId);
     setErrorMessage(null);
+    setPromptText('');
     showToast('New session ready.');
   };
 
@@ -413,20 +555,22 @@ export function AIChatPanel() {
   const handleSaveRename = () => {
     const trimmed = titleInput.trim();
     if (trimmed && trimmed !== fullTitle) {
-      setCustomTitle(trimmed);
+      renameConversation(trimmed);
       showToast('Conversation renamed');
     }
     setIsRenaming(false);
   };
 
   const handleTogglePin = () => {
-    setIsPinned(!isPinned);
-    showToast(!isPinned ? 'Conversation pinned' : 'Conversation unpinned');
+    const next = !isPinned;
+    togglePinConversation();
+    showToast(next ? 'Conversation pinned' : 'Conversation unpinned');
     setIsMoreMenuOpen(false);
   };
 
   const handleArchive = () => {
-    handleNewSession();
+    archiveConversation();
+    setErrorMessage(null);
     showToast('Conversation archived');
     setIsMoreMenuOpen(false);
   };
@@ -471,9 +615,106 @@ export function AIChatPanel() {
     setActiveSubmenu(null);
   };
 
-  const handleOpenSettings = () => {
+  const handleOpenSettings = (section: AgentSettingsSection = 'providers') => {
     setIsMoreMenuOpen(false);
-    router.push('/dashboard/settings?tab=agent');
+    setIsModelPickerOpen(false);
+    setSettingsSection(section);
+    setIsSettingsModalOpen(true);
+  };
+
+  const handleProviderConfigChanged = (cfg: AgentProtocol.GetProviderConfigResponsePayload) => {
+    setProviderConfig(cfg);
+    setSelectedProvider(cfg.activeProvider);
+    setSelectedModel(cfg.activeModel);
+  };
+
+  const workspaceFiles = useMemo(() => collectWorkspaceFiles(workspaceTree), [workspaceTree]);
+
+  const mentionMatches = useMemo(() => {
+    if (mentionQuery === null) return [];
+    const q = mentionQuery.toLowerCase();
+    return workspaceFiles
+      .filter((f) => f.path.toLowerCase().includes(q) || f.name.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [mentionQuery, workspaceFiles]);
+
+  const slashMatches = useMemo(() => {
+    if (slashQuery === null) return [];
+    const q = slashQuery.toLowerCase();
+    return SLASH_ACTIONS.filter(
+      (a) => a.command.includes(q) || a.label.toLowerCase().includes(q)
+    );
+  }, [slashQuery]);
+
+  const handleComposerChange = (value: string, selectionStart: number) => {
+    setPromptText(value);
+    const el = composerRef.current;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = `${Math.min(160, Math.max(44, el.scrollHeight))}px`;
+    }
+
+    const beforeCaret = value.slice(0, selectionStart);
+    const atMatch = beforeCaret.match(/(?:^|\s)@([^\s@]*)$/);
+    if (atMatch) {
+      setMentionQuery(atMatch[1]);
+      setSlashQuery(null);
+      return;
+    }
+    setMentionQuery(null);
+
+    if (value.startsWith('/') && !value.includes(' ') && !value.includes('\n')) {
+      setSlashQuery(value.slice(1));
+    } else {
+      setSlashQuery(null);
+    }
+  };
+
+  const handleInsertMention = (filePath: string) => {
+    const el = composerRef.current;
+    const caret = el?.selectionStart ?? promptText.length;
+    const before = promptText.slice(0, caret).replace(/@([^\s@]*)$/, `@${filePath} `);
+    const after = promptText.slice(caret);
+    setPromptText(before + after);
+    setMentionQuery(null);
+    setTimeout(() => {
+      if (composerRef.current) {
+        composerRef.current.focus();
+        composerRef.current.setSelectionRange(before.length, before.length);
+      }
+    }, 0);
+  };
+
+  const handleExecuteSlashAction = (actionItem: (typeof SLASH_ACTIONS)[number]) => {
+    setSlashQuery(null);
+    setPromptText('');
+    if ('prompt' in actionItem && actionItem.prompt) {
+      void handleStart(actionItem.prompt, true);
+      return;
+    }
+    if (actionItem.action === 'specialists') {
+      setActiveSecondaryActivity('planning');
+    } else if (actionItem.action === 'settings') {
+      handleOpenSettings('providers');
+    } else if (actionItem.action === 'new') {
+      handleNewSession();
+    } else if (actionItem.action === 'clear') {
+      setSearchQuery('');
+      setPromptText('');
+    }
+  };
+
+  const handleSubmitPrompt = () => {
+    const trimmed = promptText.trim();
+    if (!trimmed || isRunning) return;
+    setPromptText('');
+    setMentionQuery(null);
+    setSlashQuery(null);
+    if (composerRef.current) {
+      composerRef.current.style.height = '44px';
+    }
+    useAgentStore.getState().addUserMessage(trimmed);
+    void handleStart(trimmed);
   };
 
   const isRunning =
@@ -486,8 +727,12 @@ export function AIChatPanel() {
   const activeError =
     errorMessage || (state === AgentProtocol.AgentState.Failed ? lastError : null);
 
+  const localActiveMeta = localSnapshot?.models.find((m) => m.entry.id === selectedModel);
   const displayModelName =
-    MODEL_FRIENDLY_NAMES[selectedModel] || selectedModel || 'Gemini 3.8 Flash High';
+    localActiveMeta?.entry.name ||
+    MODEL_FRIENDLY_NAMES[selectedModel] ||
+    selectedModel ||
+    'Gemini 3.5 Flash';
 
   // Filter messages if search is active
   const filteredMessages = useMemo(() => {
@@ -502,8 +747,7 @@ export function AIChatPanel() {
     !plan?.steps?.length &&
     specialistActivities.length === 0 &&
     commandExecutionOrder.length === 0 &&
-    !activeError &&
-    state === AgentProtocol.AgentState.Idle;
+    !activeError;
 
   const setNativeElementValue = (
     el: HTMLInputElement | HTMLTextAreaElement,
@@ -668,10 +912,51 @@ export function AIChatPanel() {
         </div>
       )}
 
-      {/* Top Header matching reference images */}
-      <div className="h-10 px-3 flex items-center justify-between text-xs font-medium text-zinc-300 shrink-0 border-b border-zinc-800/80 bg-[#0e0e11]">
-        {/* Left Side: Sidebar toggle, Search, Truncated/Editable Title */}
-        <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
+      {/* In-IDE Agent Settings Modal (preserves active IDE session without navigation) */}
+      {isSettingsModalOpen && (
+        <div className="absolute inset-0 z-[80] bg-[#0c0c0e]/95 backdrop-blur-sm flex flex-col overflow-hidden">
+          <div className="h-10 px-3 flex items-center justify-between border-b border-zinc-800/80 bg-[#0e0e11] shrink-0">
+            <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-100">
+              <Settings className="w-3.5 h-3.5 text-primary" />
+              <span>Agent Settings</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsModalOpen(false);
+                  router.push('/dashboard/settings?tab=agent');
+                }}
+                title="Open Full Settings Page"
+                className="px-2 py-1 rounded text-[10px] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 inline-flex items-center space-x-1"
+              >
+                <span>Full Page</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSettingsModalOpen(false)}
+                title="Close Agent Settings"
+                className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3.5">
+            <AgentSettingsView
+              compact
+              initialSection={settingsSection}
+              onProviderConfigChanged={handleProviderConfigChanged}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Top Header */}
+      <div className="h-10 px-3 flex items-center justify-between text-xs font-medium text-zinc-300 shrink-0 border-b border-zinc-800/80 bg-[#0e0e11] relative">
+        {/* Left Side: Sidebar toggle, History, Search, Truncated/Editable Title */}
+        <div className="flex items-center space-x-1.5 min-w-0 flex-1 mr-2">
           <button
             onClick={toggleSidebar}
             title="Toggle Primary Sidebar"
@@ -679,6 +964,100 @@ export function AIChatPanel() {
           >
             <PanelLeft className="w-4 h-4" />
           </button>
+
+          <div ref={historyRef} className="shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              title="Conversation history"
+              className={cn(
+                'p-1 rounded transition-colors',
+                isHistoryOpen
+                  ? 'bg-zinc-800 text-zinc-100'
+                  : 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+              )}
+            >
+              <History className="w-4 h-4" />
+            </button>
+
+            {isHistoryOpen && (
+              <div className="absolute left-2 right-2 top-10 max-h-96 flex flex-col bg-[#161619] border border-zinc-800 rounded-xl shadow-2xl z-50 text-xs overflow-hidden">
+                <div className="px-3 py-2 border-b border-zinc-800 flex items-center justify-between">
+                  <span className="font-semibold text-zinc-200">Conversations</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowArchivedHistory(!showArchivedHistory)}
+                    className="text-[10px] text-zinc-400 hover:text-zinc-200 underline"
+                  >
+                    {showArchivedHistory ? 'Hide Archived' : 'Show Archived'}
+                  </button>
+                </div>
+                <div className="overflow-y-auto p-1.5 space-y-1">
+                  {conversations
+                    .filter((c) => (showArchivedHistory ? true : !c.archived))
+                    .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updatedAt - a.updatedAt)
+                    .map((conv) => (
+                      <div
+                        key={conv.id}
+                        className={cn(
+                          'group rounded-lg px-2.5 py-2 flex items-center justify-between gap-2 cursor-pointer transition-colors',
+                          conv.id === activeConversationId
+                            ? 'bg-primary/15 border border-primary/30 text-zinc-100'
+                            : 'hover:bg-zinc-800/70 text-zinc-300'
+                        )}
+                        onClick={() => {
+                          selectConversation(conv.id);
+                          setIsHistoryOpen(false);
+                        }}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center space-x-1">
+                            {conv.pinned && <Pin className="w-3 h-3 text-amber-400 shrink-0" />}
+                            <span className="font-medium truncate">{conv.title || 'New Chat'}</span>
+                          </div>
+                          <div className="text-[10px] text-zinc-500 flex items-center space-x-2 mt-0.5">
+                            <span>{conv.displayMessages.length} msgs</span>
+                            <span>•</span>
+                            <span>{conv.state}</span>
+                            {conv.archived && <span>• archived</span>}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePinConversation(conv.id);
+                            }}
+                            title={conv.pinned ? 'Unpin' : 'Pin'}
+                            className="p-1 rounded hover:bg-zinc-700 text-zinc-400 hover:text-amber-300"
+                          >
+                            <Pin className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteConversation(conv.id);
+                            }}
+                            title="Delete conversation"
+                            className="p-1 rounded hover:bg-zinc-700 text-zinc-400 hover:text-red-400"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  {conversations.filter((c) => (showArchivedHistory ? true : !c.archived))
+                    .length === 0 && (
+                    <div className="text-center text-zinc-500 py-6 text-[11px]">
+                      No saved conversations yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => setIsSearching(!isSearching)}
@@ -867,11 +1246,11 @@ export function AIChatPanel() {
 
                 {/* 6. Settings */}
                 <button
-                  onClick={handleOpenSettings}
+                  onClick={() => handleOpenSettings('providers')}
                   className="w-full text-left px-3 py-1.5 hover:bg-zinc-800/80 hover:text-zinc-100 flex items-center space-x-2.5 transition-colors cursor-pointer"
                 >
                   <Settings className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Settings</span>
+                  <span>Agent Settings</span>
                 </button>
               </div>
             )}
@@ -971,19 +1350,32 @@ export function AIChatPanel() {
               <div className="space-y-1.5">
                 <div className="font-semibold text-red-100">Unable to Complete Agent Task</div>
                 <div className="text-[11px] text-red-200/90 break-words">{activeError}</div>
-                {(activeError.includes('401') ||
-                  activeError.toLowerCase().includes('session has expired')) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      useAuthStore.getState().logout();
-                      router.push('/login');
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-[11px] font-medium border border-zinc-700/70 transition-colors"
-                  >
-                    Sign In Again
-                  </button>
-                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {(activeError.includes('401') ||
+                    activeError.toLowerCase().includes('session has expired')) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        useAuthStore.getState().logout();
+                        router.push('/login');
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-[11px] font-medium border border-zinc-700/70 transition-colors"
+                    >
+                      Sign In Again
+                    </button>
+                  )}
+                  {(activeError.toLowerCase().includes('api key') ||
+                    activeError.toLowerCase().includes('provider')) && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenSettings('providers')}
+                      className="px-2.5 py-1 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary text-[11px] font-medium border border-primary/40 transition-colors inline-flex items-center space-x-1"
+                    >
+                      <KeyRound className="w-3 h-3" />
+                      <span>Configure Provider & API Key</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             <button
@@ -999,36 +1391,111 @@ export function AIChatPanel() {
           </div>
         )}
 
-        {state === AgentProtocol.AgentState.AwaitingApproval && (
+        {!showWelcome && state === AgentProtocol.AgentState.AwaitingApproval && (
           <ApprovalBanner onApprove={handleApproveTool} />
         )}
 
-        <AgentStatus
-          state={state}
-          statusReason={statusReason}
-          activeToolName={activeToolName}
-          onCancel={handleCancel}
-        />
+        {!showWelcome && (
+          <AgentStatus
+            state={state}
+            statusReason={statusReason}
+            activeToolName={activeToolName}
+            onCancel={handleCancel}
+          />
+        )}
+
+        {!showWelcome &&
+          !isRunning &&
+          !activeError &&
+          (state === AgentProtocol.AgentState.Completed ||
+            state === AgentProtocol.AgentState.Cancelled) && (
+            <div className="flex items-center justify-between text-[11px] px-3 py-1.5 rounded-xl border border-zinc-800/80 bg-zinc-900/40 text-zinc-400">
+              <div className="flex items-center space-x-1.5">
+                {state === AgentProtocol.AgentState.Completed ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <XCircle className="w-3.5 h-3.5 text-zinc-400" />
+                )}
+                <span>
+                  {state === AgentProtocol.AgentState.Completed
+                    ? 'Task completed'
+                    : statusReason || 'Execution stopped'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleNewSession}
+                className="text-zinc-400 hover:text-zinc-200 text-[10px] font-medium"
+              >
+                New Chat
+              </button>
+            </div>
+          )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Bottom Composer matching reference image */}
+      {/* Floating Bottom Composer */}
       <div className="p-3 bg-[#0c0c0e] shrink-0">
         <div className="relative rounded-2xl border border-zinc-800 bg-[#161619] shadow-xl p-3 focus-within:border-zinc-700 transition-colors">
+          {/* @ Workspace File Mention Autocomplete */}
+          {mentionQuery !== null && mentionMatches.length > 0 && (
+            <div className="absolute left-2 right-2 bottom-full mb-1.5 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-1 z-50 max-h-48 overflow-y-auto text-xs space-y-0.5">
+              <div className="px-2 py-0.5 text-[10px] font-semibold text-zinc-500 uppercase">
+                Mention Workspace File
+              </div>
+              {mentionMatches.map((f) => (
+                <button
+                  key={f.path}
+                  type="button"
+                  onClick={() => handleInsertMention(f.path)}
+                  className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-zinc-800 flex items-center justify-between text-zinc-200"
+                >
+                  <span className="font-mono text-[11px] truncate">{f.path}</span>
+                  <span className="text-[10px] text-zinc-500 ml-2 shrink-0">{f.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* / Slash Command Menu */}
+          {slashQuery !== null && slashMatches.length > 0 && (
+            <div className="absolute left-2 right-2 bottom-full mb-1.5 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-1 z-50 max-h-48 overflow-y-auto text-xs space-y-0.5">
+              <div className="px-2 py-0.5 text-[10px] font-semibold text-zinc-500 uppercase">
+                Quick Actions
+              </div>
+              {slashMatches.map((item) => (
+                <button
+                  key={item.command}
+                  type="button"
+                  onClick={() => handleExecuteSlashAction(item)}
+                  className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-zinc-800 flex items-center justify-between text-zinc-200"
+                >
+                  <span className="font-mono text-primary font-semibold">{item.command}</span>
+                  <span className="text-[11px] text-zinc-400 truncate ml-2">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           <textarea
+            ref={composerRef}
+            value={promptText}
+            onChange={(e) => handleComposerChange(e.target.value, e.target.selectionStart ?? 0)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                const target = e.currentTarget;
-                if (target.value.trim() && !isRunning) {
-                  const val = target.value;
-                  target.value = '';
-                  useAgentStore.getState().addUserMessage(val);
-                  handleStart(val);
+                if (slashQuery !== null && slashMatches.length > 0) {
+                  handleExecuteSlashAction(slashMatches[0]);
+                  return;
                 }
+                if (mentionQuery !== null && mentionMatches.length > 0) {
+                  handleInsertMention(mentionMatches[0].path);
+                  return;
+                }
+                handleSubmitPrompt();
               }
             }}
-            placeholder="Ask anything, @ to mention, / for act..."
+            placeholder="Ask anything, @ to mention files, / for actions..."
             rows={1}
             disabled={isRunning}
             className="w-full bg-transparent text-zinc-100 placeholder:text-zinc-500 text-xs focus:outline-none resize-none no-scrollbar min-h-[44px] max-h-[160px] leading-relaxed"
@@ -1036,10 +1503,10 @@ export function AIChatPanel() {
           />
 
           {/* Bottom Toolbar Row inside Composer Card */}
-          <div className="flex items-center justify-between pt-2 border-t border-zinc-800/40">
-            <div className="flex items-center space-x-2 relative">
+          <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-zinc-800/40 min-w-0">
+            <div className="flex items-center space-x-1.5 relative min-w-0 flex-1">
               {/* Plus Button for Context / Quick Actions */}
-              <div className="relative" ref={quickMenuRef}>
+              <div className="relative shrink-0" ref={quickMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
@@ -1107,118 +1574,210 @@ export function AIChatPanel() {
                 )}
               </div>
 
-              {/* Model Selector Pill matching reference image */}
-              <div className="relative" ref={modelPickerRef}>
+              {/* Model Selector Pill */}
+              <div className="relative min-w-0 flex-1 max-w-[165px]" ref={modelPickerRef}>
                 <button
                   type="button"
                   onClick={() => setIsModelPickerOpen(!isModelPickerOpen)}
-                  className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 text-[11px] font-medium border border-zinc-700/50 transition-colors"
+                  className="w-full flex items-center justify-between space-x-1 px-2.5 py-1 rounded-full bg-zinc-800/70 hover:bg-zinc-800 text-zinc-300 text-[11px] font-medium border border-zinc-700/50 transition-colors min-w-0"
                 >
-                  <span className="truncate max-w-[140px]">{displayModelName}</span>
+                  <span className="truncate">{displayModelName}</span>
                   <ChevronDown className="w-3 h-3 text-zinc-400 shrink-0" />
                 </button>
 
                 {/* Model Picker Popover - Pure model selection without manual API key entry */}
                 {isModelPickerOpen && (
-                  <div className="absolute left-0 bottom-8 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-1">
-                    <div className="text-[10px] font-semibold text-zinc-500 uppercase px-2 py-1">
-                      Active Model
+                  <div className="absolute left-0 bottom-8 w-72 max-h-[400px] overflow-y-auto bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-1.5">
+                    <div className="flex items-center justify-between px-2 py-1">
+                      <span className="text-[10px] font-semibold text-zinc-500 uppercase">
+                        Select AI Model
+                      </span>
+                      {entitlements && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-semibold">
+                          {entitlements.plan} Plan
+                        </span>
+                      )}
                     </div>
 
-                    {/* Gemini Models */}
-                    <div className="space-y-0.5">
-                      <div className="px-2 py-0.5 text-[10px] text-zinc-400 font-semibold">
-                        Google Gemini
-                      </div>
-                      {DEFAULT_MODELS.gemini.map((m) => (
-                        <button
-                          key={m}
-                          onClick={() => {
-                            setSelectedProvider('gemini');
-                            setSelectedModel(m);
-                            setIsModelPickerOpen(false);
-                          }}
-                          className={cn(
-                            'w-full text-left px-2 py-1 rounded-md text-[11px] transition-colors flex items-center justify-between',
-                            selectedProvider === 'gemini' && selectedModel === m
-                              ? 'bg-primary/20 text-primary font-medium'
-                              : 'text-zinc-300 hover:bg-zinc-800'
-                          )}
-                        >
-                          <span>{MODEL_FRIENDLY_NAMES[m] || m}</span>
-                          {selectedProvider === 'gemini' && selectedModel === m && (
-                            <Check className="w-3 h-3 text-primary" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Claude Models */}
+                    {/* Local Offline Models */}
                     <div className="space-y-0.5 pt-1 border-t border-zinc-800">
-                      <div className="px-2 py-0.5 text-[10px] text-zinc-400 font-semibold">
-                        Anthropic Claude
+                      <div className="px-2 py-0.5 text-[10px] text-emerald-400 font-semibold flex items-center justify-between">
+                        <span className="flex items-center space-x-1">
+                          <HardDrive className="w-3 h-3" />
+                          <span>Local Offline Models</span>
+                        </span>
+                        <span className="text-[9px] text-zinc-500">No cloud required</span>
                       </div>
-                      {DEFAULT_MODELS.anthropic.map((m) => (
-                        <button
-                          key={m}
-                          onClick={() => {
-                            setSelectedProvider('anthropic');
-                            setSelectedModel(m);
-                            setIsModelPickerOpen(false);
-                          }}
-                          className={cn(
-                            'w-full text-left px-2 py-1 rounded-md text-[11px] transition-colors flex items-center justify-between',
-                            selectedProvider === 'anthropic' && selectedModel === m
-                              ? 'bg-primary/20 text-primary font-medium'
-                              : 'text-zinc-300 hover:bg-zinc-800'
-                          )}
-                        >
-                          <span>{MODEL_FRIENDLY_NAMES[m] || m}</span>
-                          {selectedProvider === 'anthropic' && selectedModel === m && (
-                            <Check className="w-3 h-3 text-primary" />
-                          )}
-                        </button>
-                      ))}
+
+                      {localSnapshot?.models.filter((m) => m.installState === 'installed').length ? (
+                        localSnapshot.models
+                          .filter((m) => m.installState === 'installed')
+                          .map((m) => {
+                            const isRunningLocal =
+                              localSnapshot.runtime.loadedModelId === m.entry.id &&
+                              localSnapshot.runtime.status === 'running';
+                            const isSelected =
+                              selectedProvider === 'local' && selectedModel === m.entry.id;
+                            return (
+                              <button
+                                key={m.entry.id}
+                                onClick={() => {
+                                  setSelectedProvider('local');
+                                  setSelectedModel(m.entry.id);
+                                  setIsModelPickerOpen(false);
+                                  if (!isRunningLocal) {
+                                    void modelManager.loadModel(m.entry.id).then(() => refreshLocalModels());
+                                  }
+                                }}
+                                className={cn(
+                                  'w-full text-left px-2 py-1.5 rounded-md text-[11px] transition-colors flex items-center justify-between gap-1',
+                                  isSelected
+                                    ? 'bg-primary/20 text-primary font-medium'
+                                    : 'text-zinc-300 hover:bg-zinc-800'
+                                )}
+                              >
+                                <div className="min-w-0">
+                                  <div className="truncate">{m.entry.name}</div>
+                                  <div className="text-[9px] text-zinc-500">
+                                    {m.entry.quantization} ·{' '}
+                                    {(m.entry.downloadSizeBytes / 1024 ** 3).toFixed(1)} GB ·{' '}
+                                    {isRunningLocal ? 'Running locally' : 'Installed'}
+                                  </div>
+                                </div>
+                                {isSelected && <Check className="w-3 h-3 text-primary shrink-0" />}
+                              </button>
+                            );
+                          })
+                      ) : (
+                        <div className="px-2 py-1 text-[10px] text-zinc-500">
+                          No offline models installed yet.
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsModelPickerOpen(false);
+                          setMarketplaceOpen(true);
+                        }}
+                        className="w-full text-left px-2 py-1.5 rounded-md text-[11px] text-emerald-300 hover:bg-zinc-800 flex items-center space-x-1.5 font-medium"
+                      >
+                        <Store className="w-3 h-3" />
+                        <span>Browse Model Marketplace...</span>
+                      </button>
                     </div>
 
-                    {/* OpenAI Models */}
-                    <div className="space-y-0.5 pt-1 border-t border-zinc-800">
-                      <div className="px-2 py-0.5 text-[10px] text-zinc-400 font-semibold">
-                        OpenAI
-                      </div>
-                      {DEFAULT_MODELS.openai.map((m) => (
-                        <button
-                          key={m}
-                          onClick={() => {
-                            setSelectedProvider('openai');
-                            setSelectedModel(m);
-                            setIsModelPickerOpen(false);
-                          }}
-                          className={cn(
-                            'w-full text-left px-2 py-1 rounded-md text-[11px] transition-colors flex items-center justify-between',
-                            selectedProvider === 'openai' && selectedModel === m
-                              ? 'bg-primary/20 text-primary font-medium'
-                              : 'text-zinc-300 hover:bg-zinc-800'
-                          )}
-                        >
-                          <span>{MODEL_FRIENDLY_NAMES[m] || m}</span>
-                          {selectedProvider === 'openai' && selectedModel === m && (
-                            <Check className="w-3 h-3 text-primary" />
-                          )}
-                        </button>
-                      ))}
+                    {/* Cloud Models */}
+                    {(
+                      [
+                        { key: 'gemini', label: 'Google Gemini' },
+                        { key: 'anthropic', label: 'Anthropic Claude' },
+                        { key: 'openai', label: 'OpenAI' },
+                      ] as const
+                    ).map(({ key, label }) => {
+                      const hasByok = Boolean(
+                        providerConfig?.providers.find((p) => p.type === key)?.isConfigured
+                      );
+                      return (
+                        <div key={key} className="space-y-0.5 pt-1 border-t border-zinc-800">
+                          <div className="px-2 py-0.5 text-[10px] text-zinc-400 font-semibold flex items-center justify-between">
+                            <span>{label}</span>
+                            {hasByok && (
+                              <span className="text-[9px] px-1 rounded bg-sky-950/60 text-sky-300 border border-sky-800/50">
+                                BYOK
+                              </span>
+                            )}
+                          </div>
+                          {DEFAULT_MODELS[key].map((m) => {
+                            const entitled = entitlements
+                              ? entitlements.permittedCloudModels.includes(m)
+                              : true;
+                            const unlocked = entitled || hasByok;
+                            const isSelected =
+                              selectedProvider === key && selectedModel === m;
+                            return (
+                              <button
+                                key={m}
+                                onClick={() => {
+                                  if (!unlocked) {
+                                    setIsModelPickerOpen(false);
+                                    handleOpenSettings('providers');
+                                    return;
+                                  }
+                                  setSelectedProvider(key);
+                                  setSelectedModel(m);
+                                  setIsModelPickerOpen(false);
+                                }}
+                                title={
+                                  unlocked
+                                    ? undefined
+                                    : 'Upgrade plan or add your own BYOK API key in Provider Settings'
+                                }
+                                className={cn(
+                                  'w-full text-left px-2 py-1 rounded-md text-[11px] transition-colors flex items-center justify-between',
+                                  isSelected
+                                    ? 'bg-primary/20 text-primary font-medium'
+                                    : unlocked
+                                      ? 'text-zinc-300 hover:bg-zinc-800'
+                                      : 'text-zinc-500 hover:bg-zinc-800/60'
+                                )}
+                              >
+                                <span className="truncate">{MODEL_FRIENDLY_NAMES[m] || m}</span>
+                                <span className="flex items-center space-x-1 shrink-0">
+                                  {!unlocked && (
+                                    <span className="inline-flex items-center space-x-0.5 text-[9px] px-1 py-0.2 rounded bg-amber-950/60 text-amber-300 border border-amber-800/50">
+                                      <Lock className="w-2.5 h-2.5" />
+                                      <span>Upgrade</span>
+                                    </span>
+                                  )}
+                                  {isSelected && <Check className="w-3 h-3 text-primary" />}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                    {/* Configure Providers & API Keys Link */}
+                    <div className="pt-1 border-t border-zinc-800">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSettings('providers')}
+                        className="w-full text-left px-2 py-1.5 rounded-md text-[11px] text-primary hover:bg-zinc-800 flex items-center justify-between font-medium"
+                      >
+                        <span className="flex items-center space-x-1.5">
+                          <KeyRound className="w-3 h-3" />
+                          <span>Configure Providers & Keys</span>
+                        </span>
+                        {providerConfig && (
+                          <span
+                            className={cn(
+                              'text-[9px] px-1.5 py-0.5 rounded',
+                              providerConfig.providers.find((p) => p.type === selectedProvider)
+                                ?.isConfigured
+                                ? 'bg-emerald-950 text-emerald-300'
+                                : 'bg-amber-950 text-amber-300'
+                            )}
+                          >
+                            {providerConfig.providers.find((p) => p.type === selectedProvider)
+                              ?.isConfigured
+                              ? 'Ready'
+                              : 'Key needed'}
+                          </span>
+                        )}
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Circular Send / Cancel Button matching reference image */}
+            {/* Circular Send / Cancel Button */}
             {isRunning ? (
               <button
                 type="button"
                 onClick={handleCancel}
-                className="w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm"
+                className="w-7 h-7 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm shrink-0"
                 title="Stop generation"
               >
                 <Square className="w-3 h-3 fill-current" />
@@ -1226,18 +1785,9 @@ export function AIChatPanel() {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  const el = document.getElementById(
-                    'agent-composer-textarea'
-                  ) as HTMLTextAreaElement;
-                  if (el && el.value.trim()) {
-                    const val = el.value;
-                    el.value = '';
-                    useAgentStore.getState().addUserMessage(val);
-                    handleStart(val);
-                  }
-                }}
-                className="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 flex items-center justify-center transition-colors border border-zinc-700/60"
+                disabled={!promptText.trim()}
+                onClick={handleSubmitPrompt}
+                className="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 text-zinc-200 flex items-center justify-center transition-colors border border-zinc-700/60 shrink-0"
                 title="Send message (Enter)"
               >
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1427,64 +1977,74 @@ function FormattedMessage({ content }: { content: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// File Changes Diff Pill Card matching reference image
+// Real File Changes Summary Card derived from write_file / edit_file tool calls
 // ---------------------------------------------------------------------------
-function FileChangesDiffCard({
-  filesCount = 1,
-  additions = 2,
-  deletions = 2,
-  details,
-}: {
-  filesCount?: number;
-  additions?: number;
-  deletions?: number;
-  details?: string;
-}) {
+interface RealFileModification {
+  path: string;
+  lineCount: number;
+  preview: string;
+}
+
+function FileChangesDiffCard({ changes }: { changes: RealFileModification[] }) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+  if (!changes || changes.length === 0) return null;
+
+  const totalLines = changes.reduce((sum, c) => sum + c.lineCount, 0);
 
   return (
     <div className="my-2.5">
-      <div className="p-2 px-3 rounded-xl border border-zinc-800/90 bg-zinc-900/60 flex items-center justify-between text-xs shadow-xs">
+      <div className="p-2 px-2.5 rounded-xl border border-zinc-800/90 bg-zinc-900/60 flex items-center justify-between gap-2 text-xs shadow-xs min-w-0">
         <div
           onClick={() => setIsReviewOpen(!isReviewOpen)}
-          className="flex items-center space-x-2 cursor-pointer select-none group"
+          className="flex items-center space-x-1.5 cursor-pointer select-none group min-w-0 flex-1"
         >
-          <span className="text-zinc-300 font-medium">
-            {filesCount} file{filesCount > 1 ? 's' : ''} changed
+          <span className="text-zinc-300 font-medium truncate">
+            {changes.length} file{changes.length > 1 ? 's' : ''} written
           </span>
-          <span className="text-emerald-400 font-mono font-semibold text-[11px]">
-            +{additions}
-          </span>
-          <span className="text-red-400 font-mono font-semibold text-[11px]">
-            -{deletions}
-          </span>
+          {totalLines > 0 && (
+            <span className="text-emerald-400 font-mono font-semibold text-[10px] shrink-0">
+              {totalLines}L
+            </span>
+          )}
           <ChevronRight
             className={cn(
-              'w-3.5 h-3.5 text-zinc-500 transition-transform',
+              'w-3.5 h-3.5 text-zinc-500 transition-transform shrink-0',
               isReviewOpen && 'rotate-90'
             )}
           />
         </div>
 
         <button
+          type="button"
           onClick={() => setIsReviewOpen(!isReviewOpen)}
-          className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg border border-zinc-700/70 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-[11px] font-medium transition-colors"
+          className="flex items-center space-x-1 px-2 py-0.5 rounded-lg border border-zinc-700/70 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 text-[11px] font-medium transition-colors shrink-0"
         >
           <FileCode className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Review</span>
+          <span>{isReviewOpen ? 'Hide' : 'Inspect'}</span>
         </button>
       </div>
 
       {isReviewOpen && (
-        <div className="mt-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-400 space-y-1.5 overflow-x-auto">
-          <div className="text-[11px] font-semibold text-zinc-200 flex items-center space-x-1.5">
-            <span className="text-emerald-400">M</span>
-            <span>apps/frontend/src/components/ide/ai/AIChatPanel.tsx</span>
-          </div>
-          <pre className="text-[10px] text-zinc-500 leading-relaxed">
-            {details ||
-              `@@ -145,2 +145,2 @@\n- providerConfig?.providers.find\n+ providerConfig?.providers?.find`}
-          </pre>
+        <div className="mt-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs font-mono text-zinc-400 space-y-2.5 overflow-x-auto">
+          {changes.map((chg, idx) => (
+            <div key={`${chg.path}-${idx}`} className="space-y-1">
+              <div className="text-[11px] font-semibold text-zinc-200 flex items-center space-x-1.5">
+                <span className="text-emerald-400">W</span>
+                <span className="truncate">{chg.path}</span>
+                {chg.lineCount > 0 && (
+                  <span className="text-[10px] text-zinc-500 font-normal">
+                    ({chg.lineCount} lines)
+                  </span>
+                )}
+              </div>
+              {chg.preview && (
+                <pre className="text-[10px] text-zinc-400 leading-relaxed max-h-40 overflow-auto whitespace-pre-wrap break-words bg-zinc-900/50 p-2 rounded border border-zinc-800/60">
+                  {chg.preview}
+                </pre>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -1697,17 +2257,25 @@ function MessageItem({
   const isUser = message.role === 'user';
   const isTool = message.role === 'tool';
 
-  const hasFileModifications = useMemo(() => {
-    if (isUser || isTool) return false;
-    const hasWriteTool = message.toolCalls?.some(
-      (tc) => tc.name === 'write_file' || tc.name === 'edit_file'
-    );
-    const mentionsDiff =
-      message.content.includes('file changed') ||
-      message.content.includes('1 file changed') ||
-      message.content.includes('+2 -2');
-    return hasWriteTool || mentionsDiff;
-  }, [message, isUser, isTool]);
+  const fileModifications = useMemo<RealFileModification[]>(() => {
+    if (isUser || isTool || !message.toolCalls) return [];
+    const mods: RealFileModification[] = [];
+    for (const tc of message.toolCalls) {
+      if (tc.name === 'write_file' || tc.name === 'edit_file') {
+        const args = (tc.arguments as Record<string, any>) || {};
+        const filePath = String(args.path || args.filePath || '').trim();
+        if (!filePath) continue;
+        const content = typeof args.content === 'string' ? args.content : '';
+        const lines = content ? content.split('\n') : [];
+        mods.push({
+          path: filePath,
+          lineCount: lines.length,
+          preview: lines.slice(0, 20).join('\n') + (lines.length > 20 ? '\n...' : ''),
+        });
+      }
+    }
+    return mods;
+  }, [message.toolCalls, isUser, isTool]);
 
   if (isTool) {
     const trimmed = message.content.trim();
@@ -1750,15 +2318,15 @@ function MessageItem({
     >
       <div
         className={cn(
-          'text-xs leading-relaxed',
+          'text-xs leading-relaxed break-words overflow-hidden',
           isUser
-            ? 'p-2.5 px-3.5 rounded-2xl bg-zinc-800 text-zinc-100 font-medium'
+            ? 'p-2.5 px-3 rounded-2xl bg-zinc-800 text-zinc-100 font-medium max-w-full'
             : 'w-full text-zinc-200'
         )}
       >
         <FormattedMessage content={message.content} />
 
-        {hasFileModifications && <FileChangesDiffCard />}
+        {fileModifications.length > 0 && <FileChangesDiffCard changes={fileModifications} />}
 
         {message.toolCalls &&
           message.toolCalls.map((tc, tcIdx) => (
@@ -1820,9 +2388,9 @@ function MessageItem({
 // ---------------------------------------------------------------------------
 function EmptyWelcomeState({ onSelectPrompt }: { onSelectPrompt: (p: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center p-6 text-center my-auto space-y-4 max-w-sm mx-auto select-none">
-      <div className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-primary shadow-inner">
-        <Sparkles className="w-7 h-7" />
+    <div className="flex flex-col items-center justify-center p-3 py-4 text-center my-auto space-y-3 w-full max-w-sm mx-auto select-none">
+      <div className="p-2.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-primary shadow-inner">
+        <img src="/brand/gravitron-mark.png" alt="Gravitron" className="w-7 h-7 object-contain" />
       </div>
       <div className="space-y-1">
         <h3 className="text-sm font-bold text-zinc-100 tracking-tight">Gravitron AI Assistant</h3>
@@ -1981,7 +2549,11 @@ export function AgentStatus({
   return (
     <div className="flex items-center justify-between gap-2 text-xs text-zinc-400 my-2 p-2.5 px-3 bg-zinc-900/60 rounded-xl border border-zinc-800/90">
       <div className="flex items-center space-x-2.5 min-w-0">
-        <Loader2 className="w-3.5 h-3.5 text-primary animate-spin shrink-0" />
+        <img
+          src="/brand/gravitron-loader.png"
+          alt="Gravitron working"
+          className="w-5 h-5 object-contain animate-pulse shrink-0 rounded"
+        />
         <div className="min-w-0">
           <div className="font-medium text-zinc-200 truncate">{title}...</div>
           {detail && <div className="text-[11px] text-zinc-400 truncate">{detail}</div>}

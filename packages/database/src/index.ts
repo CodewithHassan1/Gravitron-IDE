@@ -63,6 +63,25 @@ export interface Database {
     created_at: Date;
     updated_at: Date;
   };
+  quotas: {
+    id: string;
+    organization_id: string;
+    tier: string;
+    max_workspaces: number;
+    max_agent_tokens: number;
+    tokens_used: number;
+    reset_at: Date;
+    created_at: Date;
+    updated_at: Date;
+  };
+  billing_metadata: {
+    organization_id: string;
+    stripe_customer_id: string | null;
+    subscription_status: string;
+    billing_email: string | null;
+    created_at: Date;
+    updated_at: Date;
+  };
 }
 
 const config = validateConfig(process.env);

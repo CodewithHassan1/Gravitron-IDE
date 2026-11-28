@@ -32,6 +32,13 @@ export function formatDurationReadable(ms: number): string {
   return `${seconds}s`;
 }
 
+function stripAnsi(input: string): string {
+  // Strip VT/ANSI escape sequences (including ConPTY cursor/title sequences) for clean card output
+  return input
+    .replace(/\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)/g, '')
+    .replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '');
+}
+
 function isExecutionActive(
   status: AgentProtocol.ActiveCommandExecutionSnapshot['status']
 ): boolean {
@@ -321,7 +328,7 @@ export const CommandExecutionCard = React.memo(function CommandExecutionCard({
           </button>
           {outputOpen && (
             <pre className="px-3 pb-2 pt-1 text-[10px] font-mono text-zinc-300 bg-zinc-950/70 max-h-40 overflow-auto whitespace-pre-wrap break-words">
-              {execution.outputPreview}
+              {stripAnsi(execution.outputPreview)}
             </pre>
           )}
         </div>

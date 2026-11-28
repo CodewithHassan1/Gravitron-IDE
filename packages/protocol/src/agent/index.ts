@@ -357,7 +357,7 @@ export namespace AgentProtocol {
     ): Promise<any[]>;
   }
 
-  export type SupportedProviderType = 'anthropic' | 'openai' | 'gemini';
+  export type SupportedProviderType = 'anthropic' | 'openai' | 'gemini' | 'local';
 
   export interface ProviderInfo {
     type: SupportedProviderType;
@@ -394,5 +394,35 @@ export namespace AgentProtocol {
     providers: ProviderInfo[];
     activeProvider: SupportedProviderType;
     activeModel: string;
+  }
+
+  export interface SpecialistStatus {
+    name: string;
+    description: string;
+    riskLevel: 'read' | 'write' | 'execute' | 'destructive';
+    approved: boolean;
+    discovered: boolean;
+    registered: boolean;
+    enabled: boolean;
+  }
+
+  export interface DiscoverSpecialistsRequestPayload {
+    endpoint?: string;
+    timeoutMs?: number;
+  }
+
+  export interface SetSpecialistEnabledRequestPayload {
+    name: string;
+    enabled: boolean;
+  }
+
+  export interface SpecialistsStatusResponsePayload {
+    connected: boolean;
+    endpoint: string;
+    discoveredCount: number;
+    approvedCount: number;
+    registeredCount: number;
+    specialists: SpecialistStatus[];
+    error?: string;
   }
 }

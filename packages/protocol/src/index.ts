@@ -13,3 +13,4 @@ export * from './ipc/utils';
 export * from './menu';
 export * from './agent';
 export * from './intelligence';
+export * from './models';

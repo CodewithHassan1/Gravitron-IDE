@@ -2,15 +2,28 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { generateKeyPair, exportSPKI, SignJWT } from 'jose';
 import { ProtocolVersion, Channels } from '@ag/protocol';
 
+let specialistRegistryInstance: any;
+
 const runtimeMock = {
   startAgent: vi.fn().mockReturnValue('agent-abc'),
   cancelAgent: vi.fn(),
   approveTool: vi.fn(),
   getSnapshot: vi.fn().mockReturnValue(null),
+  getSpecialistRegistry: vi.fn(() => specialistRegistryInstance),
+  enableSpecialist: vi.fn((name: string) => specialistRegistryInstance.enableSpecialist(name)),
+  disableSpecialist: vi.fn((name: string) => specialistRegistryInstance.disableSpecialist(name)),
+  connectAgentRouter: vi.fn().mockResolvedValue({
+    connected: true,
+    toolsDiscovered: 1,
+    tools: ['softwareengineeringexpert'],
+    approvedTools: ['softwareengineeringexpert'],
+    registeredTools: ['softwareengineeringexpert'],
+  }),
 };
 
 vi.mock('@ag/worker-ai', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, any>;
+  specialistRegistryInstance = new actual.SpecialistRegistry();
   return {
     ...actual,
     AgentRuntime: vi.fn().mockImplementation(() => runtimeMock),
@@ -239,5 +252,115 @@ describe('PHASE 8.3 Electron Main Process Delegation Exchange', () => {
         { requestId: 'req-openai-1' } as any
       )
     ).rejects.toThrow("No API key configured for provider 'openai'");
+  });
+
+  it('exposes AgentRouter specialist status, discovery, and allowlist-enforced enable/disable via IPC', async () => {
+    vi.resetModules();
+    const { AgentIpcService } = await import('../AgentIpcService');
+    const service = new AgentIpcService(
+      MOCK_WINDOW,
+      MOCK_WORKSPACE,
+      MOCK_EXECUTION,
+      MOCK_INTELLIGENCE
+    );
+
+    const handlers = service.registerHandlers();
+    const statusHandler = handlers.find(
+      (h) => h.channel === Channels.Agent.GetSpecialistsStatusRequest
+    )!;
+    const toggleHandler = handlers.find(
+      (h) => h.channel === Channels.Agent.SetSpecialistEnabledRequest
+    )!;
+    const discoverHandler = handlers.find(
+      (h) => h.channel === Channels.Agent.DiscoverSpecialistsRequest
+    )!;
+
+    const initial = await statusHandler.handler(undefined, { requestId: 'spec-1' } as any);
+    expect(initial.approvedCount).toBeGreaterThanOrEqual(7);
+    expect(initial.specialists.some((s: any) => s.name === 'softwareengineeringexpert')).toBe(true);
+    expect(initial.specialists.some((s: any) => s.name === 'exploitagent')).toBe(false);
+
+    const discovered = await discoverHandler.handler({}, { requestId: 'spec-2' } as any);
+    expect(discovered.connected).toBe(true);
+
+    const toggled = await toggleHandler.handler(
+      { name: 'softwareengineeringexpert', enabled: false },
+      { requestId: 'spec-3' } as any
+    );
+    expect(
+      toggled.specialists.find((s: any) => s.name === 'softwareengineeringexpert').enabled
+    ).toBe(false);
+
+    // Excluded specialists cannot be enabled
+    const blocked = await toggleHandler.handler(
+      { name: 'exploitagent', enabled: true },
+      { requestId: 'spec-4' } as any
+    );
+    expect(blocked.error).toContain('excluded or not on the approved allowlist');
+  });
+
+  it('fails closed in packaged production mode when Gateway URL or AGENT_HOST_SECRET is missing', async () => {
+    const prevPackaged = process.env.IS_PACKAGED;
+    const prevAgentGateway = process.env.AGENT_GATEWAY_URL;
+    const prevGateway = process.env.GATEWAY_URL;
+    const prevSecret = process.env.AGENT_HOST_SECRET;
+
+    try {
+      process.env.IS_PACKAGED = 'true';
+      delete process.env.AGENT_GATEWAY_URL;
+      delete process.env.GATEWAY_URL;
+      delete process.env.AGENT_HOST_SECRET;
+
+      vi.resetModules();
+      const { AgentIpcService } = await import('../AgentIpcService');
+      const service = new AgentIpcService(
+        MOCK_WINDOW,
+        MOCK_WORKSPACE,
+        MOCK_EXECUTION,
+        MOCK_INTELLIGENCE
+      );
+
+      const startHandler = service
+        .registerHandlers()
+        .find((h) => h.channel === Channels.Agent.StartRequest)!;
+
+      await expect(
+        startHandler.handler(
+          {
+            workspaceId: 'ws-prod-1',
+            conversationId: 'c-prod-1',
+            prompt: 'test',
+            providerType: 'anthropic',
+            providerConfig: {},
+            accessToken: 'valid.user.jwt',
+          },
+          { requestId: 'req-prod-fail-1' } as any
+        )
+      ).rejects.toThrow('Gateway URL is not configured');
+
+      process.env.GATEWAY_URL = 'https://gateway.example.com';
+      await expect(
+        startHandler.handler(
+          {
+            workspaceId: 'ws-prod-1',
+            conversationId: 'c-prod-1',
+            prompt: 'test',
+            providerType: 'anthropic',
+            providerConfig: {},
+            accessToken: 'valid.user.jwt',
+          },
+          { requestId: 'req-prod-fail-2' } as any
+        )
+      ).rejects.toThrow('AGENT_HOST_SECRET is not configured');
+    } finally {
+      if (prevPackaged !== undefined) process.env.IS_PACKAGED = prevPackaged;
+      else delete process.env.IS_PACKAGED;
+      if (prevAgentGateway !== undefined) process.env.AGENT_GATEWAY_URL = prevAgentGateway;
+      else delete process.env.AGENT_GATEWAY_URL;
+      if (prevGateway !== undefined) process.env.GATEWAY_URL = prevGateway;
+      else delete process.env.GATEWAY_URL;
+      if (prevSecret !== undefined) process.env.AGENT_HOST_SECRET = prevSecret;
+      else delete process.env.AGENT_HOST_SECRET;
+    }
   });
 });
