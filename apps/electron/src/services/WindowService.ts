@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as http from 'http';
 import * as path from 'path';
 import { BrowserWindow, app } from 'electron';
@@ -46,7 +47,7 @@ export class WindowService implements IWindowService {
       path.join(process.resourcesPath || '', 'frontend', 'dist', 'brand', 'gravitron-mark.png'),
       path.resolve(__dirname, '..', '..', 'build', 'icon.png'),
     ];
-    const windowIcon = iconCandidates.find((p) => p && require('fs').existsSync(p));
+    const windowIcon = iconCandidates.find((p) => p && fs.existsSync(p));
 
     const mainWindow = new BrowserWindow({
       width: 1200,

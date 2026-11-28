@@ -357,7 +357,7 @@ export class ModelManagerService implements IService, ILifecycleService, IIpcSer
       }
 
       try {
-        while (true) {
+        for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
           if (task.paused || task.cancelled) {
@@ -396,7 +396,9 @@ export class ModelManagerService implements IService, ILifecycleService, IIpcSer
       if (task.cancelled) {
         try {
           if (fs.existsSync(partPath)) fs.unlinkSync(partPath);
-        } catch {}
+        } catch {
+          // ignore cleanup failure
+        }
         this.downloadStates.delete(modelId);
         this.windowService.broadcast(Channels.Models.OnDownloadProgress, {
           modelId,
@@ -544,7 +546,9 @@ export class ModelManagerService implements IService, ILifecycleService, IIpcSer
       const partPath = `${this.resolveSafeModelPath(entry.ggufFilename)}.part`;
       try {
         if (fs.existsSync(partPath)) fs.unlinkSync(partPath);
-      } catch {}
+      } catch {
+        // ignore cleanup failure
+      }
     }
     this.downloadStates.delete(modelId);
     return true;
